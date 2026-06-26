@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/entities/destination.dart';
-import '../../data/mock_destinations.dart';
+import '../providers/discovery_provider.dart';
 import '../widgets/destination_card.dart';
 import '../widgets/destination_card_skeleton.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 
 /// Screen displaying 5 swipeable suggested destinations with filter options.
-class DestinationDiscoveryScreen extends StatefulWidget {
+class DestinationDiscoveryScreen extends ConsumerStatefulWidget {
   const DestinationDiscoveryScreen({super.key});
 
   @override
-  State<DestinationDiscoveryScreen> createState() => _DestinationDiscoveryScreenState();
+  ConsumerState<DestinationDiscoveryScreen> createState() => _DestinationDiscoveryScreenState();
 }
 
 class _HomeScreenVibeChip extends StatelessWidget {
@@ -48,11 +50,9 @@ class _HomeScreenVibeChip extends StatelessWidget {
   }
 }
 
-class _DestinationDiscoveryScreenState extends State<DestinationDiscoveryScreen> {
+class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscoveryScreen> {
   late PageController _pageController;
   int _currentPage = 0;
-  bool _isLoading = false;
-  bool _hasGenerated = false;
 
   @override
   void initState() {
@@ -68,19 +68,9 @@ class _DestinationDiscoveryScreenState extends State<DestinationDiscoveryScreen>
   }
 
   void _triggerGeneration() {
-    setState(() {
-      _isLoading = true;
-      _hasGenerated = true;
-    });
-
-    // Simulate Gemini API processing latency (1.5 seconds)
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
+    final authUser = ref.read(authStateProvider).value;
+    final uid = authUser?.uid ?? 'anonymous_uid';
+    ref.read(discoveryResultsProvider.notifier).triggerGeneration(uid);
   }
 
   void _handleSelectDestination(Destination destination) {
@@ -168,7 +158,7 @@ class _DestinationDiscoveryScreenState extends State<DestinationDiscoveryScreen>
                     const SizedBox(height: 24),
                     
                     // Generate Destinations Trigger Button
-                    if (!_hasGenerated || _isLoading)
+                    if (ref.watch(discoveryResultsProvider).value?.isEmpty ?? true)
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -180,9 +170,9 @@ class _DestinationDiscoveryScreenState extends State<DestinationDiscoveryScreen>
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          onPressed: _isLoading ? null : _triggerGeneration,
+                          onPressed: ref.watch(discoveryResultsProvider).isLoading ? null : _triggerGeneration,
                           child: Text(
-                            _isLoading ? 'Analyzing Profile...' : 'Generate Destinations',
+                            ref.watch(discoveryResultsProvider).isLoading ? 'Analyzing Profile...' : 'Generate Destinations',
                             style: TextStyle(
                               fontSize: 16 * textScale,
                               fontWeight: FontWeight.bold,
@@ -214,7 +204,18 @@ class _DestinationDiscoveryScreenState extends State<DestinationDiscoveryScreen>
   }
 
   Widget _buildMainContent(bool isTablet, double textScale) {
-    if (!_hasGenerated) {
+    final asyncResults = ref.watch(discoveryResultsProvider);
+
+    if (asyncResults.isLoading) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: const DestinationCardSkeleton(),
+      );
+    }
+
+    final destinations = asyncResults.value ?? [];
+
+    if (destinations.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
@@ -250,14 +251,6 @@ class _DestinationDiscoveryScreenState extends State<DestinationDiscoveryScreen>
       );
     }
 
-    if (_isLoading) {
-      // Shimmer loading card placeholder
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: const DestinationCardSkeleton(),
-      );
-    }
-
     // Swipe deck display
     return Column(
       children: [
@@ -269,7 +262,7 @@ class _DestinationDiscoveryScreenState extends State<DestinationDiscoveryScreen>
                 _currentPage = value;
               });
             },
-            itemCount: mockDestinations.length,
+            itemCount: destinations.length,
             itemBuilder: (context, index) {
               // Apply dynamic scale based on whether this page is current
               return AnimatedBuilder(
@@ -292,8 +285,8 @@ class _DestinationDiscoveryScreenState extends State<DestinationDiscoveryScreen>
                   );
                 },
                 child: DestinationCard(
-                  destination: mockDestinations[index],
-                  onTap: () => _handleSelectDestination(mockDestinations[index]),
+                  destination: destinations[index],
+                  onTap: () => _handleSelectDestination(destinations[index]),
                 ),
               );
             },
@@ -303,7 +296,7 @@ class _DestinationDiscoveryScreenState extends State<DestinationDiscoveryScreen>
         // Dots indicator at the bottom of the card swiper
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(mockDestinations.length, (index) {
+          children: List.generate(destinations.length, (index) {
             final isCurrent = index == _currentPage;
             return AnimatedContainer(
               duration: const Duration(milliseconds: 300),

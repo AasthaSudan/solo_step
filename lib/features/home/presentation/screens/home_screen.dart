@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/empty_state_widget.dart';
 import '../widgets/trip_summary_card.dart';
+import '../providers/active_trip_provider.dart';
 
 /// The main dashboard screen (Layer 1 UI).
 /// Allows switching between empty-state and active-trip layouts using an App Bar toggle.
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   /// When [startWithActiveTrip] is true the dashboard opens in the active-trip
   /// layout immediately (used after saving an itinerary).
   final bool startWithActiveTrip;
@@ -13,18 +15,18 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.startWithActiveTrip = false});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  // Initialised from widget param so ItineraryViewScreen can redirect with
-  // active-trip state already set.
-  late bool _hasActiveTrip;
-
+class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _hasActiveTrip = widget.startWithActiveTrip;
+    if (widget.startWithActiveTrip) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(activeTripProvider.notifier).setHasActiveTrip(true);
+      });
+    }
   }
 
   void _handlePlanNewTrip() {
@@ -40,6 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final Size screenSize = MediaQuery.of(context).size;
     final bool isTablet = screenSize.width > 600;
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    
+    final hasActiveTrip = ref.watch(activeTripProvider).value ?? false;
 
     return Scaffold(
       body: Container(
@@ -128,18 +132,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: IconButton(
                         icon: Icon(
-                          _hasActiveTrip ? Icons.toggle_on : Icons.toggle_off,
-                          color: _hasActiveTrip ? const Color(0xFFE0AAFF) : Colors.white60,
+                          hasActiveTrip ? Icons.toggle_on : Icons.toggle_off,
+                          color: hasActiveTrip ? const Color(0xFFE0AAFF) : Colors.white60,
                           size: 26,
                         ),
                         tooltip: 'Toggle Trip Presence State',
                         onPressed: () {
-                          setState(() {
-                            _hasActiveTrip = !_hasActiveTrip;
-                          });
+                          ref.read(activeTripProvider.notifier).toggleTripStatus();
+                          final newStatus = ref.read(activeTripProvider).value ?? false;
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(_hasActiveTrip 
+                              content: Text(newStatus 
                                   ? 'Switched to Active Trip Dashboard State'
                                   : 'Switched to Empty Dashboard State'),
                               duration: const Duration(milliseconds: 1200),
@@ -168,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         duration: const Duration(milliseconds: 400),
                         switchInCurve: Curves.easeOutCubic,
                         switchOutCurve: Curves.easeInCubic,
-                        child: _hasActiveTrip
+                        child: hasActiveTrip
                             ? Column(
                                 key: const ValueKey('active_trip_state'),
                                 crossAxisAlignment: CrossAxisAlignment.start,

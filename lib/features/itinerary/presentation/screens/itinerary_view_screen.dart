@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../data/mock_itinerary.dart';
+import '../providers/itinerary_provider.dart';
 import '../widgets/day_card.dart';
 import '../widgets/day_card_skeleton.dart';
 
 /// Screen presenting the full day-by-day travel plan (Layer 1 UI).
 /// Simulates itinerary generation on load and offers a complete save workflow.
-class ItineraryViewScreen extends StatefulWidget {
+class ItineraryViewScreen extends ConsumerStatefulWidget {
   final String destinationName;
 
   const ItineraryViewScreen({
@@ -15,33 +16,20 @@ class ItineraryViewScreen extends StatefulWidget {
   });
 
   @override
-  State<ItineraryViewScreen> createState() => _ItineraryViewScreenState();
+  ConsumerState<ItineraryViewScreen> createState() => _ItineraryViewScreenState();
 }
 
-class _ItineraryViewScreenState extends State<ItineraryViewScreen> {
-  bool _isLoading = true;
-
+class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> {
   @override
   void initState() {
     super.initState();
-    _simulateLoading(1800);
-  }
-
-  void _simulateLoading(int durationMs) {
-    setState(() {
-      _isLoading = true;
-    });
-    Future.delayed(Duration(milliseconds: durationMs), () {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
     });
   }
 
   void _handleRegenerate() {
-    _simulateLoading(1500);
+    ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Regenerating itinerary using Gemini Call #2 (Mock)...'),
@@ -139,6 +127,9 @@ class _ItineraryViewScreenState extends State<ItineraryViewScreen> {
     final Size screenSize = MediaQuery.of(context).size;
     final bool isTablet = screenSize.width > 600;
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    
+    final asyncItinerary = ref.watch(itineraryProvider);
+    final isLoading = asyncItinerary.isLoading || asyncItinerary.value == null;
 
     return Scaffold(
       body: Container(
@@ -166,7 +157,7 @@ class _ItineraryViewScreenState extends State<ItineraryViewScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
-                      onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+                      onPressed: isLoading ? null : () => Navigator.of(context).pop(),
                       tooltip: 'Back to Details',
                     ),
                     const SizedBox(width: 8),
@@ -197,7 +188,7 @@ class _ItineraryViewScreenState extends State<ItineraryViewScreen> {
                     ),
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
-                      child: _isLoading
+                      child: isLoading
                           ? ListView.builder(
                               key: const ValueKey('loading_itinerary'),
                               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
@@ -208,10 +199,10 @@ class _ItineraryViewScreenState extends State<ItineraryViewScreen> {
                               key: const ValueKey('loaded_itinerary'),
                               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
                               physics: const BouncingScrollPhysics(),
-                              itemCount: mockItinerary.days.length,
+                              itemCount: asyncItinerary.value!.days.length,
                               itemBuilder: (context, index) {
                                 return DayCard(
-                                  day: mockItinerary.days[index],
+                                  day: asyncItinerary.value!.days[index],
                                   initiallyExpanded: index == 0, // Keep first day expanded by default
                                 );
                               },
@@ -222,7 +213,7 @@ class _ItineraryViewScreenState extends State<ItineraryViewScreen> {
               ),
 
               // Bottom persistent action buttons (disabled during loading)
-              if (!_isLoading)
+              if (!isLoading)
                 Center(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(

@@ -6,7 +6,6 @@ import '../../features/archive/presentation/screens/trips_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/debrief/presentation/screens/debrief_screen.dart';
 import '../../features/discovery/domain/entities/destination.dart';
-import '../../features/discovery/data/mock_destinations.dart';
 import '../../features/discovery/presentation/screens/destination_detail_screen.dart';
 import '../../features/discovery/presentation/screens/destination_discovery_screen.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
@@ -55,12 +54,10 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'destination/:id',
                   builder: (context, state) {
-                    final destinationName = state.pathParameters['id'] ?? '';
+
                     Destination? destination;
                     if (state.extra is Destination) {
                       destination = state.extra as Destination;
-                    } else {
-                      destination = mockDestinations.where((d) => d.name == destinationName).firstOrNull;
                     }
 
                     if (destination == null) {
