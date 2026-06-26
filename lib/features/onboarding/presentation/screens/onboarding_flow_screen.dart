@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/onboarding_progress_indicator.dart';
 import 'steps/mood_step.dart';
@@ -6,25 +7,22 @@ import 'steps/budget_step.dart';
 import 'steps/duration_step.dart';
 import 'steps/interests_step.dart';
 import 'steps/experience_step.dart';
+import '../providers/onboarding_provider.dart';
+import '../providers/user_profile_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../domain/entities/user_profile.dart';
 
 /// The parent container for the 5-step onboarding quiz flow (Layer 1 UI).
-class OnboardingFlowScreen extends StatefulWidget {
+class OnboardingFlowScreen extends ConsumerStatefulWidget {
   const OnboardingFlowScreen({super.key});
 
   @override
-  State<OnboardingFlowScreen> createState() => _OnboardingFlowScreenState();
+  ConsumerState<OnboardingFlowScreen> createState() => _OnboardingFlowScreenState();
 }
 
-class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
+class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
   final PageController _pageController = PageController();
   int _currentStepIndex = 0; // 0-indexed (0 to 4)
-
-  // Local selection states (mocking Riverpod state)
-  String? _selectedMood;
-  String? _selectedBudget;
-  String? _selectedDuration;
-  final List<String> _selectedInterests = [];
-  String? _selectedExperience;
 
   @override
   void dispose() {
@@ -60,13 +58,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
   }
 
   void _toggleInterest(String interest) {
-    setState(() {
-      if (_selectedInterests.contains(interest)) {
-        _selectedInterests.remove(interest);
-      } else {
-        _selectedInterests.add(interest);
-      }
-    });
+    ref.read(onboardingProvider.notifier).toggleInterest(interest);
   }
 
   void _finishOnboarding() {
@@ -119,7 +111,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                   ),
                 ),
                 const SizedBox(height: 28),
-                SizedBox(
+                  SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -130,8 +122,27 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    onPressed: () {
-                      context.go('/home');
+                    onPressed: () async {
+                      final onboardingState = ref.read(onboardingProvider);
+                      final authUser = ref.read(authStateProvider).value;
+                      if (authUser != null) {
+                        final profile = UserProfile(
+                          mood: onboardingState.mood ?? 'chill',
+                          budgetTier: onboardingState.budgetTier ?? 'comfort',
+                          budgetPerDayMin: 1500,
+                          budgetPerDayMax: 3500,
+                          tripDuration: onboardingState.tripDuration ?? 'short_trip',
+                          interests: onboardingState.interests,
+                          experienceLevel: onboardingState.experienceLevel ?? 'first_timer',
+                          createdAt: DateTime.now(),
+                          updatedAt: DateTime.now(),
+                        );
+                        await ref.read(profileRepositoryProvider).saveProfile(authUser.uid, profile);
+                        ref.invalidate(userProfileProvider);
+                      }
+                      if (context.mounted) {
+                        context.go('/home');
+                      }
                     },
                     child: Text(
                       'Go to Home Screen',
@@ -155,6 +166,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
     final Size screenSize = MediaQuery.of(context).size;
     final bool isTablet = screenSize.width > 600;
     final textScaleFactor = MediaQuery.textScalerOf(context).scale(1.0);
+    final onboardingState = ref.watch(onboardingProvider);
 
     return Scaffold(
       body: Container(
@@ -203,9 +215,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                         SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                           child: MoodStep(
-                            selectedMood: _selectedMood,
+                            selectedMood: onboardingState.mood,
                             onSelected: (mood) {
-                              setState(() => _selectedMood = mood);
+                              ref.read(onboardingProvider.notifier).setMood(mood);
                               _autoAdvance();
                             },
                           ),
@@ -214,9 +226,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                         SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                           child: BudgetStep(
-                            selectedBudget: _selectedBudget,
+                            selectedBudget: onboardingState.budgetTier,
                             onSelected: (budget) {
-                              setState(() => _selectedBudget = budget);
+                              ref.read(onboardingProvider.notifier).setBudget(budget);
                               _autoAdvance();
                             },
                           ),
@@ -225,9 +237,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                         SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                           child: DurationStep(
-                            selectedDuration: _selectedDuration,
+                            selectedDuration: onboardingState.tripDuration,
                             onSelected: (duration) {
-                              setState(() => _selectedDuration = duration);
+                              ref.read(onboardingProvider.notifier).setDuration(duration);
                               _autoAdvance();
                             },
                           ),
@@ -236,7 +248,7 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                         SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                           child: InterestsStep(
-                            selectedInterests: _selectedInterests,
+                            selectedInterests: onboardingState.interests,
                             onToggle: _toggleInterest,
                           ),
                         ),
@@ -244,9 +256,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                         SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                           child: ExperienceStep(
-                            selectedExperience: _selectedExperience,
+                            selectedExperience: onboardingState.experienceLevel,
                             onSelected: (exp) {
-                              setState(() => _selectedExperience = exp);
+                              ref.read(onboardingProvider.notifier).setExperience(exp);
                               Future.delayed(const Duration(milliseconds: 300), _finishOnboarding);
                             },
                           ),
@@ -271,9 +283,9 @@ class _OnboardingFlowScreenState extends State<OnboardingFlowScreen> {
                           Expanded(
                             child: AnimatedOpacity(
                               duration: const Duration(milliseconds: 200),
-                              opacity: _selectedInterests.isNotEmpty ? 1.0 : 0.4,
+                              opacity: onboardingState.interests.isNotEmpty ? 1.0 : 0.4,
                               child: IgnorePointer(
-                                ignoring: _selectedInterests.isEmpty,
+                                ignoring: onboardingState.interests.isEmpty,
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: const Color(0xFF9D4EDD), // Violet color matching the theme
