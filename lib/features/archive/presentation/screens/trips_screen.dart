@@ -1,154 +1,74 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../debrief/domain/entities/debrief_card.dart';
+import '../../domain/entities/trip.dart';
+import '../providers/trips_provider.dart';
 
-enum _TripStatus { planning, active, completed }
 
-extension on _TripStatus {
+
+extension on TripStatus {
   String get label {
     switch (this) {
-      case _TripStatus.planning:
+      case TripStatus.planning:
         return 'Planning';
-      case _TripStatus.active:
+      case TripStatus.active:
         return 'Active';
-      case _TripStatus.completed:
+      case TripStatus.completed:
         return 'Completed';
     }
   }
 
   String get sectionSubtitle {
     switch (this) {
-      case _TripStatus.planning:
+      case TripStatus.planning:
         return 'Trips you are shaping now';
-      case _TripStatus.active:
+      case TripStatus.active:
         return 'Trips currently in motion';
-      case _TripStatus.completed:
+      case TripStatus.completed:
         return 'Trips already wrapped';
     }
   }
 
   Color get color {
     switch (this) {
-      case _TripStatus.planning:
+      case TripStatus.planning:
         return const Color(0xFF4285F4);
-      case _TripStatus.active:
+      case TripStatus.active:
         return const Color(0xFFC77DFF);
-      case _TripStatus.completed:
+      case TripStatus.completed:
         return const Color(0xFF34A853);
     }
   }
 
   IconData get icon {
     switch (this) {
-      case _TripStatus.planning:
+      case TripStatus.planning:
         return Icons.route_rounded;
-      case _TripStatus.active:
+      case TripStatus.active:
         return Icons.bolt_rounded;
-      case _TripStatus.completed:
+      case TripStatus.completed:
         return Icons.celebration_rounded;
     }
   }
 }
 
-class _TripItem {
-  final String destinationName;
-  final String tagline;
-  final String dates;
-  final _TripStatus status;
-  final int budget;
-  final int spent;
-  final int days;
-  final String topCategory;
-  final int checkInsCompleted;
 
-  const _TripItem({
-    required this.destinationName,
-    required this.tagline,
-    required this.dates,
-    required this.status,
-    required this.budget,
-    required this.spent,
-    required this.days,
-    required this.topCategory,
-    required this.checkInsCompleted,
-  });
-}
-
-const List<_TripItem> _dummyTrips = [
-  _TripItem(
-    destinationName: 'Manali, Himachal Pradesh',
-    tagline: 'Snowy cafés, winding roads, and a slow solo pace',
-    dates: 'June 25 - June 30, 2026',
-    status: _TripStatus.active,
-    budget: 18000,
-    spent: 4200,
-    days: 5,
-    topCategory: 'Food',
-    checkInsCompleted: 3,
-  ),
-  _TripItem(
-    destinationName: 'Hampi, Karnataka',
-    tagline: 'Temple ruins, sunset climbs, and a history-heavy reset',
-    dates: 'Dec 12 - Dec 15, 2026',
-    status: _TripStatus.planning,
-    budget: 12000,
-    spent: 0,
-    days: 3,
-    topCategory: 'Stay',
-    checkInsCompleted: 0,
-  ),
-  _TripItem(
-    destinationName: 'Munnar, Kerala',
-    tagline: 'Tea gardens, misty mornings, and quiet hill drives',
-    dates: 'June 18 - June 22, 2026',
-    status: _TripStatus.completed,
-    budget: 15000,
-    spent: 12850,
-    days: 5,
-    topCategory: 'Stay',
-    checkInsCompleted: 8,
-  ),
-  _TripItem(
-    destinationName: 'South Goa, Goa',
-    tagline: 'Slow beaches, local food stalls, and sunset wandering',
-    dates: 'Jan 05 - Jan 10, 2026',
-    status: _TripStatus.completed,
-    budget: 20000,
-    spent: 22400,
-    days: 6,
-    topCategory: 'Activity',
-    checkInsCompleted: 11,
-  ),
-  _TripItem(
-    destinationName: 'Udaipur, Rajasthan',
-    tagline: 'Lake views, palace walks, and a camera-first plan',
-    dates: 'Aug 02 - Aug 06, 2026',
-    status: _TripStatus.planning,
-    budget: 16000,
-    spent: 0,
-    days: 4,
-    topCategory: 'Food',
-    checkInsCompleted: 0,
-  ),
-];
-
-class TripsScreen extends StatelessWidget {
+class TripsScreen extends ConsumerWidget {
   const TripsScreen({super.key});
 
-  List<_TripItem> _tripsForStatus(_TripStatus status) {
-    return _dummyTrips.where((trip) => trip.status == status).toList();
-  }
+  
 
-  void _openTrip(BuildContext context, _TripItem trip) {
+  void _openTrip(BuildContext context, Trip trip) {
     final encodedName = Uri.encodeComponent(trip.destinationName);
     switch (trip.status) {
-      case _TripStatus.active:
+      case TripStatus.active:
         context.go('/trips/active/$encodedName');
         return;
-      case _TripStatus.planning:
+      case TripStatus.planning:
         context.go('/trips/itinerary/$encodedName');
         return;
-      case _TripStatus.completed:
+      case TripStatus.completed:
         final savings = trip.budget - trip.spent;
         final card = DebriefCard(
           personality: savings >= 0 ? 'Budget Adventurer' : 'Bold Wanderer',
@@ -171,10 +91,11 @@ class TripsScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     final size = MediaQuery.of(context).size;
     final bool isTablet = size.width >= 700;
+    final tripsAsync = ref.watch(tripsProvider);
 
     return Scaffold(
       body: Container(
@@ -266,36 +187,49 @@ class TripsScreen extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 18),
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: _TripStatus.values.map((status) {
-                              return _StatusSummaryChip(
-                                label:
-                                    '${status.label} ${_tripsForStatus(status).length}',
-                                color: status.color,
-                                icon: status.icon,
-                              );
-                            }).toList(),
+                          tripsAsync.maybeWhen(
+                            data: (trips) => Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: TripStatus.values.map((status) {
+                                final count = trips.where((t) => t.status == status).length;
+                                return _StatusSummaryChip(
+                                  label: '${status.label} $count',
+                                  color: status.color,
+                                  icon: status.icon,
+                                );
+                              }).toList(),
+                            ),
+                            orElse: () => const SizedBox(),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate(
-                        _TripStatus.values.map((status) {
-                          final trips = _tripsForStatus(status);
-                          return _StatusSection(
-                            status: status,
-                            trips: trips,
-                            textScale: textScale,
-                            onTap: (trip) => _openTrip(context, trip),
-                          );
-                        }).toList(),
-                      ),
+                  tripsAsync.when(
+                    data: (trips) {
+                      return SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate(
+                            TripStatus.values.map((status) {
+                              final statusTrips = trips.where((t) => t.status == status).toList();
+                              return _StatusSection(
+                                status: status,
+                                trips: statusTrips,
+                                textScale: textScale,
+                                onTap: (trip) => _openTrip(context, trip),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      );
+                    },
+                    loading: () => const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator(color: Colors.white)),
+                    ),
+                    error: (err, stack) => SliverFillRemaining(
+                      child: Center(child: Text('Error: $err', style: const TextStyle(color: Colors.redAccent))),
                     ),
                   ),
                 ],
@@ -348,10 +282,10 @@ class _StatusSummaryChip extends StatelessWidget {
 }
 
 class _StatusSection extends StatelessWidget {
-  final _TripStatus status;
-  final List<_TripItem> trips;
+  final TripStatus status;
+  final List<Trip> trips;
   final double textScale;
-  final void Function(_TripItem trip) onTap;
+  final void Function(Trip trip) onTap;
 
   const _StatusSection({
     required this.status,
@@ -455,7 +389,7 @@ class _StatusSection extends StatelessWidget {
 }
 
 class _TripCard extends StatelessWidget {
-  final _TripItem trip;
+  final Trip trip;
   final double textScale;
   final VoidCallback onTap;
 
@@ -474,7 +408,7 @@ class _TripCard extends StatelessWidget {
   }
 
   Color get _varianceColor {
-    if (trip.status != _TripStatus.completed) {
+    if (trip.status != TripStatus.completed) {
       return trip.status.color;
     }
     return trip.budget - trip.spent >= 0
@@ -563,9 +497,9 @@ class _TripCard extends StatelessWidget {
                       color: const Color(0xFF4285F4),
                     ),
                     _InfoChip(
-                      label: trip.status == _TripStatus.active
+                      label: trip.status == TripStatus.active
                           ? 'Spent ₹${trip.spent} / ₹${trip.budget}'
-                          : trip.status == _TripStatus.planning
+                          : trip.status == TripStatus.planning
                           ? 'Budget ₹${trip.budget}'
                           : _varianceLabel,
                       color: _varianceColor,

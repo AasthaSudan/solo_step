@@ -1,27 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/check_in.dart';
+import '../providers/check_in_provider.dart';
 
-class ReturnSignalCard extends StatelessWidget {
-  final CheckIn checkIn;
-  final VoidCallback onImBack;
+class ReturnSignalCard extends ConsumerWidget {
+  const ReturnSignalCard({super.key});
 
-  const ReturnSignalCard({
-    super.key,
-    required this.checkIn,
-    required this.onImBack,
-  });
-
-  static const String _dummyCountdown = '01h 42m';
+  String _formatDuration(Duration d) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = twoDigits(d.inHours);
+    final minutes = twoDigits(d.inMinutes.remainder(60));
+    final seconds = twoDigits(d.inSeconds.remainder(60));
+    if (d.inHours > 0) return '${hours}h ${minutes}m';
+    return '${minutes}m ${seconds}s';
+  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final checkInState = ref.watch(checkInProvider);
+    final checkIn = checkInState.checkIn;
+    
+    if (checkIn == null) {
+      return const SizedBox.shrink();
+    }
+    
+    final formattedCountdown = _formatDuration(checkInState.remaining);
+    void onImBack() {
+      ref.read(checkInProvider.notifier).imBack();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Welcome back! Check-in completed.')),
+      );
+    }
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final bool isWide = constraints.maxWidth >= 520;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final bool isWide = constraints.maxWidth >= 520;
 
-        return Container(
+          return Container(
           width: double.infinity,
           padding: EdgeInsets.all(isWide ? 20 : 16),
           decoration: BoxDecoration(
@@ -42,7 +60,7 @@ class ReturnSignalCard extends StatelessWidget {
           child: isWide
               ? Row(
                   children: [
-                    Expanded(child: _SignalContent(checkIn: checkIn)),
+                    Expanded(child: _SignalContent(checkIn: checkIn, countdownStr: formattedCountdown)),
                     const SizedBox(width: 16),
                     _ImBackButton(onPressed: onImBack, textScale: textScale),
                   ],
@@ -50,21 +68,23 @@ class ReturnSignalCard extends StatelessWidget {
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _SignalContent(checkIn: checkIn),
+                    _SignalContent(checkIn: checkIn, countdownStr: formattedCountdown),
                     const SizedBox(height: 16),
                     _ImBackButton(onPressed: onImBack, textScale: textScale),
                   ],
                 ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
 
 class _SignalContent extends StatelessWidget {
   final CheckIn checkIn;
+  final String countdownStr;
 
-  const _SignalContent({required this.checkIn});
+  const _SignalContent({required this.checkIn, required this.countdownStr});
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +145,7 @@ class _SignalContent extends StatelessWidget {
           children: [
             _InfoPill(
               icon: Icons.timer_outlined,
-              label: ReturnSignalCard._dummyCountdown,
+              label: countdownStr,
               color: const Color(0xFFC77DFF),
             ),
             _InfoPill(

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../budget/domain/entities/expense.dart';
+import '../../../budget/presentation/providers/budget_provider.dart';
 import '../../../budget/presentation/widgets/pacing_bar.dart';
 import '../../../budget/presentation/widgets/log_spend_sheet.dart';
 import '../../../replan/presentation/widgets/replan_diff_sheet.dart';
-import '../../../return_signal/domain/entities/check_in.dart';
+import '../../../replan/presentation/providers/replan_provider.dart';
 import '../../../return_signal/presentation/widgets/checkin_chip.dart';
 import '../../../return_signal/presentation/widgets/return_signal_card.dart';
+import '../../../return_signal/presentation/providers/check_in_provider.dart';
 import '../../../debrief/domain/entities/debrief_card.dart';
 
 // ---------------------------------------------------------------------------
@@ -44,12 +48,7 @@ const List<_ActivityRow> _todayActivities = [
   ),
 ];
 
-/// Hardcoded dummy recent spend log entries.
-const List<_SpendEntry> _recentSpends = [
-  _SpendEntry(category: 'Food', label: 'Dinner at spice garden', amount: 620),
-  _SpendEntry(category: 'Transport', label: 'Auto-rickshaw to hotel', amount: 180),
-  _SpendEntry(category: 'Activity', label: 'Elephant sanctuary entry', amount: 350),
-];
+
 
 // ---------------------------------------------------------------------------
 // Simple value-objects for dummy data (Layer 1 only)
@@ -70,16 +69,7 @@ class _ActivityRow {
   });
 }
 
-class _SpendEntry {
-  final String category;
-  final String label;
-  final int amount;
-  const _SpendEntry({
-    required this.category,
-    required this.label,
-    required this.amount,
-  });
-}
+
 
 // ---------------------------------------------------------------------------
 // Screen
@@ -95,7 +85,7 @@ class _SpendEntry {
 ///    ReturnSignalCard once any check-in is armed.
 ///
 /// Layer 1: all data is hardcoded; no Riverpod, no Firebase, no Drift.
-class ActiveTripScreen extends StatefulWidget {
+class ActiveTripScreen extends ConsumerStatefulWidget {
   /// Human-readable destination name shown in the header.
   final String destinationName;
 
@@ -105,36 +95,21 @@ class ActiveTripScreen extends StatefulWidget {
   });
 
   @override
-  State<ActiveTripScreen> createState() => _ActiveTripScreenState();
+  ConsumerState<ActiveTripScreen> createState() => _ActiveTripScreenState();
 }
 
-class _ActiveTripScreenState extends State<ActiveTripScreen> {
-  // Mutable demo state for the "over threshold" toggle so we can demo it
-  bool _showOverThresholdState = false;
+class _ActiveTripScreenState extends ConsumerState<ActiveTripScreen> {
 
-  // Active armed check-in for the ReturnSignalCard (set when user taps a chip)
-  CheckIn? _armedCheckIn;
 
-  // ── Budget dummy values ───────────────────────────────────────────────────
-  // Over-threshold demo: spend 7400 vs target 6000 (estimate to-date 6000)
-  // → +23% over, which triggers the red pacing bar + re-plan nudge.
-  static const int _normalSpent = 4200;
-  static const int _overSpent = 7400;
-  static const int _dailyTarget = 6000;
-  static const int _kEstimatedToDate = 3600; // normal state
-  static const int _kEstimatedToDateOver = 6000; // over-threshold demo state
-  static const int _totalBudget = 18000;
-
-  int get _spentInr => _showOverThresholdState ? _overSpent : _normalSpent;
-  int get _estimatedToDate => _showOverThresholdState ? _kEstimatedToDateOver : _kEstimatedToDate;
 
   void _handleLogSpend() {
     showLogSpendSheet(
       context,
       onSave: (category, amountInr) {
+        ref.read(budgetProvider.notifier).logSpend(category, amountInr);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Logged ₹$amountInr under ${category.label} (Mock)'),
+            content: Text('Logged ₹$amountInr under ${category.label}'),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -152,55 +127,36 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
   }
 
   void _handleReplan() {
-    showReplanDiffSheet(
-      context,
-      onAccept: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Re-plan accepted! Remaining days optimized. 🎉'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      },
-      onDismiss: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Re-plan dismissed. Plan unchanged.'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      },
-    );
+    final budgetStateAsync = ref.read(budgetProvider);
+    final summary = budgetStateAsync.value?.summary;
+    final remainingBudget = summary?.totalBudgetInr ?? 0 - (summary?.spentInr ?? 0);
+    
+    // Trigger the re-plan generation
+    ref.read(replanProvider.notifier).requestReplan('dummyTripId', remainingBudget);
+
+    // Show the diff sheet which will automatically show a loading spinner
+    // while the provider is in a loading state.
+    showReplanDiffSheet(context);
   }
 
-  void _disarmCheckIn() {
-    setState(() {
-      _armedCheckIn = null;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Check-in disarmed — you're safe! 🎉"),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
+
 
   // Mock arm from the "+ Check-in" button
   void _armDemoCheckIn() {
-    final returnBy = DateTime.now().add(const Duration(minutes: 120));
-    setState(() {
-      _armedCheckIn = CheckIn(
-        id: 'demo-checkin-1',
-        activityName: 'Evening market walk',
-        returnBy: returnBy,
-        graceMinutes: 15,
-        status: CheckInStatus.active,
-      );
-    });
+    ref.read(checkInProvider.notifier).arm(
+      tripId: 'mock_trip_1',
+      activityName: 'Evening market walk',
+      duration: const Duration(minutes: 120),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final budgetStateAsync = ref.watch(budgetProvider);
+    final checkInState = ref.watch(checkInProvider);
+    final budgetState = budgetStateAsync.value;
+    final summary = budgetState?.summary;
+    final expenses = budgetState?.expenses ?? [];
     final Size screenSize = MediaQuery.of(context).size;
     final bool isTablet = screenSize.width > 600;
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
@@ -260,14 +216,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                         ],
                       ),
                     ),
-                    // Demo toggle: normal ↔ over-threshold state
-                    _DemoToggleButton(
-                      isOverThreshold: _showOverThresholdState,
-                      onToggle: () => setState(
-                        () => _showOverThresholdState = !_showOverThresholdState,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
+
                     // Complete Trip button (navigates to DebriefScreen)
                     IconButton(
                       icon: const Icon(Icons.check_circle_outline_rounded, color: Color(0xFF34A853), size: 24),
@@ -317,28 +266,29 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                         // Animated pacing bar — plain int API, no entity needed
                         AnimatedSwitcher(
                           duration: const Duration(milliseconds: 350),
-                          child: PacingBar(
-                            key: ValueKey(_showOverThresholdState),
-                            spentInr: _spentInr,
-                            dailyTargetInr: _dailyTarget,
-                            estimatedToDateInr: _estimatedToDate,
-                            totalBudgetInr: _totalBudget,
-                            onReplanTap: _handleReplan,
-                          ),
+                          child: summary != null 
+                              ? PacingBar(
+                                  spentInr: summary.spentInr,
+                                  dailyTargetInr: summary.dailyTargetInr,
+                                  estimatedToDateInr: summary.estimatedToDateInr,
+                                  totalBudgetInr: summary.totalBudgetInr,
+                                  onReplanTap: _handleReplan,
+                                )
+                              : const SizedBox(height: 16),
                         ),
 
                         const SizedBox(height: 12),
 
                         // Re-plan banner is now built into PacingBar's onReplanTap;
                         // keep a standalone banner only when threshold reached for extra visibility
-                        if (_spentInr > (_estimatedToDate * 1.15).round())
+                        if (summary?.isOverThreshold == true)
                           _ReplanBanner(onTap: _handleReplan, textScale: textScale),
 
                         const SizedBox(height: 12),
 
                         // Recent spends list
                         _RecentSpendsList(
-                          spends: _recentSpends,
+                          spends: expenses,
                           textScale: textScale,
                         ),
 
@@ -364,14 +314,7 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
                         ),
                         const SizedBox(height: 12),
 
-                        // Active armed check-in card (only when armed)
-                        if (_armedCheckIn != null) ...[
-                          ReturnSignalCard(
-                            checkIn: _armedCheckIn!,
-                            onImBack: _disarmCheckIn,
-                          ),
-                          const SizedBox(height: 16),
-                        ],
+                        const ReturnSignalCard(),
 
                         // Today's activities with check-in chips
                         _TodayActivitiesList(
@@ -383,10 +326,10 @@ class _ActiveTripScreenState extends State<ActiveTripScreen> {
 
                         // "+ Check-in" manual button
                         _ManualCheckInButton(
-                          onPressed: _armedCheckIn == null
+                          onPressed: checkInState.checkIn == null
                               ? _armDemoCheckIn
                               : _handleManualCheckIn,
-                          isArmed: _armedCheckIn != null,
+                          isArmed: checkInState.checkIn != null,
                           textScale: textScale,
                         ),
 
@@ -505,18 +448,12 @@ class _ReplanBanner extends StatelessWidget {
 }
 
 class _RecentSpendsList extends StatelessWidget {
-  final List<_SpendEntry> spends;
+  final List<Expense> spends;
   final double textScale;
 
   const _RecentSpendsList({required this.spends, required this.textScale});
 
-  static const Map<String, Color> _catColors = {
-    'Food': Color(0xFFFBBC05),
-    'Transport': Color(0xFF4285F4),
-    'Activity': Color(0xFF34A853),
-    'Stay': Color(0xFFC77DFF),
-    'Other': Color(0xFF8AB4F8),
-  };
+
 
   @override
   Widget build(BuildContext context) {
@@ -544,7 +481,7 @@ class _RecentSpendsList extends StatelessWidget {
             children: spends.asMap().entries.map((entry) {
               final i = entry.key;
               final spend = entry.value;
-              final color = _catColors[spend.category] ?? const Color(0xFF8AB4F8);
+              final color = spend.category.color;
               return Column(
                 children: [
                   Padding(
@@ -560,7 +497,7 @@ class _RecentSpendsList extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            _categoryIcon(spend.category),
+                            spend.category.icon,
                             color: color,
                             size: 18,
                           ),
@@ -580,7 +517,7 @@ class _RecentSpendsList extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                spend.category,
+                                spend.category.label,
                                 style: TextStyle(
                                   color: color,
                                   fontSize: 11 * textScale,
@@ -591,7 +528,7 @@ class _RecentSpendsList extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          '₹${spend.amount}',
+                          '₹${spend.amountInr}',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14 * textScale,
@@ -612,23 +549,7 @@ class _RecentSpendsList extends StatelessWidget {
       ],
     );
   }
-
-  IconData _categoryIcon(String category) {
-    switch (category) {
-      case 'Food':
-        return Icons.fastfood_outlined;
-      case 'Transport':
-        return Icons.directions_car_outlined;
-      case 'Activity':
-        return Icons.hiking_outlined;
-      case 'Stay':
-        return Icons.hotel_outlined;
-      default:
-        return Icons.receipt_outlined;
-    }
-  }
 }
-
 class _LogSpendButton extends StatelessWidget {
   final VoidCallback onPressed;
   final double textScale;
@@ -833,41 +754,6 @@ class _ManualCheckInButton extends StatelessWidget {
           ),
         ),
         onPressed: onPressed,
-      ),
-    );
-  }
-}
-
-class _DemoToggleButton extends StatelessWidget {
-  final bool isOverThreshold;
-  final VoidCallback onToggle;
-
-  const _DemoToggleButton({
-    required this.isOverThreshold,
-    required this.onToggle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Tooltip(
-      message: 'Toggle over-budget state (demo)',
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color.fromRGBO(255, 255, 255, 0.04),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-              color: const Color.fromRGBO(255, 255, 255, 0.1), width: 1),
-        ),
-        child: IconButton(
-          icon: Icon(
-            isOverThreshold ? Icons.toggle_on : Icons.toggle_off,
-            color: isOverThreshold
-                ? const Color(0xFFFF6D60)
-                : Colors.white60,
-            size: 26,
-          ),
-          onPressed: onToggle,
-        ),
       ),
     );
   }

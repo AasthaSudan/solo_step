@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../domain/entities/proposed_swap.dart';
+import '../providers/replan_provider.dart';
+import '../../../budget/presentation/providers/budget_provider.dart';
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -8,96 +12,71 @@ import 'package:flutter/material.dart';
 ///
 /// [onAccept] is triggered when the user clicks "Accept New Plan" to save changes.
 /// [onDismiss] is triggered when the user rejects or dismisses the proposed re-plan.
-void showReplanDiffSheet(
-  BuildContext context, {
-  required VoidCallback onAccept,
-  required VoidCallback onDismiss,
-}) {
+void showReplanDiffSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    isDismissible: true,
-    builder: (_) => _ReplanDiffSheet(
-      onAccept: onAccept,
-      onDismiss: onDismiss,
-    ),
+    isDismissible: false, // Don't let them dismiss without acting when in loading state
+    builder: (_) => const _ReplanDiffSheet(),
   );
 }
 
-// ---------------------------------------------------------------------------
-// Proposed Swaps Dummy Data
-// ---------------------------------------------------------------------------
 
-class _ProposedSwap {
-  final String oldTitle;
-  final int oldCost;
-  final String newTitle;
-  final int newCost;
-  final String category;
-  final IconData icon;
-
-  const _ProposedSwap({
-    required this.oldTitle,
-    required this.oldCost,
-    required this.newTitle,
-    required this.newCost,
-    required this.category,
-    required this.icon,
-  });
-}
-
-const List<_ProposedSwap> _dummySwaps = [
-  _ProposedSwap(
-    oldTitle: 'Kerala Buffet Dinner at Premium Restaurant',
-    oldCost: 1200,
-    newTitle: 'Kerala Street Food Walk & Cafe Dinner',
-    newCost: 350,
-    category: 'Food',
-    icon: Icons.restaurant_outlined,
-  ),
-  _ProposedSwap(
-    oldTitle: 'Private Jeep Safari & Sightseeing Tour',
-    oldCost: 2500,
-    newTitle: 'Shared Jeep Safari & Nature Trail Walk',
-    newCost: 600,
-    category: 'Activity',
-    icon: Icons.hiking_outlined,
-  ),
-  _ProposedSwap(
-    oldTitle: 'Private AC Cab tour to Tea Gardens',
-    oldCost: 1800,
-    newTitle: 'Shared Auto-rickshaw & Tea Museum walk',
-    newCost: 400,
-    category: 'Transport',
-    icon: Icons.directions_car_outlined,
-  ),
-];
 
 // ---------------------------------------------------------------------------
 // Main Sheet Widget
 // ---------------------------------------------------------------------------
 
-class _ReplanDiffSheet extends StatelessWidget {
-  final VoidCallback onAccept;
-  final VoidCallback onDismiss;
-
-  const _ReplanDiffSheet({
-    required this.onAccept,
-    required this.onDismiss,
-  });
+class _ReplanDiffSheet extends ConsumerWidget {
+  const _ReplanDiffSheet();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final replanState = ref.watch(replanProvider);
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final double screenHeight = MediaQuery.of(context).size.height;
     final bool isTablet = MediaQuery.of(context).size.width > 600;
 
+    if (replanState.isLoading) {
+      return Center(
+        child: Container(
+          width: double.infinity,
+          margin: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: const Color(0xFF15102A),
+            borderRadius: BorderRadius.circular(28),
+            border: Border.all(color: const Color.fromRGBO(199, 125, 255, 0.2)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const CircularProgressIndicator(color: Color(0xFFC77DFF)),
+              const SizedBox(height: 24),
+              Text(
+                'Gemini is re-planning\nyour itinerary...',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16 * textScale,
+                  height: 1.4,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final swaps = replanState.value ?? [];
+    
     // Calculate totals
-    const int totalOld = 5500;
-    const int totalNew = 1350;
-    const int totalSavings = totalOld - totalNew;
+    final int totalOld = swaps.fold(0, (sum, s) => sum + s.oldCost);
+    final int totalNew = swaps.fold(0, (sum, s) => sum + s.newCost);
+    final int totalSavings = totalOld - totalNew;
 
     return Center(
       child: ConstrainedBox(
@@ -248,7 +227,7 @@ class _ReplanDiffSheet extends StatelessWidget {
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
                     child: Column(
-                      children: _dummySwaps.map((swap) {
+                      children: swaps.map((swap) {
                         return _ReplanSwapCard(
                           swap: swap,
                           textScale: textScale,
@@ -275,8 +254,8 @@ class _ReplanDiffSheet extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
+                          ref.read(replanProvider.notifier).dismiss();
                           Navigator.of(context).pop();
-                          onDismiss();
                         },
                         child: Text(
                           'Dismiss',
@@ -301,8 +280,9 @@ class _ReplanDiffSheet extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
+                          ref.read(replanProvider.notifier).accept();
+                          ref.read(budgetProvider.notifier).applyReplanSavings(totalSavings);
                           Navigator.of(context).pop();
-                          onAccept();
                         },
                         child: Text(
                           'Accept Plan',
@@ -329,7 +309,7 @@ class _ReplanDiffSheet extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ReplanSwapCard extends StatelessWidget {
-  final _ProposedSwap swap;
+  final ProposedSwap swap;
   final double textScale;
 
   const _ReplanSwapCard({
@@ -362,13 +342,13 @@ class _ReplanSwapCard extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      swap.icon,
+                      swap.category.icon,
                       size: 14,
                       color: const Color(0xFFC77DFF),
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      swap.category.toUpperCase(),
+                      swap.category.label.toUpperCase(),
                       style: TextStyle(
                         color: const Color(0xFFE0AAFF),
                         fontSize: 11 * textScale,

@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/trusted_contacts_provider.dart';
 
-class ManualCheckinScreen extends StatefulWidget {
+class ManualCheckinScreen extends ConsumerStatefulWidget {
   const ManualCheckinScreen({super.key});
 
   @override
-  State<ManualCheckinScreen> createState() => _ManualCheckinScreenState();
+  ConsumerState<ManualCheckinScreen> createState() => _ManualCheckinScreenState();
 }
 
-class _ManualCheckinScreenState extends State<ManualCheckinScreen> {
+class _ManualCheckinScreenState extends ConsumerState<ManualCheckinScreen> {
   final _formKey = GlobalKey<FormState>();
   final _activityController = TextEditingController();
   TimeOfDay? _returnTime;
   String? _selectedContact;
 
-  final List<String> _dummyContacts = [
-    'Alice (+1 555-0101)',
-    'Bob (+1 555-0102)',
-    'Charlie (+1 555-0103)',
-  ];
 
   @override
   void dispose() {
@@ -68,6 +65,8 @@ class _ManualCheckinScreenState extends State<ManualCheckinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final contactsAsync = ref.watch(trustedContactsProvider);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manual Check-in'),
@@ -128,23 +127,41 @@ class _ManualCheckinScreenState extends State<ManualCheckinScreen> {
                           onTap: () => _selectTime(context),
                         ),
                         const SizedBox(height: 16),
-                        DropdownButtonFormField<String>(
-                          initialValue: _selectedContact,
-                          decoration: const InputDecoration(
-                            labelText: 'Trusted Contact',
-                            border: OutlineInputBorder(),
-                          ),
-                          items: _dummyContacts.map((contact) {
-                            return DropdownMenuItem(
-                              value: contact,
-                              child: Text(contact),
+                        contactsAsync.when(
+                          data: (contacts) {
+                            if (contacts.isEmpty) {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Text('No trusted contacts found. Please add one in settings.', style: TextStyle(color: Colors.red)),
+                              );
+                            }
+                            
+                            // Ensure the selected contact is still in the list, otherwise null it out
+                            if (_selectedContact != null && !contacts.any((c) => c.id == _selectedContact)) {
+                              _selectedContact = null;
+                            }
+                            
+                            return DropdownButtonFormField<String>(
+                              initialValue: _selectedContact,
+                              decoration: const InputDecoration(
+                                labelText: 'Trusted Contact',
+                                border: OutlineInputBorder(),
+                              ),
+                              items: contacts.map((contact) {
+                                return DropdownMenuItem(
+                                  value: contact.id,
+                                  child: Text('${contact.name} (${contact.phoneNumber})'),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedContact = value;
+                                });
+                              },
                             );
-                          }).toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedContact = value;
-                            });
                           },
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (err, stack) => Text('Error loading contacts: $err'),
                         ),
                         const SizedBox(height: 32),
                         ElevatedButton(

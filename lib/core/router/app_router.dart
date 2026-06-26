@@ -15,7 +15,7 @@ import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/return_signal/presentation/screens/manual_checkin_screen.dart';
 import '../../features/return_signal/presentation/screens/trusted_contacts_screen.dart';
 import '../../features/shell/presentation/screens/home_shell.dart';
-import '../../features/debrief/domain/entities/debrief_card.dart';
+
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -105,21 +105,7 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'debrief',
                   builder: (context, state) {
-                    DebriefCard? card;
-                    if (state.extra is DebriefCard) {
-                      card = state.extra as DebriefCard;
-                    }
-                    card ??= DebriefCard(
-                        personality: 'Budget Adventurer',
-                        traits: const ['Street Food Scout', 'Route Planner', 'Early Riser'],
-                        caption: 'Wrapped a trip with smart spending, strong check-ins, and plenty of local discoveries.',
-                        savedVsEstimateInr: 2500,
-                        totalSpentInr: 12500,
-                        daysCount: 4,
-                        topCategory: 'Food',
-                        checkInsCompleted: 8,
-                      );
-                    return DebriefScreen(card: card);
+                    return const DebriefScreen();
                   },
                 ),
               ],

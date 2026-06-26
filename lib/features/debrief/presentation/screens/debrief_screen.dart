@@ -1,36 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../domain/entities/debrief_card.dart';
+import '../providers/debrief_provider.dart';
 import '../widgets/debrief_card_widget.dart';
 
 /// The screen displaying the trip's final AI debrief card.
 ///
 /// It provides a "Share Story Card" action that captures the card component
 /// to share to social platforms, and a "Done" action to return to the dashboard.
-class DebriefScreen extends StatelessWidget {
-  final DebriefCard? card;
-
-  const DebriefScreen({
-    super.key,
-    this.card,
-  });
-
-  // Default dummy data used if no card is passed in (Layer 1 fallback)
-  static const DebriefCard _dummyCard = DebriefCard(
-    personality: 'Budget Adventurer',
-    traits: ['Street Food Scout', 'Early Riser', 'Offbeat Trails'],
-    caption: 'Found the hidden tea gardens of Munnar and saved some rupees along the way!',
-    savedVsEstimateInr: 2150,
-    totalSpentInr: 15350,
-    daysCount: 5,
-    topCategory: 'Stay',
-    checkInsCompleted: 8,
-  );
+class DebriefScreen extends ConsumerWidget {
+  const DebriefScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
-    final currentCard = card ?? _dummyCard;
+    final debriefAsync = ref.watch(debriefProvider);
     final bool isTablet = MediaQuery.of(context).size.width > 600;
 
     return Scaffold(
@@ -97,57 +81,82 @@ class DebriefScreen extends StatelessWidget {
                     const SizedBox(height: 28),
 
                     // The Debrief Card Widget
-                    DebriefCardWidget(card: currentCard),
-                    const SizedBox(height: 32),
+                    debriefAsync.when(
+                      data: (card) {
+                        if (card == null) return const SizedBox();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            DebriefCardWidget(card: card),
+                            const SizedBox(height: 32),
 
-                    // Actions
-                    ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF9D4EDD),
-                        foregroundColor: Colors.white,
-                        shadowColor: const Color.fromRGBO(157, 78, 221, 0.4),
-                        elevation: 8,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      icon: const Icon(Icons.share_rounded, size: 20),
-                      label: Text(
-                        'Share Story Card',
-                        style: TextStyle(
-                          fontSize: 16 * textScale,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.3,
-                        ),
-                      ),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Mock share triggered! Card image rendering to PNG (Layer 4+)... 📸'),
-                            duration: Duration(seconds: 2),
-                          ),
+                            // Actions
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF9D4EDD),
+                                foregroundColor: Colors.white,
+                                shadowColor: const Color.fromRGBO(157, 78, 221, 0.4),
+                                elevation: 8,
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              icon: const Icon(Icons.share_rounded, size: 20),
+                              label: Text(
+                                'Share Story Card',
+                                style: TextStyle(
+                                  fontSize: 16 * textScale,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.3,
+                                ),
+                              ),
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Mock share triggered! Card image rendering to PNG (Layer 4+)... 📸'),
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color.fromRGBO(255, 255, 255, 0.7),
+                                side: const BorderSide(
+                                  color: Color.fromRGBO(255, 255, 255, 0.15),
+                                ),
+                                padding: const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                              onPressed: () => context.pop(),
+                              child: Text(
+                                'Done',
+                                style: TextStyle(
+                                  fontSize: 16 * textScale,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color.fromRGBO(255, 255, 255, 0.7),
-                        side: const BorderSide(
-                          color: Color.fromRGBO(255, 255, 255, 0.15),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                      loading: () => const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 64.0),
+                        child: Center(
+                          child: CircularProgressIndicator(color: Colors.white),
                         ),
                       ),
-                      onPressed: () => context.pop(),
-                      child: Text(
-                        'Done',
-                        style: TextStyle(
-                          fontSize: 16 * textScale,
-                          fontWeight: FontWeight.bold,
+                      error: (err, stack) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 64.0),
+                        child: Center(
+                          child: Text(
+                            'Failed to generate debrief: $err',
+                            style: const TextStyle(color: Colors.redAccent),
+                          ),
                         ),
                       ),
                     ),

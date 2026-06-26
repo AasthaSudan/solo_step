@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/check_in_provider.dart';
 
 /// A compact pill-shaped chip displayed next to an itinerary activity.
 ///
@@ -6,7 +8,7 @@ import 'package:flutter/material.dart';
 /// computed from `suggestedReturnMinutes`. The time is editable via a time picker
 /// when unarmed. Tapping "Arm" toggles the armed status, showing a shield icon and
 /// an "I'm back" disarm button.
-class CheckinChip extends StatefulWidget {
+class CheckinChip extends ConsumerStatefulWidget {
   /// Display label for the chip (typically the activity title).
   final String activityLabel;
 
@@ -20,11 +22,10 @@ class CheckinChip extends StatefulWidget {
   });
 
   @override
-  State<CheckinChip> createState() => _CheckinChipState();
+  ConsumerState<CheckinChip> createState() => _CheckinChipState();
 }
 
-class _CheckinChipState extends State<CheckinChip> {
-  bool _isArmed = false;
+class _CheckinChipState extends ConsumerState<CheckinChip> {
   late TimeOfDay _returnBy;
 
   @override
@@ -82,17 +83,21 @@ class _CheckinChipState extends State<CheckinChip> {
   @override
   Widget build(BuildContext context) {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+    final checkInState = ref.watch(checkInProvider);
+    final isArmed = checkInState.checkIn?.activityName == widget.activityLabel;
+    // Use the provider's returnBy if armed, else the local one
+    final displayTime = isArmed ? TimeOfDay.fromDateTime(checkInState.checkIn!.returnBy) : _returnBy;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        color: _isArmed
+        color: isArmed
             ? const Color.fromRGBO(234, 67, 53, 0.1) // 10% red
             : const Color.fromRGBO(199, 125, 255, 0.08), // ~8% purple
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _isArmed
+          color: isArmed
               ? const Color.fromRGBO(234, 67, 53, 0.35)
               : const Color.fromRGBO(199, 125, 255, 0.25),
           width: 1,
@@ -102,7 +107,7 @@ class _CheckinChipState extends State<CheckinChip> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (!_isArmed) ...[
+          if (!isArmed) ...[
             // Time selection area (only clickable when unarmed)
             InkWell(
               onTap: () => _selectTime(context),
@@ -122,7 +127,7 @@ class _CheckinChipState extends State<CheckinChip> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Back by ${_formatTime(_returnBy)}',
+                      'Back by ${_formatTime(displayTime)}',
                       style: TextStyle(
                         color: const Color.fromRGBO(255, 255, 255, 0.85),
                         fontSize: 12 * textScale,
@@ -148,9 +153,15 @@ class _CheckinChipState extends State<CheckinChip> {
             // Arm Button
             InkWell(
               onTap: () {
-                setState(() {
-                  _isArmed = true;
-                });
+                final now = DateTime.now();
+                final target = DateTime(now.year, now.month, now.day, _returnBy.hour, _returnBy.minute);
+                Duration diff = target.difference(now);
+                if (diff.isNegative) diff = diff + const Duration(days: 1); // Next day if time already passed
+                ref.read(checkInProvider.notifier).arm(
+                  tripId: 'mock_trip_1',
+                  activityName: widget.activityLabel,
+                  duration: diff,
+                );
               },
               borderRadius: const BorderRadius.only(
                 topRight: Radius.circular(10),
@@ -193,7 +204,7 @@ class _CheckinChipState extends State<CheckinChip> {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Armed until ${_formatTime(_returnBy)}',
+                    'Armed until ${_formatTime(displayTime)}',
                     style: TextStyle(
                       color: const Color(0xFFFF6D60),
                       fontSize: 12 * textScale,
@@ -207,9 +218,10 @@ class _CheckinChipState extends State<CheckinChip> {
             // "I'm back" button
             InkWell(
               onTap: () {
-                setState(() {
-                  _isArmed = false;
-                });
+                ref.read(checkInProvider.notifier).imBack();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Welcome back! Check-in completed.')),
+                );
               },
               borderRadius: BorderRadius.circular(8),
               child: Container(
