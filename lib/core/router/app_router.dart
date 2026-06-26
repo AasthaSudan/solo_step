@@ -112,8 +112,7 @@ final GoRouter appRouter = GoRouter(
                     if (state.extra is DebriefCard) {
                       card = state.extra as DebriefCard;
                     }
-                    if (card == null) {
-                      card = DebriefCard(
+                    card ??= DebriefCard(
                         personality: 'Budget Adventurer',
                         traits: const ['Street Food Scout', 'Route Planner', 'Early Riser'],
                         caption: 'Wrapped a trip with smart spending, strong check-ins, and plenty of local discoveries.',
@@ -123,7 +122,6 @@ final GoRouter appRouter = GoRouter(
                         topCategory: 'Food',
                         checkInsCompleted: 8,
                       );
-                    }
                     return DebriefScreen(card: card);
                   },
                 ),
