@@ -6,7 +6,6 @@ class DebriefCard {
   final int totalSpentInr;
   final int daysCount;
   final String topCategory;
-  final int checkInsCompleted;
 
   const DebriefCard({
     required this.personality,
@@ -16,6 +15,5 @@ class DebriefCard {
     required this.totalSpentInr,
     required this.daysCount,
     required this.topCategory,
-    required this.checkInsCompleted,
   });
 }

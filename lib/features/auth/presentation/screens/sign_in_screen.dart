@@ -3,37 +3,59 @@ import 'package:go_router/go_router.dart';
 import '../widgets/google_sign_in_button.dart';
 import '../widgets/guest_sign_in_link.dart';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/auth_provider.dart';
+
 /// A premium, responsive sign-in screen (Layer 1 UI).
 /// Adapts gracefully to phones and tablets.
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
-  void _handleGoogleSignIn(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Continuing with Google...'),
-        duration: Duration(milliseconds: 800),
-      ),
-    );
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (context.mounted) {
+  @override
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends ConsumerState<SignInScreen> {
+  bool _isLoading = false;
+
+  Future<void> _handleGoogleSignIn() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    
+    try {
+      await ref.read(authRepositoryProvider).signInWithGoogle();
+      if (mounted) {
         context.go('/onboarding');
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
-  void _handleGuestSignIn(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Continuing as Guest...'),
-        duration: Duration(milliseconds: 800),
-      ),
-    );
-    Future.delayed(const Duration(milliseconds: 500), () {
-      if (context.mounted) {
+  Future<void> _handleGuestSignIn() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+    
+    try {
+      await ref.read(authRepositoryProvider).signInAnonymously();
+      if (mounted) {
         context.go('/onboarding');
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -162,13 +184,13 @@ class SignInScreen extends StatelessWidget {
                               children: [
                                 // Action Button
                                 GoogleSignInButton(
-                                  onPressed: () => _handleGoogleSignIn(context),
+                                  onPressed: _isLoading ? () {} : () => _handleGoogleSignIn(),
                                 ),
                                 const SizedBox(height: 20),
                                 
                                 // Anonymous Path Link
                                 GuestSignInLink(
-                                  onPressed: () => _handleGuestSignIn(context),
+                                  onPressed: _isLoading ? () {} : () => _handleGuestSignIn(),
                                 ),
                               ],
                             ),

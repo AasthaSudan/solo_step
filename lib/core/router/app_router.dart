@@ -12,8 +12,7 @@ import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/itinerary/presentation/screens/itinerary_view_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_flow_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
-import '../../features/return_signal/presentation/screens/manual_checkin_screen.dart';
-import '../../features/return_signal/presentation/screens/trusted_contacts_screen.dart';
+
 import '../../features/shell/presentation/screens/home_shell.dart';
 
 
@@ -73,10 +72,6 @@ final GoRouter appRouter = GoRouter(
                     return ActiveTripScreen(destinationName: destinationName);
                   },
                 ),
-                GoRoute(
-                  path: 'checkin',
-                  builder: (context, state) => const ManualCheckinScreen(),
-                ),
               ],
             ),
           ],
@@ -118,12 +113,7 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/profile',
               builder: (context, state) => const ProfileScreen(),
-              routes: [
-                GoRoute(
-                  path: 'trusted-contacts',
-                  builder: (context, state) => const TrustedContactsScreen(),
-                ),
-              ],
+
             ),
           ],
         ),

@@ -263,11 +263,6 @@ class DebriefCardWidget extends StatelessWidget {
                         textScale: textScale,
                       ),
                       _FooterStat(
-                        label: 'Safety Loops',
-                        value: '${card.checkInsCompleted} Checks',
-                        textScale: textScale,
-                      ),
-                      _FooterStat(
                         label: 'Top Expense',
                         value: card.topCategory,
                         textScale: textScale,

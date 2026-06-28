@@ -16,7 +16,7 @@ final tripsProvider = StreamProvider<List<Trip>>((ref) async* {
       spent: 4200,
       days: 5,
       topCategory: 'Food',
-      checkInsCompleted: 3,
+
     ),
     Trip(
       id: 'trip_2',
@@ -28,7 +28,7 @@ final tripsProvider = StreamProvider<List<Trip>>((ref) async* {
       spent: 0,
       days: 3,
       topCategory: 'Stay',
-      checkInsCompleted: 0,
+
     ),
     Trip(
       id: 'trip_3',
@@ -40,7 +40,7 @@ final tripsProvider = StreamProvider<List<Trip>>((ref) async* {
       spent: 12850,
       days: 5,
       topCategory: 'Stay',
-      checkInsCompleted: 8,
+
     ),
     Trip(
       id: 'trip_4',
@@ -52,7 +52,7 @@ final tripsProvider = StreamProvider<List<Trip>>((ref) async* {
       spent: 22400,
       days: 6,
       topCategory: 'Activity',
-      checkInsCompleted: 11,
+
     ),
     Trip(
       id: 'trip_5',
@@ -64,7 +64,7 @@ final tripsProvider = StreamProvider<List<Trip>>((ref) async* {
       spent: 0,
       days: 4,
       topCategory: 'Food',
-      checkInsCompleted: 0,
+
     ),
   ];
 });

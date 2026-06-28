@@ -16,6 +16,4 @@ class BudgetSummary {
   
   double get variancePct =>
       estimatedToDateInr == 0 ? 0 : varianceInr / estimatedToDateInr;
-      
-  bool get isOverThreshold => variancePct > 0.15; // 15% over → offer re-plan
 }

@@ -30,7 +30,7 @@ class DebriefNotifier extends AsyncNotifier<DebriefCard?> {
       totalSpentInr: 15350,
       daysCount: 5,
       topCategory: 'Stay',
-      checkInsCompleted: 8,
+
     );
   }
 

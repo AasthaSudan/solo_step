@@ -82,7 +82,6 @@ class TripsScreen extends ConsumerWidget {
           totalSpentInr: trip.spent,
           daysCount: trip.days,
           topCategory: trip.topCategory,
-          checkInsCompleted: trip.checkInsCompleted,
         );
 
         context.go('/trips/debrief', extra: card);
@@ -507,10 +506,6 @@ class _TripCard extends StatelessWidget {
                     _InfoChip(
                       label: 'Top: ${trip.topCategory}',
                       color: const Color(0xFFC77DFF),
-                    ),
-                    _InfoChip(
-                      label: 'Check-ins ${trip.checkInsCompleted}',
-                      color: const Color(0xFF34A853),
                     ),
                   ],
                 ),

@@ -10,7 +10,6 @@ class Trip {
   final int spent;
   final int days;
   final String topCategory;
-  final int checkInsCompleted;
 
   const Trip({
     required this.id,
@@ -22,6 +21,5 @@ class Trip {
     required this.spent,
     required this.days,
     required this.topCategory,
-    required this.checkInsCompleted,
   });
 }

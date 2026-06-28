@@ -17,7 +17,7 @@ Instead, build in **layers**, touching all 4 phases at each layer:
 **Goal:** Every screen across Phase A-D exists, looks right, is responsive, and you can tap through the entire app — with hardcoded fake data standing in for Gemini/Firebase.
 
 What this means concretely:
-- Sign-in screen, onboarding quiz (5 steps), Home, destination cards, destination detail, itinerary view, trip dashboard, budget pacing bar, check-in card (Return Signal UI), debrief card — **all built, all responsive**, using `MediaQuery`/`LayoutBuilder` so they work across phone sizes
+- Sign-in screen, onboarding quiz (5 steps), Home, destination cards, destination detail, itinerary view, trip dashboard, debrief card — **all built, all responsive**, using `MediaQuery`/`LayoutBuilder` so they work across phone sizes
 - Dummy data lives in plain Dart constants or local JSON files (e.g., `mock_destinations.dart` with 5 hardcoded destination objects)
 - Navigation between all screens works via `go_router`, even though nothing is "real" yet
 - No `StateNotifier`/Riverpod logic yet beyond maybe a simple `useState`-style local widget state for things like "which onboarding step am I on"
@@ -74,13 +74,13 @@ What this means concretely:
 **Goal:** Add the features that make this stand out — once the skeleton is fully real and working end-to-end.
 
 What this means concretely:
-- **Return Signal**: Cloud Function for missed check-in detection, Twilio SMS integration, background timer reliability testing
+- **Advanced Features**: Background reliable offline syncing, background geolocator testing
 - **Budget re-plan loop**: the threshold-triggered Gemini re-plan call, diff screen, accept/dismiss logic
 - **Offline pack**: Drift/Hive caching, offline-first expense logging with background sync
 - **Debrief card**: widget-to-image rendering, share_plus integration
 - Polish: error states, loading skeletons, edge cases (no internet, Gemini returns malformed JSON, etc.)
 
-**Why this is last:** These features are the hardest to get right and the most impressive in a demo — but they only matter if the foundation under them is solid. Building Return Signal's Twilio integration before your Riverpod state management is settled means rebuilding it later anyway.
+**Why this is last:** These features are the hardest to get right and the most impressive in a demo — but they only matter if the foundation under them is solid.
 
 ---
 
@@ -91,7 +91,7 @@ What this means concretely:
 | 1 — UI | Layout, navigation, responsiveness | All data | Yes — looks done, nothing works |
 | 2 — Riverpod | State logic, providers, timers/calculations | Data source (still mocked) | Yes — feels alive, still no backend |
 | 3 — Firebase | Auth, Firestore, Gemini calls | Nothing | Yes — fully functional core app |
-| 4 — Advanced | Return Signal, re-plan loop, offline, debrief | Nothing | Yes — full feature set, hackathon-ready |
+| 4 — Advanced | re-plan loop, offline, debrief | Nothing | Yes — full feature set, hackathon-ready |
 
 ---
 
