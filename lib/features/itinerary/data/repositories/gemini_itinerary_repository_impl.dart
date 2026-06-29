@@ -24,13 +24,16 @@ class GeminiItineraryRepositoryImpl implements ItineraryRepository {
       }
 
       final prompt = '''
-You are an expert, protective local guide and travel planner for a solo female traveler.
+You are an expert, protective local guide and travel planner for a solo female traveler in India.
 Create a detailed, hyper-specific day-by-day itinerary for a trip to $destinationName.
 CRITICAL INSTRUCTIONS:
 1. NO GENERIC ADVICE. You must provide EXACT names of businesses (e.g. "Zostel Delhi", "Roshan Di Kulfi").
 2. For EVERY activity, you MUST provide explicit, step-by-step 'transitInstructions' (e.g., "Take Yellow Line metro to Rajiv Chowk, exit gate 5, walk 2 mins").
 3. Provide a 'googleMapsQuery' string for every activity and stay (e.g., "Zostel+Delhi", "Red+Fort+New+Delhi").
-4. Make sure every single activity has a realistic "category" (sightseeing, food, transport, stay, activity) and a numerical "estimatedCost" in INR.
+4. Provide a 'bookingLink' URL for every stay, activity, and food if applicable (e.g. MakeMyTrip, Agoda, Zomato, or official site URL).
+5. Provide an 'imageUrl' for every stay, activity, and food pointing to a public Wikimedia Commons image URL of the location (or a descriptive placeholder URL).
+6. Make sure every single activity has a realistic "category" (sightseeing, food, transport, stay, activity) and a numerical "estimatedCost" in INR.
+7. Also provide a list of 3 specific "accommodations" (hotels, hostels) and 3 specific "foodOptions" (restaurants, cafes, street food) for the trip, with their exact names, descriptions, estimated costs, and search links (e.g., Zomato, MakeMyTrip).
 Return the itinerary as structured JSON.
 ''';
 
@@ -50,6 +53,8 @@ Return the itinerary as structured JSON.
                       'notes': Schema.string(),
                       'transitInstructions': Schema.string(),
                       'googleMapsQuery': Schema.string(),
+                      'imageUrl': Schema.string(nullable: true),
+                      'bookingLink': Schema.string(nullable: true),
                     },
                     requiredProperties: ['time', 'title', 'category', 'estimatedCost', 'notes', 'transitInstructions', 'googleMapsQuery'],
                   ),
@@ -57,13 +62,41 @@ Return the itinerary as structured JSON.
                 'stayName': Schema.string(),
                 'stayCost': Schema.number(),
                 'stayMapsQuery': Schema.string(),
+                'stayImageUrl': Schema.string(nullable: true),
+                'stayBookingLink': Schema.string(nullable: true),
                 'foodSuggestions': Schema.array(items: Schema.string()),
               },
               requiredProperties: ['dayNumber', 'activities', 'stayName', 'stayCost', 'stayMapsQuery', 'foodSuggestions'],
             ),
           ),
+          'accommodations': Schema.array(
+            items: Schema.object(
+              properties: {
+                'id': Schema.string(),
+                'type': Schema.string(),
+                'name': Schema.string(),
+                'description': Schema.string(),
+                'estimatedCostInr': Schema.integer(),
+                'searchLink': Schema.string(),
+              },
+              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+            ),
+          ),
+          'foodOptions': Schema.array(
+            items: Schema.object(
+              properties: {
+                'id': Schema.string(),
+                'type': Schema.string(),
+                'name': Schema.string(),
+                'description': Schema.string(),
+                'estimatedCostInr': Schema.integer(),
+                'searchLink': Schema.string(),
+              },
+              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+            ),
+          ),
         },
-        requiredProperties: ['days'],
+        requiredProperties: ['days', 'accommodations', 'foodOptions'],
       );
 
       final model = GenerativeModel(
@@ -128,6 +161,23 @@ Return the itinerary as structured JSON.
     } catch (e) {
       print('Error saving trip: $e');
       rethrow;
+    }
+  }
+
+  @override
+  Future<Itinerary?> getTripItinerary(String uid, String tripId) async {
+    try {
+      final docRef = _firestore.collection('users').doc(uid).collection('trips').doc(tripId);
+      final doc = await docRef.get();
+      if (!doc.exists) return null;
+      
+      final data = doc.data();
+      if (data == null || !data.containsKey('itinerary')) return null;
+      
+      return Itinerary.fromMap(data['itinerary'] as Map<String, dynamic>);
+    } catch (e) {
+      print('Error getting trip itinerary: $e');
+      return null;
     }
   }
 }

@@ -63,7 +63,7 @@ class TripsScreen extends ConsumerWidget {
     final encodedId = Uri.encodeComponent(trip.id);
     switch (trip.status) {
       case TripStatus.active:
-        context.go('/trips/active/$encodedId', extra: {'destinationName': trip.destinationName});
+        context.go('/trips/itinerary/$encodedId', extra: {'destinationName': trip.destinationName});
         return;
       case TripStatus.planning:
         context.go('/trips/itinerary/$encodedId', extra: {'destinationName': trip.destinationName});

@@ -5,6 +5,8 @@ import '../widgets/empty_state_widget.dart';
 import '../widgets/trip_summary_card.dart';
 import '../../../archive/presentation/providers/trips_provider.dart';
 import '../../../archive/domain/entities/trip.dart';
+import '../../../budget/presentation/providers/budget_provider.dart';
+import '../../../budget/presentation/widgets/log_spend_sheet.dart';
 
 /// The main dashboard screen (Layer 1 UI).
 /// Allows switching between empty-state and active-trip layouts using an App Bar toggle.
@@ -20,15 +22,10 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  // We keep a manual override toggle for testing purposes
-  bool _manualOverride = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.startWithActiveTrip) {
-      _manualOverride = true;
-    }
   }
 
   void _handlePlanNewTrip() {
@@ -36,7 +33,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   void _handleTripCardPressed(String tripId, String destinationName) {
-    context.go('/home/active/$tripId', extra: {'destinationName': destinationName});
+    context.go('/trips/itinerary/$tripId', extra: {'destinationName': destinationName});
   }
 
   @override
@@ -47,7 +44,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     
     final tripsAsync = ref.watch(tripsProvider);
     final activeTrip = tripsAsync.value?.where((t) => t.status == TripStatus.active).firstOrNull;
-    final hasActiveTrip = activeTrip != null || _manualOverride;
+    final hasActiveTrip = activeTrip != null;
 
     return Scaffold(
       body: Container(
@@ -126,36 +123,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                       ],
                     ),
-                    
-                    // Demo State Toggle Button (for testing empty vs active card)
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(255, 255, 255, 0.04),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: const Color.fromRGBO(255, 255, 255, 0.1), width: 1),
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          hasActiveTrip ? Icons.toggle_on : Icons.toggle_off,
-                          color: hasActiveTrip ? const Color(0xFFE0AAFF) : Colors.white60,
-                          size: 26,
-                        ),
-                        tooltip: 'Toggle Trip Presence State',
-                        onPressed: () {
-                          setState(() {
-                            _manualOverride = !_manualOverride;
-                          });
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(_manualOverride 
-                                  ? 'Switched to Active Trip Dashboard State (Mock)'
-                                  : 'Switched to Empty Dashboard State'),
-                              duration: const Duration(milliseconds: 1200),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -194,13 +161,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   
                                   // Active Trip Summary Card
                                   TripSummaryCard(
-                                    destination: activeTrip?.destinationName ?? 'Manali, Himachal Pradesh',
-                                    tagline: activeTrip?.tagline ?? 'A snowy sanctuary for the solo explorer',
-                                    dates: activeTrip?.dates ?? 'June 25 - June 30, 2026',
+                                    destination: activeTrip.destinationName,
+                                    tagline: activeTrip.tagline,
+                                    dates: activeTrip.dates,
                                     status: 'Active',
-                                    currentDay: activeTrip?.days ?? 2,
-                                    totalDays: activeTrip?.days ?? 5,
-                                    onTap: () => _handleTripCardPressed(activeTrip?.id ?? 'mock_trip_1', activeTrip?.destinationName ?? 'Manali, Himachal Pradesh'),
+                                    currentDay: activeTrip.days,
+                                    totalDays: activeTrip.days,
+                                    onTap: () => _handleTripCardPressed(activeTrip.id, activeTrip.destinationName),
                                   ),
                                   const SizedBox(height: 28),
                                   
@@ -229,22 +196,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         icon: Icons.map_outlined,
                                         label: 'View Itinerary',
                                         color: const Color(0xFFC77DFF),
-                                        onTap: () => _handleTripCardPressed(activeTrip?.id ?? 'mock_trip_1', activeTrip?.destinationName ?? 'Manali, Himachal Pradesh'),
+                                        onTap: () => _handleTripCardPressed(activeTrip.id, activeTrip.destinationName),
                                       ),
                                       _buildQuickActionItem(
                                         icon: Icons.account_balance_wallet_outlined,
                                         label: 'Track Expenses',
                                         color: const Color(0xFFFBBC05),
                                         onTap: () {
-                                          context.go('/home/active/${activeTrip?.id ?? "mock_trip_1"}', extra: {'destinationName': activeTrip?.destinationName ?? 'Manali, Himachal Pradesh'});
-                                        },
-                                      ),
-                                      _buildQuickActionItem(
-                                        icon: Icons.shield_outlined,
-                                        label: 'Return Signal',
-                                        color: const Color(0xFFEA4335),
-                                        onTap: () {
-                                          context.go('/home/checkin');
+                                          showLogSpendSheet(
+                                            context,
+                                            onSave: (category, amountInr) {
+                                              ref.read(budgetProvider(activeTrip.id).notifier).logSpend(category, amountInr);
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('Logged ₹$amountInr under ${category.label}'),
+                                                  duration: const Duration(seconds: 2),
+                                                ),
+                                              );
+                                            },
+                                          );
                                         },
                                       ),
                                       _buildQuickActionItem(
@@ -252,7 +222,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         label: 'AI Travel Agent',
                                         color: const Color(0xFF4285F4),
                                         onTap: () {
-                                          context.go('/home/chat', extra: {'destinationName': activeTrip?.destinationName ?? 'Your Destination'});
+                                          context.go('/home/chat', extra: {'destinationName': activeTrip.destinationName});
                                         },
                                       ),
                                     ],
@@ -275,6 +245,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
       ),
+      floatingActionButton: hasActiveTrip
+          ? FloatingActionButton.extended(
+              onPressed: _handlePlanNewTrip,
+              backgroundColor: const Color(0xFF9D4EDD),
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text('New Trip', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            )
+          : null,
     );
   }
 

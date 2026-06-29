@@ -43,6 +43,11 @@ class HomeShell extends StatelessWidget {
                         label: Text('Trips'),
                       ),
                       NavigationRailDestination(
+                        icon: Icon(Icons.explore_outlined),
+                        selectedIcon: Icon(Icons.explore),
+                        label: Text('Explore'),
+                      ),
+                      NavigationRailDestination(
                         icon: Icon(Icons.person_outline),
                         selectedIcon: Icon(Icons.person),
                         label: Text('Profile'),
@@ -76,6 +81,11 @@ class HomeShell extends StatelessWidget {
                   icon: Icon(Icons.map_outlined),
                   selectedIcon: Icon(Icons.map),
                   label: 'Trips',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.explore_outlined),
+                  selectedIcon: Icon(Icons.explore),
+                  label: 'Explore',
                 ),
                 NavigationDestination(
                   icon: Icon(Icons.person_outline),

@@ -12,7 +12,7 @@ class DestinationDetailScreen extends StatelessWidget {
   });
 
   void _handleBuildItinerary(BuildContext context) {
-    context.go('/trips/itinerary/${Uri.encodeComponent(destination.name)}');
+    context.go('/trips/itinerary/new', extra: {'destinationName': destination.name});
   }
 
   @override

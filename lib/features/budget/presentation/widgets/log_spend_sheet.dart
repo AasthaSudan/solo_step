@@ -15,6 +15,7 @@ import '../../domain/entities/expense.dart';
 void showLogSpendSheet(
   BuildContext context, {
   required void Function(SpendCategory category, int amountInr) onSave,
+  SpendCategory initialCategory = SpendCategory.food,
 }) {
   showModalBottomSheet(
     context: context,
@@ -22,7 +23,7 @@ void showLogSpendSheet(
     backgroundColor: Colors.transparent,
     // Ensure the sheet is not dismissed accidentally mid-entry
     isDismissible: true,
-    builder: (_) => _LogSpendSheet(onSave: onSave),
+    builder: (_) => _LogSpendSheet(onSave: onSave, initialCategory: initialCategory),
   );
 }
 
@@ -32,21 +33,23 @@ void showLogSpendSheet(
 
 class _LogSpendSheet extends StatefulWidget {
   final void Function(SpendCategory category, int amountInr) onSave;
+  final SpendCategory initialCategory;
 
-  const _LogSpendSheet({required this.onSave});
+  const _LogSpendSheet({required this.onSave, this.initialCategory = SpendCategory.food});
 
   @override
   State<_LogSpendSheet> createState() => _LogSpendSheetState();
 }
 
 class _LogSpendSheetState extends State<_LogSpendSheet> {
-  SpendCategory _selected = SpendCategory.food;
+  late SpendCategory _selected;
   final TextEditingController _amountCtrl = TextEditingController();
   bool _hasAmount = false;
 
   @override
   void initState() {
     super.initState();
+    _selected = widget.initialCategory;
     _amountCtrl.addListener(() {
       final filled = _amountCtrl.text.trim().isNotEmpty;
       if (filled != _hasAmount) setState(() => _hasAmount = filled);
@@ -87,14 +90,10 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
         child: Padding(
           padding: EdgeInsets.only(bottom: bottomInset),
           child: Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFF15102A),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              border: Border(
-                top: BorderSide(color: Color.fromRGBO(199, 125, 255, 0.2)),
-                left: BorderSide(color: Color.fromRGBO(199, 125, 255, 0.1)),
-                right: BorderSide(color: Color.fromRGBO(199, 125, 255, 0.1)),
-              ),
+            decoration: BoxDecoration(
+              color: const Color(0xFF15102A),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              border: Border.all(color: const Color.fromRGBO(199, 125, 255, 0.15)),
             ),
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
             child: Column(

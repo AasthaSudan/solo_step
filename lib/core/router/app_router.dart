@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/active_trip/presentation/screens/active_trip_screen.dart';
+
 import '../../features/archive/presentation/screens/trips_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/debrief/presentation/screens/debrief_screen.dart';
@@ -13,6 +13,7 @@ import '../../features/itinerary/presentation/screens/itinerary_view_screen.dart
 import '../../features/onboarding/presentation/screens/onboarding_flow_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/chat/presentation/screens/ai_agent_chat_screen.dart';
+import '../../features/explore/presentation/screens/explore_screen.dart';
 
 import '../../features/shell/presentation/screens/home_shell.dart';
 
@@ -63,21 +64,27 @@ final GoRouter appRouter = GoRouter(
                     }
 
                     if (destination == null) {
-                      return const Center(child: Text('Error: No destination provided'));
+                      return Scaffold(
+                        appBar: AppBar(title: const Text('Destination Error')),
+                        body: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('Error: No destination provided'),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => context.go('/home/discover'),
+                                child: const Text('Back to Discover'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
                     }
                     return DestinationDetailScreen(destination: destination);
                   },
                 ),
-                GoRoute(
-                  path: 'active/:tripId',
-                  builder: (context, state) {
-                    final tripId = state.pathParameters['tripId'] ?? 'Unknown';
-                    // We can pass tripId now instead of destinationName
-                    final extra = state.extra as Map<String, dynamic>?;
-                    final destinationName = extra?['destinationName'] as String? ?? 'Unknown Destination';
-                    return ActiveTripScreen(tripId: tripId, destinationName: destinationName);
-                  },
-                ),
+
                 GoRoute(
                   path: 'chat',
                   builder: (context, state) {
@@ -97,15 +104,7 @@ final GoRouter appRouter = GoRouter(
               path: '/trips',
               builder: (context, state) => const TripsScreen(),
               routes: [
-                GoRoute(
-                  path: 'active/:tripId',
-                  builder: (context, state) {
-                    final tripId = state.pathParameters['tripId'] ?? 'Unknown';
-                    final extra = state.extra as Map<String, dynamic>?;
-                    final destinationName = extra?['destinationName'] as String? ?? 'Unknown Destination';
-                    return ActiveTripScreen(tripId: tripId, destinationName: destinationName);
-                  },
-                ),
+
                 GoRoute(
                   path: 'itinerary/:tripId',
                   builder: (context, state) {
@@ -126,7 +125,16 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        // Tab 2: Profile
+        // Tab 2: Explore
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/explore',
+              builder: (context, state) => const ExploreScreen(),
+            ),
+          ],
+        ),
+        // Tab 3: Profile
         StatefulShellBranch(
           routes: [
             GoRoute(

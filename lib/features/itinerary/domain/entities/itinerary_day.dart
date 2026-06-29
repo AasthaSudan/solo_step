@@ -7,6 +7,8 @@ class ItineraryDay {
   final String stayName;
   final double stayCost;
   final String? stayMapsQuery;
+  final String? stayImageUrl;
+  final String? stayBookingLink;
   final List<String> foodSuggestions;
 
   const ItineraryDay({
@@ -15,6 +17,8 @@ class ItineraryDay {
     required this.stayName,
     required this.stayCost,
     this.stayMapsQuery,
+    this.stayImageUrl,
+    this.stayBookingLink,
     required this.foodSuggestions,
   });
 
@@ -25,6 +29,8 @@ class ItineraryDay {
       'stayName': stayName,
       'stayCost': stayCost,
       if (stayMapsQuery != null) 'stayMapsQuery': stayMapsQuery,
+      if (stayImageUrl != null) 'stayImageUrl': stayImageUrl,
+      if (stayBookingLink != null) 'stayBookingLink': stayBookingLink,
       'foodSuggestions': foodSuggestions,
     };
   }
@@ -40,6 +46,8 @@ class ItineraryDay {
       stayName: map['stayName'] as String? ?? '',
       stayCost: (map['stayCost'] as num?)?.toDouble() ?? 0.0,
       stayMapsQuery: map['stayMapsQuery'] as String?,
+      stayImageUrl: map['stayImageUrl'] as String?,
+      stayBookingLink: map['stayBookingLink'] as String?,
       foodSuggestions: List<String>.from(map['foodSuggestions'] as List<dynamic>? ?? []),
     );
   }

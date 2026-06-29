@@ -1,0 +1,110 @@
+import 'dart:convert';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'dart:io';
+
+void main() async {
+  final envFile = File('.env').readAsStringSync();
+  String? apiKey;
+  for (final line in envFile.split('\n')) {
+    if (line.startsWith('GEMINI_API_KEY=')) {
+      apiKey = line.substring('GEMINI_API_KEY='.length).trim();
+    }
+  }
+
+  if (apiKey == null) {
+    print("NO API KEY");
+    return;
+  }
+  
+  final prompt = '''
+You are an expert, protective local guide and travel planner for a solo female traveler in India.
+Create a detailed, hyper-specific day-by-day itinerary for a trip to Manali.
+CRITICAL INSTRUCTIONS:
+1. NO GENERIC ADVICE. You must provide EXACT names of businesses (e.g. "Zostel Delhi", "Roshan Di Kulfi").
+2. For EVERY activity, you MUST provide explicit, step-by-step 'transitInstructions' (e.g., "Take Yellow Line metro to Rajiv Chowk, exit gate 5, walk 2 mins").
+3. Provide a 'googleMapsQuery' string for every activity and stay (e.g., "Zostel+Delhi", "Red+Fort+New+Delhi").
+4. Provide a 'bookingLink' URL for every stay, activity, and food if applicable (e.g. MakeMyTrip, Agoda, Zomato, or official site URL).
+5. Provide an 'imageUrl' for every stay, activity, and food pointing to a public Wikimedia Commons image URL of the location (or a descriptive placeholder URL).
+6. Make sure every single activity has a realistic "category" (sightseeing, food, transport, stay, activity) and a numerical "estimatedCost" in INR.
+7. Also provide a list of 3 specific "accommodations" (hotels, hostels) and 3 specific "foodOptions" (restaurants, cafes, street food) for the trip, with their exact names, descriptions, estimated costs, and search links (e.g., Zomato, MakeMyTrip).
+Return the itinerary as structured JSON.
+''';
+
+  final schema = Schema.object(
+    properties: {
+      'days': Schema.array(
+        items: Schema.object(
+          properties: {
+            'dayNumber': Schema.integer(),
+            'activities': Schema.array(
+              items: Schema.object(
+                properties: {
+                  'time': Schema.string(),
+                  'title': Schema.string(),
+                  'category': Schema.string(),
+                  'estimatedCost': Schema.number(),
+                  'notes': Schema.string(),
+                  'transitInstructions': Schema.string(),
+                  'googleMapsQuery': Schema.string(),
+                  'imageUrl': Schema.string(nullable: true),
+                  'bookingLink': Schema.string(nullable: true),
+                },
+                requiredProperties: ['time', 'title', 'category', 'estimatedCost', 'notes', 'transitInstructions', 'googleMapsQuery'],
+              ),
+            ),
+            'stayName': Schema.string(),
+            'stayCost': Schema.number(),
+            'stayMapsQuery': Schema.string(),
+            'stayImageUrl': Schema.string(nullable: true),
+            'stayBookingLink': Schema.string(nullable: true),
+            'foodSuggestions': Schema.array(items: Schema.string()),
+          },
+          requiredProperties: ['dayNumber', 'activities', 'stayName', 'stayCost', 'stayMapsQuery', 'foodSuggestions'],
+        ),
+      ),
+      'accommodations': Schema.array(
+        items: Schema.object(
+          properties: {
+            'id': Schema.string(),
+            'type': Schema.string(),
+            'name': Schema.string(),
+            'description': Schema.string(),
+            'estimatedCostInr': Schema.integer(),
+            'searchLink': Schema.string(),
+          },
+          requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+        ),
+      ),
+      'foodOptions': Schema.array(
+        items: Schema.object(
+          properties: {
+            'id': Schema.string(),
+            'type': Schema.string(),
+            'name': Schema.string(),
+            'description': Schema.string(),
+            'estimatedCostInr': Schema.integer(),
+            'searchLink': Schema.string(),
+          },
+          requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+        ),
+      ),
+    },
+    requiredProperties: ['days', 'accommodations', 'foodOptions'],
+  );
+
+  final model = GenerativeModel(
+    model: 'gemini-2.5-flash',
+    apiKey: apiKey,
+    generationConfig: GenerationConfig(
+      responseMimeType: 'application/json',
+      responseSchema: schema,
+    ),
+  );
+
+  try {
+    final response = await model.generateContent([Content.text(prompt)]);
+    print(response.text);
+  } catch (e) {
+    print('ERROR: ' + e.toString());
+  }
+}

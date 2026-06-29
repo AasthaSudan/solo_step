@@ -7,6 +7,8 @@ class ItineraryActivity {
   final String notes;
   final String? googleMapsQuery;
   final String? transitInstructions;
+  final String? imageUrl;
+  final String? bookingLink;
 
   const ItineraryActivity({
     required this.time,
@@ -16,6 +18,8 @@ class ItineraryActivity {
     required this.notes,
     this.googleMapsQuery,
     this.transitInstructions,
+    this.imageUrl,
+    this.bookingLink,
   });
 
   Map<String, dynamic> toMap() {
@@ -27,6 +31,8 @@ class ItineraryActivity {
       'notes': notes,
       if (googleMapsQuery != null) 'googleMapsQuery': googleMapsQuery,
       if (transitInstructions != null) 'transitInstructions': transitInstructions,
+      if (imageUrl != null) 'imageUrl': imageUrl,
+      if (bookingLink != null) 'bookingLink': bookingLink,
     };
   }
 
@@ -39,6 +45,8 @@ class ItineraryActivity {
       notes: map['notes'] as String? ?? '',
       googleMapsQuery: map['googleMapsQuery'] as String?,
       transitInstructions: map['transitInstructions'] as String?,
+      imageUrl: map['imageUrl'] as String?,
+      bookingLink: map['bookingLink'] as String?,
     );
   }
 }

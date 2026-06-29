@@ -61,6 +61,14 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
     }
   }
 
+  Future<void> _launchUrlStr(String? urlStr) async {
+    if (urlStr == null || urlStr.isEmpty) return;
+    final url = Uri.tryParse(urlStr);
+    if (url != null && await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
@@ -143,6 +151,32 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                                     ),
                                   ),
                                 ),
+                              if (widget.day.stayCost > 0 && widget.day.stayBookingLink != null)
+                                GestureDetector(
+                                  onTap: () => _launchUrlStr(widget.day.stayBookingLink!),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    margin: const EdgeInsets.only(left: 8),
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromRGBO(157, 78, 221, 0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.open_in_new_outlined, size: 10, color: Color(0xFF9D4EDD)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Book',
+                                          style: TextStyle(
+                                            color: const Color(0xFF9D4EDD),
+                                            fontSize: 9 * textScale,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ],
@@ -176,6 +210,20 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                         children: [
                           const Divider(color: Color.fromRGBO(255, 255, 255, 0.08), height: 1),
                           const SizedBox(height: 10),
+
+                          if (widget.day.stayImageUrl != null && widget.day.stayImageUrl!.isNotEmpty) ...[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.network(
+                                widget.day.stayImageUrl!,
+                                height: 140,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                          ],
 
                           // Activities Line Items
                           ...widget.day.activities.map((activity) {

@@ -21,18 +21,21 @@ class GeminiDestinationRepositoryImpl implements DestinationRepository {
 
       final userDoc = await _firestore.collection('users').doc(uid).get();
       final userProfile = userDoc.exists && userDoc.data() != null
-          ? userDoc.data()!
-          : {
+          ? Map<String, dynamic>.from(userDoc.data()!)
+          : <String, dynamic>{
               'budget': 'medium',
               'interests': ['sightseeing', 'culture', 'food'],
               'experienceLevel': 'first_timer'
             };
 
+      // Remove Firestore specific objects like Timestamps to avoid jsonEncode exception
+      userProfile.removeWhere((key, value) => value is Timestamp);
+
       final prompt = '''
-You are an expert travel planner. Recommend exactly 5 personalized travel destinations for a user based on this profile:
+You are an expert travel planner specializing in Indian tourism. Recommend exactly 5 personalized travel destinations WITHIN INDIA for a user based on this profile:
 ${jsonEncode(userProfile)}
 
-Return exactly 5 destinations as structured JSON.
+Return exactly 5 destinations as structured JSON. All destinations MUST be in India (e.g., Manali, Goa, Jaipur, Kerala, etc.).
 ''';
 
       final schema = Schema.array(

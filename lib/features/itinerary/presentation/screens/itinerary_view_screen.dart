@@ -6,6 +6,10 @@ import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import '../providers/itinerary_provider.dart';
 import '../widgets/day_card.dart';
 import '../widgets/day_card_skeleton.dart';
+import '../../../../features/budget/presentation/providers/budget_provider.dart';
+import '../../../../features/budget/presentation/widgets/log_spend_sheet.dart';
+import '../../../../features/budget/domain/entities/expense.dart';
+import '../widgets/booking_options_view.dart';
 
 /// Screen presenting the full day-by-day travel plan (Layer 1 UI).
 /// Simulates itinerary generation on load and offers a complete save workflow.
@@ -23,13 +27,50 @@ class ItineraryViewScreen extends ConsumerStatefulWidget {
   ConsumerState<ItineraryViewScreen> createState() => _ItineraryViewScreenState();
 }
 
-class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> {
+class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  SpendCategory? _pendingBookingCategory;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _tabController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
+      if (widget.tripId == 'new') {
+        ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
+      } else {
+        ref.read(itineraryProvider.notifier).loadItinerary(widget.tripId);
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _pendingBookingCategory != null) {
+      final category = _pendingBookingCategory!;
+      _pendingBookingCategory = null;
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (!mounted) return;
+        showLogSpendSheet(
+          context,
+          initialCategory: category,
+          onSave: (cat, amountInr) {
+            ref.read(budgetProvider(widget.tripId).notifier).logSpend(cat, amountInr);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Logged ₹$amountInr for ${cat.label}')),
+            );
+          },
+        );
+      });
+    }
   }
 
   void _handleRegenerate() {
@@ -167,7 +208,8 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     
     final asyncItinerary = ref.watch(itineraryProvider);
-    final isLoading = asyncItinerary.isLoading || asyncItinerary.value == null;
+    final bool isLoading = asyncItinerary.isLoading || (asyncItinerary.value == null && !asyncItinerary.hasError);
+    final bool hasError = asyncItinerary.hasError;
 
     return Scaffold(
       body: Container(
@@ -217,6 +259,69 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> {
 
               const Divider(color: Color.fromRGBO(255, 255, 255, 0.08), height: 1),
 
+              // Budget Progress Bar for existing active trips
+              if (widget.tripId != 'new')
+                Consumer(
+                  builder: (context, ref, child) {
+                    final budgetAsync = ref.watch(budgetProvider(widget.tripId));
+                    return budgetAsync.when(
+                      data: (budgetState) {
+                        final summary = budgetState.summary;
+                        final spent = summary.spentInr;
+                        final budget = summary.totalBudgetInr;
+                        final progress = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Budget: ₹$budget',
+                                    style: TextStyle(color: Colors.white70, fontSize: 14 * textScale),
+                                  ),
+                                  Text(
+                                    'Spent: ₹$spent',
+                                    style: TextStyle(color: Colors.white, fontSize: 14 * textScale, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              LinearProgressIndicator(
+                                value: progress,
+                                backgroundColor: const Color.fromRGBO(255, 255, 255, 0.1),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  progress > 0.9 ? const Color(0xFFEA4335) : const Color(0xFF34A853)
+                                ),
+                                minHeight: 8,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      loading: () => const SizedBox.shrink(),
+                      error: (e, _) => const SizedBox.shrink(),
+                    );
+                  },
+                ),
+
+              // Tabs for Plan and Bookings
+              if (!isLoading && !hasError)
+                TabBar(
+                  controller: _tabController,
+                  indicatorColor: const Color(0xFFC77DFF),
+                  labelColor: const Color(0xFFC77DFF),
+                  unselectedLabelColor: Colors.white54,
+                  tabs: const [
+                    Tab(text: 'Itinerary Plan'),
+                    Tab(text: 'Options & Booking'),
+                  ],
+                ),
+              if (!isLoading && !hasError) const SizedBox(height: 8),
+
               // Main Schedule Body
               Expanded(
                 child: Center(
@@ -224,34 +329,66 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> {
                     constraints: BoxConstraints(
                       maxWidth: isTablet ? 540.0 : double.infinity,
                     ),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: isLoading
-                          ? ListView.builder(
-                              key: const ValueKey('loading_itinerary'),
-                              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                              itemCount: 3,
-                              itemBuilder: (context, index) => const DayCardSkeleton(),
-                            )
-                          : ListView.builder(
-                              key: const ValueKey('loaded_itinerary'),
-                              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                              physics: const BouncingScrollPhysics(),
-                              itemCount: asyncItinerary.value!.days.length,
-                              itemBuilder: (context, index) {
-                                return DayCard(
-                                  day: asyncItinerary.value!.days[index],
-                                  initiallyExpanded: index == 0, // Keep first day expanded by default
-                                );
-                              },
+                    child: hasError
+                        ? Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Failed to generate itinerary. Please try again.',
+                                  style: TextStyle(color: Colors.white70, fontSize: 16 * textScale),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: _handleRegenerate,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF9D4EDD),
+                                  ),
+                                  child: const Text('Retry', style: TextStyle(color: Colors.white)),
+                                )
+                              ],
                             ),
-                    ),
+                          )
+                        : isLoading
+                            ? ListView.builder(
+                                key: const ValueKey('loading_itinerary'),
+                                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+                                itemCount: 3,
+                                itemBuilder: (context, index) => const DayCardSkeleton(),
+                              )
+                            : TabBarView(
+                            controller: _tabController,
+                            children: [
+                              ListView.builder(
+                                key: const ValueKey('loaded_itinerary'),
+                                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+                                physics: const BouncingScrollPhysics(),
+                                itemCount: asyncItinerary.value!.days.length,
+                                itemBuilder: (context, index) {
+                                  return DayCard(
+                                    day: asyncItinerary.value!.days[index],
+                                    initiallyExpanded: index == 0, // Keep first day expanded by default
+                                  );
+                                },
+                              ),
+                              BookingOptionsView(
+                                accommodations: asyncItinerary.value!.accommodations,
+                                foodOptions: asyncItinerary.value!.foodOptions,
+                                onOptionTapped: (cat) {
+                                  _pendingBookingCategory = cat;
+                                },
+                              ),
+                            ],
+                          ),
                   ),
                 ),
               ),
 
-              // Bottom persistent action buttons (disabled during loading)
-              if (!isLoading)
+              // Bottom persistent action buttons (disabled during loading, only shown for new trip)
+              if (!isLoading && !hasError && widget.tripId == 'new')
                 Center(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
@@ -326,6 +463,24 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> {
           ),
         ),
       ),
+      floatingActionButton: widget.tripId != 'new'
+          ? FloatingActionButton.extended(
+              backgroundColor: const Color(0xFFFBBC05),
+              onPressed: () {
+                showLogSpendSheet(
+                  context,
+                  onSave: (category, amountInr) {
+                    ref.read(budgetProvider(widget.tripId).notifier).logSpend(category, amountInr);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Logged ₹$amountInr for ${category.label}')),
+                    );
+                  },
+                );
+              },
+              icon: const Icon(Icons.add, color: Colors.black87),
+              label: const Text('Log Spend', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+            )
+          : null,
     );
   }
 }

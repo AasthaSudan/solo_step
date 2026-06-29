@@ -57,6 +57,14 @@ class ActivityLineItem extends StatelessWidget {
     }
   }
 
+  Future<void> _launchUrlStr(String? urlStr) async {
+    if (urlStr == null || urlStr.isEmpty) return;
+    final url = Uri.tryParse(urlStr);
+    if (url != null && await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
@@ -132,6 +140,21 @@ class ActivityLineItem extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                const SizedBox(height: 8),
+
+                if (activity.imageUrl != null && activity.imageUrl!.isNotEmpty) ...[
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      activity.imageUrl!,
+                      height: 120,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                ],
                 
                 if (activity.transitInstructions != null && activity.transitInstructions!.isNotEmpty) ...[
                   const SizedBox(height: 6),
@@ -218,6 +241,34 @@ class ActivityLineItem extends StatelessWidget {
                                 'Maps',
                                 style: TextStyle(
                                   color: const Color(0xFF4285F4),
+                                  fontSize: 11 * textScale,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    if (activity.bookingLink != null && activity.bookingLink!.isNotEmpty)
+                      InkWell(
+                        onTap: () => _launchUrlStr(activity.bookingLink),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(157, 78, 221, 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF9D4EDD).withAlpha(100), width: 1),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.open_in_new_outlined, size: 14, color: Color(0xFF9D4EDD)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Book',
+                                style: TextStyle(
+                                  color: const Color(0xFF9D4EDD),
                                   fontSize: 11 * textScale,
                                   fontWeight: FontWeight.w700,
                                 ),
