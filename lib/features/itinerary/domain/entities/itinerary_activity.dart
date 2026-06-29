@@ -5,6 +5,8 @@ class ItineraryActivity {
   final String category; // 'sightseeing' | 'food' | 'transport' | 'stay' | 'activity'
   final double estimatedCost;
   final String notes;
+  final String? googleMapsQuery;
+  final String? transitInstructions;
 
   const ItineraryActivity({
     required this.time,
@@ -12,5 +14,31 @@ class ItineraryActivity {
     required this.category,
     required this.estimatedCost,
     required this.notes,
+    this.googleMapsQuery,
+    this.transitInstructions,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'time': time,
+      'title': title,
+      'category': category,
+      'estimatedCost': estimatedCost,
+      'notes': notes,
+      if (googleMapsQuery != null) 'googleMapsQuery': googleMapsQuery,
+      if (transitInstructions != null) 'transitInstructions': transitInstructions,
+    };
+  }
+
+  factory ItineraryActivity.fromMap(Map<String, dynamic> map) {
+    return ItineraryActivity(
+      time: map['time'] as String? ?? '',
+      title: map['title'] as String? ?? '',
+      category: map['category'] as String? ?? '',
+      estimatedCost: (map['estimatedCost'] as num?)?.toDouble() ?? 0.0,
+      notes: map['notes'] as String? ?? '',
+      googleMapsQuery: map['googleMapsQuery'] as String?,
+      transitInstructions: map['transitInstructions'] as String?,
+    );
+  }
 }

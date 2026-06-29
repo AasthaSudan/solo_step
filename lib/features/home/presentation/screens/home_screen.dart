@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../widgets/empty_state_widget.dart';
 import '../widgets/trip_summary_card.dart';
-import '../providers/active_trip_provider.dart';
+import '../../../archive/presentation/providers/trips_provider.dart';
+import '../../../archive/domain/entities/trip.dart';
 
 /// The main dashboard screen (Layer 1 UI).
 /// Allows switching between empty-state and active-trip layouts using an App Bar toggle.
@@ -19,13 +20,14 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
+  // We keep a manual override toggle for testing purposes
+  bool _manualOverride = false;
+
   @override
   void initState() {
     super.initState();
     if (widget.startWithActiveTrip) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(activeTripProvider.notifier).setHasActiveTrip(true);
-      });
+      _manualOverride = true;
     }
   }
 
@@ -33,8 +35,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     context.go('/home/discover');
   }
 
-  void _handleTripCardPressed() {
-    context.go('/home/active/Manali,%20Himachal%20Pradesh');
+  void _handleTripCardPressed(String tripId, String destinationName) {
+    context.go('/home/active/$tripId', extra: {'destinationName': destinationName});
   }
 
   @override
@@ -43,7 +45,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final bool isTablet = screenSize.width > 600;
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     
-    final hasActiveTrip = ref.watch(activeTripProvider).value ?? false;
+    final tripsAsync = ref.watch(tripsProvider);
+    final activeTrip = tripsAsync.value?.where((t) => t.status == TripStatus.active).firstOrNull;
+    final hasActiveTrip = activeTrip != null || _manualOverride;
 
     return Scaffold(
       body: Container(
@@ -138,12 +142,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         ),
                         tooltip: 'Toggle Trip Presence State',
                         onPressed: () {
-                          ref.read(activeTripProvider.notifier).toggleTripStatus();
-                          final newStatus = ref.read(activeTripProvider).value ?? false;
+                          setState(() {
+                            _manualOverride = !_manualOverride;
+                          });
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(newStatus 
-                                  ? 'Switched to Active Trip Dashboard State'
+                              content: Text(_manualOverride 
+                                  ? 'Switched to Active Trip Dashboard State (Mock)'
                                   : 'Switched to Empty Dashboard State'),
                               duration: const Duration(milliseconds: 1200),
                             ),
@@ -189,13 +194,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   
                                   // Active Trip Summary Card
                                   TripSummaryCard(
-                                    destination: 'Manali, Himachal Pradesh',
-                                    tagline: 'A snowy sanctuary for the solo explorer',
-                                    dates: 'June 25 - June 30, 2026',
+                                    destination: activeTrip?.destinationName ?? 'Manali, Himachal Pradesh',
+                                    tagline: activeTrip?.tagline ?? 'A snowy sanctuary for the solo explorer',
+                                    dates: activeTrip?.dates ?? 'June 25 - June 30, 2026',
                                     status: 'Active',
-                                    currentDay: 2,
-                                    totalDays: 5,
-                                    onTap: _handleTripCardPressed,
+                                    currentDay: activeTrip?.days ?? 2,
+                                    totalDays: activeTrip?.days ?? 5,
+                                    onTap: () => _handleTripCardPressed(activeTrip?.id ?? 'mock_trip_1', activeTrip?.destinationName ?? 'Manali, Himachal Pradesh'),
                                   ),
                                   const SizedBox(height: 28),
                                   
@@ -224,14 +229,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         icon: Icons.map_outlined,
                                         label: 'View Itinerary',
                                         color: const Color(0xFFC77DFF),
-                                        onTap: _handleTripCardPressed,
+                                        onTap: () => _handleTripCardPressed(activeTrip?.id ?? 'mock_trip_1', activeTrip?.destinationName ?? 'Manali, Himachal Pradesh'),
                                       ),
                                       _buildQuickActionItem(
                                         icon: Icons.account_balance_wallet_outlined,
                                         label: 'Track Expenses',
                                         color: const Color(0xFFFBBC05),
                                         onTap: () {
-                                          context.go('/home/active/Manali,%20Himachal%20Pradesh');
+                                          context.go('/home/active/${activeTrip?.id ?? "mock_trip_1"}', extra: {'destinationName': activeTrip?.destinationName ?? 'Manali, Himachal Pradesh'});
                                         },
                                       ),
                                       _buildQuickActionItem(
@@ -247,9 +252,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         label: 'AI Travel Agent',
                                         color: const Color(0xFF4285F4),
                                         onTap: () {
-                                          ScaffoldMessenger.of(context).showSnackBar(
-                                            const SnackBar(content: Text('AI Support Chat (Mock)')),
-                                          );
+                                          context.go('/home/chat', extra: {'destinationName': activeTrip?.destinationName ?? 'Your Destination'});
                                         },
                                       ),
                                     ],

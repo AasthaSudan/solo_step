@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/destination.dart';
 import '../../domain/repositories/destination_repository.dart';
-import '../../data/repositories/fake_destination_repository_impl.dart';
+import '../../data/repositories/gemini_destination_repository_impl.dart';
 
 final destinationRepositoryProvider = Provider<DestinationRepository>((ref) {
-  return FakeDestinationRepositoryImpl();
+  return GeminiDestinationRepositoryImpl();
 });
 
 class DiscoveryNotifier extends Notifier<AsyncValue<List<Destination>>> {

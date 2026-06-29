@@ -73,4 +73,57 @@ class Expense {
     required this.spentAt,
     this.synced = false,
   });
+
+  Expense copyWith({
+    String? id,
+    String? tripId,
+    int? day,
+    SpendCategory? category,
+    String? label,
+    int? amountInr,
+    DateTime? spentAt,
+    bool? synced,
+  }) {
+    return Expense(
+      id: id ?? this.id,
+      tripId: tripId ?? this.tripId,
+      day: day ?? this.day,
+      category: category ?? this.category,
+      label: label ?? this.label,
+      amountInr: amountInr ?? this.amountInr,
+      spentAt: spentAt ?? this.spentAt,
+      synced: synced ?? this.synced,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'tripId': tripId,
+      'day': day,
+      'category': category.name,
+      'label': label,
+      'amountInr': amountInr,
+      'spentAt': spentAt.toIso8601String(),
+      'synced': synced,
+    };
+  }
+
+  factory Expense.fromMap(Map<String, dynamic> map, String id) {
+    return Expense(
+      id: id,
+      tripId: map['tripId'] as String? ?? '',
+      day: map['day'] as int? ?? 1,
+      category: SpendCategory.values.firstWhere(
+        (e) => e.name == map['category'],
+        orElse: () => SpendCategory.other,
+      ),
+      label: map['label'] as String? ?? '',
+      amountInr: map['amountInr'] as int? ?? 0,
+      spentAt: map['spentAt'] != null 
+          ? DateTime.parse(map['spentAt'] as String) 
+          : DateTime.now(),
+      synced: map['synced'] as bool? ?? true,
+    );
+  }
 }

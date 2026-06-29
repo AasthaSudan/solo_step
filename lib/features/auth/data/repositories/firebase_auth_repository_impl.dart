@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../domain/entities/app_user.dart';
@@ -39,21 +40,32 @@ class FirebaseAuthRepositoryImpl implements AuthRepository {
     await _firebaseAuth.signInAnonymously();
   }
 
+
+
   @override
   Future<void> signInWithGoogle() async {
-    final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
-    final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken,
-    );
-    await _firebaseAuth.signInWithCredential(credential);
+    if (kIsWeb) {
+      final googleProvider = GoogleAuthProvider();
+      await _firebaseAuth.signInWithPopup(googleProvider);
+    } else {
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+      await _firebaseAuth.signInWithCredential(credential);
+    }
   }
 
   @override
   Future<void> signOut() async {
-    await Future.wait([
-      _firebaseAuth.signOut(),
-      _googleSignIn.signOut(),
-    ]);
+    if (kIsWeb) {
+      await _firebaseAuth.signOut();
+    } else {
+      await Future.wait([
+        _firebaseAuth.signOut(),
+        _googleSignIn.signOut(),
+      ]);
+    }
   }
 }

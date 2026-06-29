@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/itinerary_day.dart';
 import 'activity_line_item.dart';
 
@@ -52,6 +53,14 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
     });
   }
 
+  Future<void> _launchMaps(String query) async {
+    if (query.isEmpty) return;
+    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${Uri.encodeQueryComponent(query)}');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
@@ -92,22 +101,55 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            widget.day.stayCost > 0 
-                                ? 'Stay: ${widget.day.stayName}  •  ₹${widget.day.stayCost.toInt()}'
-                                : 'No overnight stay',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: const Color.fromRGBO(255, 255, 255, 0.5),
-                              fontSize: 13 * textScale,
-                              fontWeight: FontWeight.w400,
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.day.stayCost > 0 
+                                      ? 'Stay: ${widget.day.stayName}  •  ₹${widget.day.stayCost.toInt()}'
+                                      : 'No overnight stay',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: const Color.fromRGBO(255, 255, 255, 0.5),
+                                    fontSize: 13 * textScale,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                              if (widget.day.stayCost > 0 && widget.day.stayMapsQuery != null)
+                                GestureDetector(
+                                  onTap: () => _launchMaps(widget.day.stayMapsQuery!),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    margin: const EdgeInsets.only(left: 8),
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromRGBO(66, 133, 244, 0.15),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.map_outlined, size: 10, color: Color(0xFF4285F4)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          'Maps',
+                                          style: TextStyle(
+                                            color: const Color(0xFF4285F4),
+                                            fontSize: 9 * textScale,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                     
+                    const SizedBox(width: 8),
                     // Rotating arrow icon
                     RotationTransition(
                       turns: _iconController,
@@ -170,7 +212,7 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: widget.day.foodSuggestions.map((food) {
                                 return Padding(
-                                  padding: const EdgeInsets.only(bottom: 6.0),
+                                  padding: const EdgeInsets.only(bottom: 8.0),
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -194,6 +236,15 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                                           ),
                                         ),
                                       ),
+                                      const SizedBox(width: 8),
+                                      GestureDetector(
+                                        onTap: () => _launchMaps(food),
+                                        child: const Icon(
+                                          Icons.map_outlined,
+                                          size: 16,
+                                          color: Color(0xFF4285F4),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 );
@@ -211,3 +262,4 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
     );
   }
 }
+

@@ -1,6 +1,11 @@
+import 'dart:ui' as ui;
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../providers/debrief_provider.dart';
 import '../widgets/debrief_card_widget.dart';
 
@@ -8,13 +13,65 @@ import '../widgets/debrief_card_widget.dart';
 ///
 /// It provides a "Share Story Card" action that captures the card component
 /// to share to social platforms, and a "Done" action to return to the dashboard.
-class DebriefScreen extends ConsumerWidget {
-  const DebriefScreen({super.key});
+class DebriefScreen extends ConsumerStatefulWidget {
+  final String tripId;
+  const DebriefScreen({super.key, required this.tripId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DebriefScreen> createState() => _DebriefScreenState();
+}
+
+class _DebriefScreenState extends ConsumerState<DebriefScreen> {
+  final GlobalKey _cardKey = GlobalKey();
+  bool _isSharing = false;
+
+  Future<void> _shareCard() async {
+    if (_isSharing) return;
+    setState(() => _isSharing = true);
+
+    try {
+      final boundary = _cardKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+      if (boundary == null) {
+        throw Exception("Could not find card boundary");
+      }
+      
+      // Capture the image at a high pixel ratio for sharpness
+      final image = await boundary.toImage(pixelRatio: 3.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final pngBytes = byteData!.buffer.asUint8List();
+
+      final directory = await getTemporaryDirectory();
+      final file = File('${directory.path}/soloready_debrief.png');
+      await file.writeAsBytes(pngBytes);
+
+      // Trigger the native share sheet
+      final result = await Share.shareXFiles(
+        [XFile(file.path)],
+        text: 'Check out my travel personality on SoloReady! ✈️🌍',
+      );
+
+      if (result.status == ShareResultStatus.success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Card shared successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to share card: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSharing = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
-    final debriefAsync = ref.watch(debriefProvider);
+    final debriefAsync = ref.watch(debriefProvider(widget.tripId));
     final bool isTablet = MediaQuery.of(context).size.width > 600;
 
     return Scaffold(
@@ -87,7 +144,10 @@ class DebriefScreen extends ConsumerWidget {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            DebriefCardWidget(card: card),
+                            RepaintBoundary(
+                              key: _cardKey,
+                              child: DebriefCardWidget(card: card),
+                            ),
                             const SizedBox(height: 32),
 
                             // Actions
@@ -102,23 +162,22 @@ class DebriefScreen extends ConsumerWidget {
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              icon: const Icon(Icons.share_rounded, size: 20),
+                              icon: _isSharing
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    )
+                                  : const Icon(Icons.share_rounded, size: 20),
                               label: Text(
-                                'Share Story Card',
+                                _isSharing ? 'Preparing...' : 'Share Story Card',
                                 style: TextStyle(
                                   fontSize: 16 * textScale,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 0.3,
                                 ),
                               ),
-                              onPressed: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Mock share triggered! Card image rendering to PNG (Layer 4+)... 📸'),
-                                    duration: Duration(seconds: 2),
-                                  ),
-                                );
-                              },
+                              onPressed: _shareCard,
                             ),
                             const SizedBox(height: 12),
                             OutlinedButton(

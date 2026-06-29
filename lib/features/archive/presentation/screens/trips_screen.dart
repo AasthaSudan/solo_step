@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../debrief/domain/entities/debrief_card.dart';
+
 import '../../domain/entities/trip.dart';
 import '../providers/trips_provider.dart';
 
@@ -60,31 +60,16 @@ class TripsScreen extends ConsumerWidget {
   
 
   void _openTrip(BuildContext context, Trip trip) {
-    final encodedName = Uri.encodeComponent(trip.destinationName);
+    final encodedId = Uri.encodeComponent(trip.id);
     switch (trip.status) {
       case TripStatus.active:
-        context.go('/trips/active/$encodedName');
+        context.go('/trips/active/$encodedId', extra: {'destinationName': trip.destinationName});
         return;
       case TripStatus.planning:
-        context.go('/trips/itinerary/$encodedName');
+        context.go('/trips/itinerary/$encodedId', extra: {'destinationName': trip.destinationName});
         return;
       case TripStatus.completed:
-        final savings = trip.budget - trip.spent;
-        final card = DebriefCard(
-          personality: savings >= 0 ? 'Budget Adventurer' : 'Bold Wanderer',
-          traits: savings >= 0
-              ? ['Street Food Scout', 'Route Planner', 'Early Riser']
-              : ['Spontaneous Diner', 'Scenic Detours', 'Night Owl'],
-          caption: savings >= 0
-              ? 'Wrapped a trip with smart spending, strong check-ins, and plenty of local discoveries.'
-              : 'Came home with bigger memories than budget, and a story worth sharing anyway.',
-          savedVsEstimateInr: savings,
-          totalSpentInr: trip.spent,
-          daysCount: trip.days,
-          topCategory: trip.topCategory,
-        );
-
-        context.go('/trips/debrief', extra: card);
+        context.go('/trips/debrief/$encodedId');
         return;
     }
   }

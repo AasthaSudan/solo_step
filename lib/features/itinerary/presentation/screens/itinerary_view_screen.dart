@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import '../providers/itinerary_provider.dart';
 import '../widgets/day_card.dart';
 import '../widgets/day_card_skeleton.dart';
@@ -8,10 +10,12 @@ import '../widgets/day_card_skeleton.dart';
 /// Screen presenting the full day-by-day travel plan (Layer 1 UI).
 /// Simulates itinerary generation on load and offers a complete save workflow.
 class ItineraryViewScreen extends ConsumerStatefulWidget {
+  final String tripId;
   final String destinationName;
 
   const ItineraryViewScreen({
     super.key,
+    required this.tripId,
     required this.destinationName,
   });
 
@@ -38,88 +42,122 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> {
     );
   }
 
-  void _handleSaveAndStartPlanning() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        final textScale = MediaQuery.textScalerOf(context).scale(1.0);
-        return Dialog(
-          backgroundColor: const Color(0xFF15102A),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Color(0xFFC77DFF), width: 1.5),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(28.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Color.fromRGBO(199, 125, 255, 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.verified_outlined,
-                    color: Color(0xFFE0AAFF),
-                    size: 54,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Trip Saved Successfully!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22 * textScale,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Your Munnar trip is now persisted. You will be redirected to the Home screen in active trip status.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: const Color.fromRGBO(255, 255, 255, 0.7),
-                    fontSize: 14 * textScale,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 28),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF9D4EDD),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pop(); // dismiss dialog
-                      
-                      // Navigate back to Home screen and force active trip state
-                      context.go('/home', extra: const {'startWithActiveTrip': true});
-                    },
-                    child: Text(
-                      'Go to Dashboard',
-                      style: TextStyle(
-                        fontSize: 16 * textScale,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+  bool _isSaving = false;
+
+  Future<void> _handleSaveAndStartPlanning() async {
+    final user = ref.read(authStateProvider).value;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('You must be logged in to save a trip.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      final tripId = const Uuid().v4();
+      await ref.read(itineraryProvider.notifier).saveTrip(
+            user.uid,
+            tripId,
+            widget.destinationName,
+          );
+
+      if (!mounted) return;
+      
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+          return Dialog(
+            backgroundColor: const Color(0xFF15102A),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+              side: const BorderSide(color: Color(0xFFC77DFF), width: 1.5),
             ),
-          ),
-        );
-      },
-    );
+            child: Padding(
+              padding: const EdgeInsets.all(28.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      color: Color.fromRGBO(199, 125, 255, 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.verified_outlined,
+                      color: Color(0xFFE0AAFF),
+                      size: 54,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Trip Saved Successfully!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22 * textScale,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Your ${widget.destinationName} trip is now persisted. You will be redirected to the Home screen in active trip status.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: const Color.fromRGBO(255, 255, 255, 0.7),
+                      fontSize: 14 * textScale,
+                      height: 1.4,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF9D4EDD),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // dismiss dialog
+                        context.go('/home', extra: const {'startWithActiveTrip': true});
+                      },
+                      child: Text(
+                        'Go to Dashboard',
+                        style: TextStyle(
+                          fontSize: 16 * textScale,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to save trip: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
@@ -238,15 +276,21 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> {
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                               ),
-                              onPressed: _handleSaveAndStartPlanning,
-                              child: Text(
-                                'Save & Start Planning',
-                                style: TextStyle(
-                                  fontSize: 16 * textScale,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
+                              onPressed: _isSaving ? null : _handleSaveAndStartPlanning,
+                              child: _isSaving
+                                  ? const SizedBox(
+                                      height: 24,
+                                      width: 24,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                    )
+                                  : Text(
+                                      'Save & Start Planning',
+                                      style: TextStyle(
+                                        fontSize: 16 * textScale,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
                             ),
                           ),
                           const SizedBox(height: 12),

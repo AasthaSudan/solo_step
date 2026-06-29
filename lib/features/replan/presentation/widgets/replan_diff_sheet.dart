@@ -12,13 +12,13 @@ import '../../../budget/presentation/providers/budget_provider.dart';
 ///
 /// [onAccept] is triggered when the user clicks "Accept New Plan" to save changes.
 /// [onDismiss] is triggered when the user rejects or dismisses the proposed re-plan.
-void showReplanDiffSheet(BuildContext context) {
+void showReplanDiffSheet(BuildContext context, String tripId) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     isDismissible: false, // Don't let them dismiss without acting when in loading state
-    builder: (_) => const _ReplanDiffSheet(),
+    builder: (_) => _ReplanDiffSheet(tripId: tripId),
   );
 }
 
@@ -29,7 +29,8 @@ void showReplanDiffSheet(BuildContext context) {
 // ---------------------------------------------------------------------------
 
 class _ReplanDiffSheet extends ConsumerWidget {
-  const _ReplanDiffSheet();
+  final String tripId;
+  const _ReplanDiffSheet({required this.tripId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -71,7 +72,7 @@ class _ReplanDiffSheet extends ConsumerWidget {
       );
     }
 
-    final swaps = replanState.value ?? [];
+    final swaps = replanState.value?.swaps ?? [];
     
     // Calculate totals
     final int totalOld = swaps.fold(0, (sum, s) => sum + s.oldCost);
@@ -281,7 +282,7 @@ class _ReplanDiffSheet extends ConsumerWidget {
                         ),
                         onPressed: () {
                           ref.read(replanProvider.notifier).accept();
-                          ref.read(budgetProvider.notifier).applyReplanSavings(totalSavings);
+                          ref.read(budgetProvider(tripId).notifier).applyReplanSavings(totalSavings);
                           Navigator.of(context).pop();
                         },
                         child: Text(

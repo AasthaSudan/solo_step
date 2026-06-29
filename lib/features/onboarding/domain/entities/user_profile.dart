@@ -44,4 +44,37 @@ class UserProfile {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'mood': mood,
+      'budgetTier': budgetTier,
+      'budgetPerDayMin': budgetPerDayMin,
+      'budgetPerDayMax': budgetPerDayMax,
+      'tripDuration': tripDuration,
+      'interests': interests,
+      'experienceLevel': experienceLevel,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+    };
+  }
+
+  factory UserProfile.fromMap(Map<String, dynamic> map) {
+    return UserProfile(
+      mood: map['mood'] as String? ?? '',
+      budgetTier: map['budgetTier'] as String? ?? '',
+      budgetPerDayMin: map['budgetPerDayMin'] as int? ?? 0,
+      budgetPerDayMax: map['budgetPerDayMax'] as int? ?? 0,
+      tripDuration: map['tripDuration'] as String? ?? '',
+      interests: (map['interests'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      experienceLevel: map['experienceLevel'] as String? ?? '',
+      // Firestore returns Timestamp for dates, we handle both Timestamp and String just in case
+      createdAt: map['createdAt'] != null 
+          ? (map['createdAt'].runtimeType.toString() == 'Timestamp' ? map['createdAt'].toDate() : DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now())
+          : DateTime.now(),
+      updatedAt: map['updatedAt'] != null 
+          ? (map['updatedAt'].runtimeType.toString() == 'Timestamp' ? map['updatedAt'].toDate() : DateTime.tryParse(map['updatedAt'].toString()) ?? DateTime.now())
+          : DateTime.now(),
+    );
+  }
 }

@@ -12,6 +12,7 @@ import '../../features/home/presentation/screens/home_screen.dart';
 import '../../features/itinerary/presentation/screens/itinerary_view_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_flow_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/chat/presentation/screens/ai_agent_chat_screen.dart';
 
 import '../../features/shell/presentation/screens/home_shell.dart';
 
@@ -41,8 +42,10 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/home',
               builder: (context, state) {
-                final extra = state.extra as Map<String, dynamic>?;
-                final startWithActiveTrip = extra?['startWithActiveTrip'] as bool? ?? false;
+                bool startWithActiveTrip = false;
+                if (state.extra is Map<String, dynamic>) {
+                  startWithActiveTrip = (state.extra as Map<String, dynamic>)['startWithActiveTrip'] as bool? ?? false;
+                }
                 return HomeScreen(startWithActiveTrip: startWithActiveTrip);
               },
               routes: [
@@ -66,10 +69,21 @@ final GoRouter appRouter = GoRouter(
                   },
                 ),
                 GoRoute(
-                  path: 'active/:name',
+                  path: 'active/:tripId',
                   builder: (context, state) {
-                    final destinationName = state.pathParameters['name'] ?? 'Unknown';
-                    return ActiveTripScreen(destinationName: destinationName);
+                    final tripId = state.pathParameters['tripId'] ?? 'Unknown';
+                    // We can pass tripId now instead of destinationName
+                    final extra = state.extra as Map<String, dynamic>?;
+                    final destinationName = extra?['destinationName'] as String? ?? 'Unknown Destination';
+                    return ActiveTripScreen(tripId: tripId, destinationName: destinationName);
+                  },
+                ),
+                GoRoute(
+                  path: 'chat',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    final destinationName = extra?['destinationName'] as String? ?? 'Your Destination';
+                    return AiAgentChatScreen(destinationName: destinationName);
                   },
                 ),
               ],
@@ -84,23 +98,28 @@ final GoRouter appRouter = GoRouter(
               builder: (context, state) => const TripsScreen(),
               routes: [
                 GoRoute(
-                  path: 'active/:name',
+                  path: 'active/:tripId',
                   builder: (context, state) {
-                    final destinationName = state.pathParameters['name'] ?? 'Unknown';
-                    return ActiveTripScreen(destinationName: destinationName);
+                    final tripId = state.pathParameters['tripId'] ?? 'Unknown';
+                    final extra = state.extra as Map<String, dynamic>?;
+                    final destinationName = extra?['destinationName'] as String? ?? 'Unknown Destination';
+                    return ActiveTripScreen(tripId: tripId, destinationName: destinationName);
                   },
                 ),
                 GoRoute(
-                  path: 'itinerary/:name',
+                  path: 'itinerary/:tripId',
                   builder: (context, state) {
-                    final destinationName = state.pathParameters['name'] ?? 'Unknown';
-                    return ItineraryViewScreen(destinationName: destinationName);
+                    final tripId = state.pathParameters['tripId'] ?? 'Unknown';
+                    final extra = state.extra as Map<String, dynamic>?;
+                    final destinationName = extra?['destinationName'] as String? ?? 'Unknown Destination';
+                    return ItineraryViewScreen(tripId: tripId, destinationName: destinationName);
                   },
                 ),
                 GoRoute(
-                  path: 'debrief',
+                  path: 'debrief/:tripId',
                   builder: (context, state) {
-                    return const DebriefScreen();
+                    final tripId = state.pathParameters['tripId'] ?? 'Unknown';
+                    return DebriefScreen(tripId: tripId);
                   },
                 ),
               ],

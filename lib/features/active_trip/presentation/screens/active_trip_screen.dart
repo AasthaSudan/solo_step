@@ -56,10 +56,12 @@ class _ActivityRow {
 // ---------------------------------------------------------------------------
 
 class ActiveTripScreen extends ConsumerStatefulWidget {
+  final String tripId;
   final String destinationName;
 
   const ActiveTripScreen({
     super.key,
+    required this.tripId,
     required this.destinationName,
   });
 
@@ -72,7 +74,7 @@ class _ActiveTripScreenState extends ConsumerState<ActiveTripScreen> {
     showLogSpendSheet(
       context,
       onSave: (category, amountInr) {
-        ref.read(budgetProvider.notifier).logSpend(category, amountInr);
+        ref.read(budgetProvider(widget.tripId).notifier).logSpend(category, amountInr);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Logged ₹$amountInr under ${category.label}'),
@@ -84,12 +86,12 @@ class _ActiveTripScreenState extends ConsumerState<ActiveTripScreen> {
   }
 
   void _handleReplan() {
-    final budgetStateAsync = ref.read(budgetProvider);
+    final budgetStateAsync = ref.read(budgetProvider(widget.tripId));
     final summary = budgetStateAsync.value?.summary;
-    final remainingBudget = summary?.totalBudgetInr ?? 0 - (summary?.spentInr ?? 0);
+    final remainingBudget = (summary?.totalBudgetInr ?? 0) - (summary?.spentInr ?? 0);
     
-    ref.read(replanProvider.notifier).requestReplan('dummyTripId', remainingBudget);
-    showReplanDiffSheet(context);
+    ref.read(replanProvider.notifier).requestReplan(widget.tripId, remainingBudget);
+    showReplanDiffSheet(context, widget.tripId);
   }
 
   @override

@@ -1,8 +1,14 @@
-import '../entities/proposed_swap.dart';
+import '../entities/replan_result.dart';
+import '../../../itinerary/domain/entities/itinerary.dart';
 
 abstract interface class ReplanRepository {
-  Future<List<ProposedSwap>> requestReplan({
+  Future<ReplanResult> requestReplan({
     required String tripId,
     required int remainingBudgetInr,
+  });
+
+  Future<void> acceptReplan({
+    required String tripId,
+    required Itinerary newItinerary,
   });
 }

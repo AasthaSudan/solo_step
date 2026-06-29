@@ -69,8 +69,13 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
 
   void _triggerGeneration() {
     final authUser = ref.read(authStateProvider).value;
-    final uid = authUser?.uid ?? 'anonymous_uid';
-    ref.read(discoveryResultsProvider.notifier).triggerGeneration(uid);
+    if (authUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please wait for authentication to load...')),
+      );
+      return;
+    }
+    ref.read(discoveryResultsProvider.notifier).triggerGeneration(authUser.uid);
   }
 
   void _handleSelectDestination(Destination destination) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../domain/entities/itinerary_activity.dart';
 
 /// Renders a single activity within a day's schedule.
@@ -45,6 +46,14 @@ class ActivityLineItem extends StatelessWidget {
           'bg': const Color.fromRGBO(255, 0, 127, 0.12),
           'icon': Icons.explore_outlined,
         };
+    }
+  }
+
+  Future<void> _launchMaps(String? query) async {
+    if (query == null || query.isEmpty) return;
+    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=${Uri.encodeQueryComponent(query)}');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
     }
   }
 
@@ -101,7 +110,7 @@ class ActivityLineItem extends StatelessWidget {
                 ),
                 Container(
                   width: 1.5,
-                  height: 70, // Rough vertical spacing line
+                  height: 120, // Increased to accommodate new UI
                   color: const Color.fromRGBO(255, 255, 255, 0.08),
                 ),
               ],
@@ -123,6 +132,36 @@ class ActivityLineItem extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                
+                if (activity.transitInstructions != null && activity.transitInstructions!.isNotEmpty) ...[
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color.fromRGBO(0, 245, 212, 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color.fromRGBO(0, 245, 212, 0.3)),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(Icons.directions_transit, size: 14, color: Color(0xFF00F5D4)),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            activity.transitInstructions!,
+                            style: TextStyle(
+                              color: const Color(0xFF00F5D4),
+                              fontSize: 12 * textScale,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: 6),
                 
                 // Notes
@@ -137,18 +176,19 @@ class ActivityLineItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 
-                // Category + Price Chip
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: bgColor,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: accentColor.withAlpha(51), width: 1),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
+                // Category + Price Chip + Maps Button
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: bgColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: accentColor.withAlpha(51), width: 1),
+                      ),
+                      child: Text(
                         '${activity.category.toUpperCase()}  •  ₹${activity.estimatedCost.toInt()}',
                         style: TextStyle(
                           color: accentColor,
@@ -157,8 +197,36 @@ class ActivityLineItem extends StatelessWidget {
                           letterSpacing: 0.5,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                    if (activity.googleMapsQuery != null && activity.googleMapsQuery!.isNotEmpty)
+                      InkWell(
+                        onTap: () => _launchMaps(activity.googleMapsQuery),
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(66, 133, 244, 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFF4285F4).withAlpha(100), width: 1),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.map_outlined, size: 14, color: Color(0xFF4285F4)),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Maps',
+                                style: TextStyle(
+                                  color: const Color(0xFF4285F4),
+                                  fontSize: 11 * textScale,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
@@ -168,3 +236,4 @@ class ActivityLineItem extends StatelessWidget {
     );
   }
 }
+

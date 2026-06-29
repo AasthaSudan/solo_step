@@ -2,40 +2,38 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/debrief_card.dart';
 import '../../domain/repositories/debrief_repository.dart';
-import '../../data/repositories/fake_debrief_repository_impl.dart';
+import '../../data/repositories/gemini_debrief_repository_impl.dart';
+import '../../../budget/presentation/providers/budget_provider.dart';
 
 final debriefRepositoryProvider = Provider<DebriefRepository>((ref) {
-  return FakeDebriefRepositoryImpl();
+  return GeminiDebriefRepositoryImpl();
 });
 
-final debriefProvider = AsyncNotifierProvider<DebriefNotifier, DebriefCard?>(() {
+final debriefProvider = AsyncNotifierProvider.family<DebriefNotifier, DebriefCard?, String>(() {
   return DebriefNotifier();
 });
 
-class DebriefNotifier extends AsyncNotifier<DebriefCard?> {
+class DebriefNotifier extends FamilyAsyncNotifier<DebriefCard?, String> {
   @override
-  FutureOr<DebriefCard?> build() async {
-    return _generate('mock_trip_1');
+  FutureOr<DebriefCard?> build(String arg) async {
+    return _generate(arg);
   }
 
   Future<DebriefCard> _generate(String tripId) async {
-    final flavor = await ref.read(debriefRepositoryProvider).fetchFlavor(tripId);
-    
-    // Fake BudgetSummary derived numbers for Layer 2
-    return DebriefCard(
-      personality: flavor.personality,
-      traits: flavor.traits,
-      caption: flavor.caption,
-      savedVsEstimateInr: 2150,
-      totalSpentInr: 15350,
-      daysCount: 5,
-      topCategory: 'Stay',
+    // We await the future from budgetProvider to get the fully loaded summary and expenses
+    final budgetState = await ref.read(budgetProvider(tripId).future);
 
+    final debriefCard = await ref.read(debriefRepositoryProvider).generateAndSaveDebrief(
+      tripId: tripId,
+      summary: budgetState.summary,
+      expenses: budgetState.expenses,
     );
+    
+    return debriefCard;
   }
 
-  Future<void> regenerate(String tripId) async {
+  Future<void> regenerate() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _generate(tripId));
+    state = await AsyncValue.guard(() => _generate(arg));
   }
 }

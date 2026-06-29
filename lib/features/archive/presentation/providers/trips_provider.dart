@@ -1,70 +1,52 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/trip.dart';
 
-final tripsProvider = StreamProvider<List<Trip>>((ref) async* {
-  // Simulating a network delay
-  await Future.delayed(const Duration(milliseconds: 800));
+final tripsProvider = StreamProvider<List<Trip>>((ref) {
+  final auth = FirebaseAuth.instance;
+  final firestore = FirebaseFirestore.instance;
+  
+  // In a fully auth-gated app, uid would never be null here, 
+  // but we handle it safely.
+  final uid = auth.currentUser?.uid;
+  if (uid == null) {
+    return Stream.value([]);
+  }
 
-  yield const [
-    Trip(
-      id: 'trip_1',
-      destinationName: 'Manali, Himachal Pradesh',
-      tagline: 'Snowy cafés, winding roads, and a slow solo pace',
-      dates: 'June 25 - June 30, 2026',
-      status: TripStatus.active,
-      budget: 18000,
-      spent: 4200,
-      days: 5,
-      topCategory: 'Food',
+  return firestore
+      .collection('users')
+      .doc(uid)
+      .collection('trips')
+      .orderBy('createdAt', descending: true)
+      .snapshots()
+      .map((snapshot) {
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
 
-    ),
-    Trip(
-      id: 'trip_2',
-      destinationName: 'Hampi, Karnataka',
-      tagline: 'Temple ruins, sunset climbs, and a history-heavy reset',
-      dates: 'Dec 12 - Dec 15, 2026',
-      status: TripStatus.planning,
-      budget: 12000,
-      spent: 0,
-      days: 3,
-      topCategory: 'Stay',
+      TripStatus status = TripStatus.planning;
+      final statusStr = data['status'] as String? ?? 'planning';
+      if (statusStr == 'active') status = TripStatus.active;
+      if (statusStr == 'completed') status = TripStatus.completed;
 
-    ),
-    Trip(
-      id: 'trip_3',
-      destinationName: 'Munnar, Kerala',
-      tagline: 'Tea gardens, misty mornings, and quiet hill drives',
-      dates: 'June 18 - June 22, 2026',
-      status: TripStatus.completed,
-      budget: 15000,
-      spent: 12850,
-      days: 5,
-      topCategory: 'Stay',
+      final itinerary = data['itinerary'] as Map<String, dynamic>?;
+      final days = itinerary != null ? (itinerary['days'] as List?)?.length ?? 0 : 0;
 
-    ),
-    Trip(
-      id: 'trip_4',
-      destinationName: 'South Goa, Goa',
-      tagline: 'Slow beaches, local food stalls, and sunset wandering',
-      dates: 'Jan 05 - Jan 10, 2026',
-      status: TripStatus.completed,
-      budget: 20000,
-      spent: 22400,
-      days: 6,
-      topCategory: 'Activity',
+      final debrief = data['debrief'] as Map<String, dynamic>?;
+      final spent = debrief != null ? (debrief['totalSpentInr'] as int? ?? 0) : 0;
+      final topCategory = debrief != null ? (debrief['topCategory'] as String? ?? 'None') : 'None';
 
-    ),
-    Trip(
-      id: 'trip_5',
-      destinationName: 'Udaipur, Rajasthan',
-      tagline: 'Lake views, palace walks, and a camera-first plan',
-      dates: 'Aug 02 - Aug 06, 2026',
-      status: TripStatus.planning,
-      budget: 16000,
-      spent: 0,
-      days: 4,
-      topCategory: 'Food',
-
-    ),
-  ];
+      return Trip(
+        id: doc.id,
+        destinationName: data['destinationName'] as String? ?? 'Unknown',
+        tagline: data['tagline'] as String? ?? '', // Could be extracted if saved during discovery
+        dates: data['dates'] as String? ?? 'Dates TBD', // Fallback
+        status: status,
+        budget: data['totalBudgetInr'] as int? ?? 0,
+        spent: spent,
+        days: days,
+        topCategory: topCategory,
+      );
+    }).toList();
+  });
 });
