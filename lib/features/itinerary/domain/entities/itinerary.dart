@@ -6,11 +6,13 @@ class Itinerary {
   final List<ItineraryDay> days;
   final List<BookingOption> accommodations;
   final List<BookingOption> foodOptions;
+  final List<BookingOption> transportOptions;
 
   const Itinerary({
     required this.days,
     this.accommodations = const [],
     this.foodOptions = const [],
+    this.transportOptions = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -18,6 +20,7 @@ class Itinerary {
       'days': days.map((x) => x.toMap()).toList(),
       'accommodations': accommodations.map((x) => x.toMap()).toList(),
       'foodOptions': foodOptions.map((x) => x.toMap()).toList(),
+      'transportOptions': transportOptions.map((x) => x.toMap()).toList(),
     };
   }
 
@@ -35,6 +38,11 @@ class Itinerary {
       ),
       foodOptions: List<BookingOption>.from(
         (map['foodOptions'] as List<dynamic>? ?? []).map<BookingOption>(
+          (x) => BookingOption.fromMap(x as Map<String, dynamic>),
+        ),
+      ),
+      transportOptions: List<BookingOption>.from(
+        (map['transportOptions'] as List<dynamic>? ?? []).map<BookingOption>(
           (x) => BookingOption.fromMap(x as Map<String, dynamic>),
         ),
       ),

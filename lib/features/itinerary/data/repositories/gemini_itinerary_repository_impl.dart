@@ -33,7 +33,8 @@ CRITICAL INSTRUCTIONS:
 4. Provide a 'bookingLink' URL for every stay, activity, and food if applicable (e.g. MakeMyTrip, Agoda, Zomato, or official site URL).
 5. Provide an 'imageUrl' for every stay, activity, and food pointing to a public Wikimedia Commons image URL of the location (or a descriptive placeholder URL).
 6. Make sure every single activity has a realistic "category" (sightseeing, food, transport, stay, activity) and a numerical "estimatedCost" in INR.
-7. Also provide a list of 3 specific "accommodations" (hotels, hostels) and 3 specific "foodOptions" (restaurants, cafes, street food) for the trip, with their exact names, descriptions, estimated costs, and search links (e.g., Zomato, MakeMyTrip).
+7. Provide a list of 5-7 specific "accommodations" (mix of budget hostels, mid-range, luxury), 5-7 specific "foodOptions" (restaurants, cafes), and 3-5 "transportOptions" (flights, trains, or overnight buses) relevant to the trip. 
+8. VERY IMPORTANT: For the `searchLink` in accommodations, foodOptions, and transportOptions, DO NOT just link to a homepage like "booking.com". You MUST generate a direct search URL with query parameters (e.g., "https://www.booking.com/searchresults.html?ss=Zostel+Manali" or "https://www.zomato.com/search?q=Cafe+1947").
 Return the itinerary as structured JSON.
 ''';
 
@@ -95,8 +96,21 @@ Return the itinerary as structured JSON.
               requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
             ),
           ),
+          'transportOptions': Schema.array(
+            items: Schema.object(
+              properties: {
+                'id': Schema.string(),
+                'type': Schema.string(),
+                'name': Schema.string(),
+                'description': Schema.string(),
+                'estimatedCostInr': Schema.integer(),
+                'searchLink': Schema.string(),
+              },
+              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+            ),
+          ),
         },
-        requiredProperties: ['days', 'accommodations', 'foodOptions'],
+        requiredProperties: ['days', 'accommodations', 'foodOptions', 'transportOptions'],
       );
 
       final model = GenerativeModel(

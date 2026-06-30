@@ -377,6 +377,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                               BookingOptionsView(
                                 accommodations: asyncItinerary.value!.accommodations,
                                 foodOptions: asyncItinerary.value!.foodOptions,
+                                transportOptions: asyncItinerary.value!.transportOptions,
                                 onOptionTapped: (cat) {
                                   _pendingBookingCategory = cat;
                                 },

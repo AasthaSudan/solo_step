@@ -6,12 +6,14 @@ import '../../../../features/budget/domain/entities/expense.dart'; // To get Spe
 class BookingOptionsView extends StatelessWidget {
   final List<BookingOption> accommodations;
   final List<BookingOption> foodOptions;
+  final List<BookingOption> transportOptions;
   final Function(SpendCategory) onOptionTapped;
 
   const BookingOptionsView({
     super.key,
     required this.accommodations,
     required this.foodOptions,
+    required this.transportOptions,
     required this.onOptionTapped,
   });
 
@@ -25,7 +27,7 @@ class BookingOptionsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (accommodations.isEmpty && foodOptions.isEmpty) {
+    if (accommodations.isEmpty && foodOptions.isEmpty && transportOptions.isEmpty) {
       return const Center(
         child: Text(
           'No specific booking options available for this trip.',
@@ -48,6 +50,12 @@ class BookingOptionsView extends StatelessWidget {
           _buildSectionTitle('Local Eats & Dining', Icons.restaurant_outlined, const Color(0xFFFBBC05)),
           const SizedBox(height: 16),
           ...foodOptions.map((option) => _buildOptionCard(context, option, SpendCategory.food)),
+          const SizedBox(height: 32),
+        ],
+        if (transportOptions.isNotEmpty) ...[
+          _buildSectionTitle('Transport Routes', Icons.directions_transit_outlined, const Color(0xFF00E5FF)),
+          const SizedBox(height: 16),
+          ...transportOptions.map((option) => _buildOptionCard(context, option, SpendCategory.transport)),
         ],
       ],
     );

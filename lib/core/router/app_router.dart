@@ -13,7 +13,7 @@ import '../../features/itinerary/presentation/screens/itinerary_view_screen.dart
 import '../../features/onboarding/presentation/screens/onboarding_flow_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/chat/presentation/screens/ai_agent_chat_screen.dart';
-import '../../features/explore/presentation/screens/explore_screen.dart';
+
 
 import '../../features/shell/presentation/screens/home_shell.dart';
 
@@ -125,16 +125,7 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        // Tab 2: Explore
-        StatefulShellBranch(
-          routes: [
-            GoRoute(
-              path: '/explore',
-              builder: (context, state) => const ExploreScreen(),
-            ),
-          ],
-        ),
-        // Tab 3: Profile
+        // Tab 2: Profile
         StatefulShellBranch(
           routes: [
             GoRoute(
