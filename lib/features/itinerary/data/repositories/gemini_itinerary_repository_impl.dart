@@ -34,7 +34,10 @@ CRITICAL INSTRUCTIONS:
 5. Provide an 'imageUrl' for every stay, activity, and food pointing to a public Wikimedia Commons image URL of the location (or a descriptive placeholder URL).
 6. Make sure every single activity has a realistic "category" (sightseeing, food, transport, stay, activity) and a numerical "estimatedCost" in INR.
 7. Provide a list of 5-7 specific "accommodations" (mix of budget hostels, mid-range, luxury), 5-7 specific "foodOptions" (restaurants, cafes), and 3-5 "transportOptions" (flights, trains, or overnight buses) relevant to the trip. 
-8. VERY IMPORTANT: For the `searchLink` in accommodations, foodOptions, and transportOptions, DO NOT just link to a homepage like "booking.com". You MUST generate a direct search URL with query parameters (e.g., "https://www.booking.com/searchresults.html?ss=Zostel+Manali" or "https://www.zomato.com/search?q=Cafe+1947").
+8. VERY IMPORTANT: For `searchLink`s:
+- For accommodations, use direct search URLs (e.g., "https://www.booking.com/searchresults.html?ss=[Hotel+Name]").
+- For foodOptions, ALWAYS use a Google Maps search URL (e.g., "https://www.google.com/maps/search/?api=1&query=[Restaurant+Name+Location]"). Do NOT use Zomato or Swiggy links.
+- For transportOptions, use direct search URLs (e.g. MakeMyTrip, RedBus, or IRCTC).
 Return the itinerary as structured JSON.
 ''';
 
