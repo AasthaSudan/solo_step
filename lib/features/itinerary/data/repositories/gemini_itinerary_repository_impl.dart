@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import '../../domain/entities/itinerary.dart';
 import '../../domain/repositories/itinerary_repository.dart';
 
@@ -38,6 +39,7 @@ CRITICAL INSTRUCTIONS:
 - For accommodations, use direct search URLs (e.g., "https://www.booking.com/searchresults.html?ss=[Hotel+Name]").
 - For foodOptions, ALWAYS use a Google Maps search URL (e.g., "https://www.google.com/maps/search/?api=1&query=[Restaurant+Name+Location]"). Do NOT use Zomato or Swiggy links.
 - For transportOptions, use direct search URLs (e.g. MakeMyTrip, RedBus, or IRCTC).
+9. Also provide exact `latitude` and `longitude` (as numbers) for every single activity to map it on an OpenStreetMap.
 Return the itinerary as structured JSON.
 ''';
 
@@ -55,12 +57,14 @@ Return the itinerary as structured JSON.
                       'category': Schema.string(),
                       'estimatedCost': Schema.number(),
                       'notes': Schema.string(),
+                      'latitude': Schema.number(),
+                      'longitude': Schema.number(),
                       'transitInstructions': Schema.string(),
                       'googleMapsQuery': Schema.string(),
                       'imageUrl': Schema.string(nullable: true),
                       'bookingLink': Schema.string(nullable: true),
                     },
-                    requiredProperties: ['time', 'title', 'category', 'estimatedCost', 'notes', 'transitInstructions', 'googleMapsQuery'],
+                    requiredProperties: ['time', 'title', 'category', 'estimatedCost', 'notes', 'transitInstructions', 'googleMapsQuery', 'latitude', 'longitude'],
                   ),
                 ),
                 'stayName': Schema.string(),
@@ -162,7 +166,7 @@ Return the itinerary as structured JSON.
   }
 
   @override
-  Future<void> saveTrip(String uid, String tripId, String destinationName, Itinerary itinerary) async {
+  Future<void> saveTrip(String uid, String tripId, String destinationName, Itinerary itinerary, {DateTime? startDate}) async {
     try {
       final docRef = _firestore.collection('users').doc(uid).collection('trips').doc(tripId);
       
@@ -173,8 +177,23 @@ Return the itinerary as structured JSON.
         'createdAt': FieldValue.serverTimestamp(),
         'status': 'active',
       };
+      
+      if (startDate != null) {
+        tripData['startDate'] = Timestamp.fromDate(startDate);
+        final endDate = startDate.add(Duration(days: itinerary.days.length - 1));
+        tripData['endDate'] = Timestamp.fromDate(endDate);
+      }
 
       await docRef.set(tripData);
+      
+      // Save to local Hive cache
+      try {
+        final box = Hive.box('itineraries');
+        await box.put(tripId, jsonEncode(itinerary.toMap()));
+      } catch (e) {
+        print('Error caching to Hive: $e');
+      }
+      
     } catch (e) {
       print('Error saving trip: $e');
       rethrow;
@@ -184,14 +203,37 @@ Return the itinerary as structured JSON.
   @override
   Future<Itinerary?> getTripItinerary(String uid, String tripId) async {
     try {
+      // 1. Try local cache first for instant loading
+      try {
+        final box = Hive.box('itineraries');
+        final cachedData = box.get(tripId);
+        if (cachedData != null) {
+          final decoded = jsonDecode(cachedData) as Map<String, dynamic>;
+          return Itinerary.fromMap(decoded);
+        }
+      } catch (e) {
+        print('Error reading from Hive cache: $e');
+      }
+
+      // 2. Fallback to Firestore
       final docRef = _firestore.collection('users').doc(uid).collection('trips').doc(tripId);
-      final doc = await docRef.get();
+      // Use cache source first if offline
+      final doc = await docRef.get(const GetOptions(source: Source.serverAndCache));
       if (!doc.exists) return null;
       
       final data = doc.data();
       if (data == null || !data.containsKey('itinerary')) return null;
       
-      return Itinerary.fromMap(data['itinerary'] as Map<String, dynamic>);
+      final itineraryData = data['itinerary'] as Map<String, dynamic>;
+      final itinerary = Itinerary.fromMap(itineraryData);
+      
+      // Cache it for next time
+      try {
+        final box = Hive.box('itineraries');
+        await box.put(tripId, jsonEncode(itineraryData));
+      } catch (e) {}
+
+      return itinerary;
     } catch (e) {
       print('Error getting trip itinerary: $e');
       return null;

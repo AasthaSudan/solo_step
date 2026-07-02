@@ -129,12 +129,16 @@ class _TripSummaryCardState extends State<TripSummaryCard> {
                       ),
                     ),
                     // Dates
-                    Text(
-                      widget.dates,
-                      style: TextStyle(
-                        color: const Color.fromRGBO(255, 255, 255, 0.6),
-                        fontSize: 13 * textScale,
-                        fontWeight: FontWeight.w500,
+                    Flexible(
+                      child: Text(
+                        widget.dates,
+                        style: TextStyle(
+                          color: const Color.fromRGBO(255, 255, 255, 0.6),
+                          fontSize: 13 * textScale,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
                       ),
                     ),
                   ],

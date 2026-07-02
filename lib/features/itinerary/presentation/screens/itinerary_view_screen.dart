@@ -10,6 +10,7 @@ import '../../../../features/budget/presentation/providers/budget_provider.dart'
 import '../../../../features/budget/presentation/widgets/log_spend_sheet.dart';
 import '../../../../features/budget/domain/entities/expense.dart';
 import '../widgets/booking_options_view.dart';
+import '../widgets/itinerary_map_view.dart';
 
 /// Screen presenting the full day-by-day travel plan (Layer 1 UI).
 /// Simulates itinerary generation on load and offers a complete save workflow.
@@ -35,7 +36,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.tripId == 'new') {
         ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
@@ -94,6 +95,31 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
       return;
     }
 
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(days: 1)),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFFC77DFF),
+              onPrimary: Colors.white,
+              surface: Color(0xFF15102A),
+              onSurface: Colors.white,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate == null) {
+      // User cancelled date selection
+      return;
+    }
+
     setState(() {
       _isSaving = true;
     });
@@ -104,6 +130,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
             user.uid,
             tripId,
             widget.destinationName,
+            startDate: pickedDate,
           );
 
       if (!mounted) return;
@@ -318,6 +345,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                   tabs: const [
                     Tab(text: 'Itinerary Plan'),
                     Tab(text: 'Options & Booking'),
+                    Tab(text: 'Map View'),
                   ],
                 ),
               if (!isLoading && !hasError) const SizedBox(height: 8),
@@ -360,30 +388,33 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                                 itemBuilder: (context, index) => const DayCardSkeleton(),
                               )
                             : TabBarView(
-                            controller: _tabController,
-                            children: [
-                              ListView.builder(
-                                key: const ValueKey('loaded_itinerary'),
-                                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                                physics: const BouncingScrollPhysics(),
-                                itemCount: asyncItinerary.value!.days.length,
-                                itemBuilder: (context, index) {
-                                  return DayCard(
-                                    day: asyncItinerary.value!.days[index],
-                                    initiallyExpanded: index == 0, // Keep first day expanded by default
-                                  );
-                                },
+                                controller: _tabController,
+                                children: [
+                                  ListView.builder(
+                                    key: const ValueKey('loaded_itinerary'),
+                                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+                                    physics: const BouncingScrollPhysics(),
+                                    itemCount: asyncItinerary.value!.days.length,
+                                    itemBuilder: (context, index) {
+                                      return DayCard(
+                                        day: asyncItinerary.value!.days[index],
+                                        initiallyExpanded: index == 0, // Keep first day expanded by default
+                                      );
+                                    },
+                                  ),
+                                  BookingOptionsView(
+                                    accommodations: asyncItinerary.value!.accommodations,
+                                    foodOptions: asyncItinerary.value!.foodOptions,
+                                    transportOptions: asyncItinerary.value!.transportOptions,
+                                    onOptionTapped: (cat) {
+                                      _pendingBookingCategory = cat;
+                                    },
+                                  ),
+                                  ItineraryMapView(
+                                    activities: asyncItinerary.value!.days.expand((d) => d.activities).toList(),
+                                  ),
+                                ],
                               ),
-                              BookingOptionsView(
-                                accommodations: asyncItinerary.value!.accommodations,
-                                foodOptions: asyncItinerary.value!.foodOptions,
-                                transportOptions: asyncItinerary.value!.transportOptions,
-                                onOptionTapped: (cat) {
-                                  _pendingBookingCategory = cat;
-                                },
-                              ),
-                            ],
-                          ),
                   ),
                 ),
               ),

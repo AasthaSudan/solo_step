@@ -6,6 +6,8 @@ class ItineraryActivity {
   final double estimatedCost;
   final String notes;
   final String? googleMapsQuery;
+  final double? latitude;
+  final double? longitude;
   final String? transitInstructions;
   final String? imageUrl;
   final String? bookingLink;
@@ -17,6 +19,8 @@ class ItineraryActivity {
     required this.estimatedCost,
     required this.notes,
     this.googleMapsQuery,
+    this.latitude,
+    this.longitude,
     this.transitInstructions,
     this.imageUrl,
     this.bookingLink,
@@ -30,6 +34,8 @@ class ItineraryActivity {
       'estimatedCost': estimatedCost,
       'notes': notes,
       if (googleMapsQuery != null) 'googleMapsQuery': googleMapsQuery,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
       if (transitInstructions != null) 'transitInstructions': transitInstructions,
       if (imageUrl != null) 'imageUrl': imageUrl,
       if (bookingLink != null) 'bookingLink': bookingLink,
@@ -44,6 +50,8 @@ class ItineraryActivity {
       estimatedCost: (map['estimatedCost'] as num?)?.toDouble() ?? 0.0,
       notes: map['notes'] as String? ?? '',
       googleMapsQuery: map['googleMapsQuery'] as String?,
+      latitude: (map['latitude'] as num?)?.toDouble(),
+      longitude: (map['longitude'] as num?)?.toDouble(),
       transitInstructions: map['transitInstructions'] as String?,
       imageUrl: map['imageUrl'] as String?,
       bookingLink: map['bookingLink'] as String?,

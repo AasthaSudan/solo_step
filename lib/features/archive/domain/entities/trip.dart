@@ -1,4 +1,4 @@
-enum TripStatus { planning, active, completed }
+enum TripStatus { planning, upcoming, active, completed }
 
 class Trip {
   final String id;
@@ -10,6 +10,8 @@ class Trip {
   final int spent;
   final int days;
   final String topCategory;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
   const Trip({
     required this.id,
@@ -21,5 +23,7 @@ class Trip {
     required this.spent,
     required this.days,
     required this.topCategory,
+    this.startDate,
+    this.endDate,
   });
 }

@@ -12,6 +12,8 @@ extension on TripStatus {
     switch (this) {
       case TripStatus.planning:
         return 'Planning';
+      case TripStatus.upcoming:
+        return 'Upcoming';
       case TripStatus.active:
         return 'Active';
       case TripStatus.completed:
@@ -23,6 +25,8 @@ extension on TripStatus {
     switch (this) {
       case TripStatus.planning:
         return 'Trips you are shaping now';
+      case TripStatus.upcoming:
+        return 'Your next adventures';
       case TripStatus.active:
         return 'Trips currently in motion';
       case TripStatus.completed:
@@ -34,6 +38,8 @@ extension on TripStatus {
     switch (this) {
       case TripStatus.planning:
         return const Color(0xFF4285F4);
+      case TripStatus.upcoming:
+        return const Color(0xFFFBBC05);
       case TripStatus.active:
         return const Color(0xFFC77DFF);
       case TripStatus.completed:
@@ -45,6 +51,8 @@ extension on TripStatus {
     switch (this) {
       case TripStatus.planning:
         return Icons.route_rounded;
+      case TripStatus.upcoming:
+        return Icons.event_rounded;
       case TripStatus.active:
         return Icons.bolt_rounded;
       case TripStatus.completed:
@@ -62,6 +70,7 @@ class TripsScreen extends ConsumerWidget {
   void _openTrip(BuildContext context, Trip trip) {
     final encodedId = Uri.encodeComponent(trip.id);
     switch (trip.status) {
+      case TripStatus.upcoming:
       case TripStatus.active:
         context.go('/trips/itinerary/$encodedId', extra: {'destinationName': trip.destinationName});
         return;
@@ -481,17 +490,18 @@ class _TripCard extends StatelessWidget {
                       color: const Color(0xFF4285F4),
                     ),
                     _InfoChip(
-                      label: trip.status == TripStatus.active
+                      label: trip.status == TripStatus.active || trip.status == TripStatus.upcoming
                           ? 'Spent ₹${trip.spent} / ₹${trip.budget}'
                           : trip.status == TripStatus.planning
                           ? 'Budget ₹${trip.budget}'
                           : _varianceLabel,
                       color: _varianceColor,
                     ),
-                    _InfoChip(
-                      label: 'Top: ${trip.topCategory}',
-                      color: const Color(0xFFC77DFF),
-                    ),
+                    if (trip.topCategory != 'Pending' && trip.topCategory != 'None')
+                      _InfoChip(
+                        label: 'Top: ${trip.topCategory}',
+                        color: const Color(0xFFC77DFF),
+                      ),
                   ],
                 ),
               ],

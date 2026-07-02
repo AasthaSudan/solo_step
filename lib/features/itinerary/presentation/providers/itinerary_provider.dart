@@ -39,14 +39,14 @@ class ItineraryNotifier extends Notifier<AsyncValue<Itinerary?>> {
     }
   }
 
-  Future<void> saveTrip(String uid, String tripId, String destinationName) async {
+  Future<void> saveTrip(String uid, String tripId, String destinationName, {DateTime? startDate}) async {
     final currentItinerary = state.value;
     if (currentItinerary == null) {
       throw Exception('No itinerary to save');
     }
     
     final repository = ref.read(itineraryRepositoryProvider);
-    await repository.saveTrip(uid, tripId, destinationName, currentItinerary);
+    await repository.saveTrip(uid, tripId, destinationName, currentItinerary, startDate: startDate);
   }
 }
 

@@ -43,8 +43,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     
     final tripsAsync = ref.watch(tripsProvider);
-    final activeTrip = tripsAsync.value?.where((t) => t.status == TripStatus.active).firstOrNull;
+    final activeTrip = tripsAsync.value?.where((t) => t.status == TripStatus.active || t.status == TripStatus.upcoming).firstOrNull;
     final hasActiveTrip = activeTrip != null;
+    
+    int currentDay = 1;
+    String statusStr = 'Active';
+    
+    if (activeTrip != null && activeTrip.startDate != null) {
+      final now = DateTime.now();
+      // Calculate difference in days, ignoring time
+      final start = DateTime(activeTrip.startDate!.year, activeTrip.startDate!.month, activeTrip.startDate!.day);
+      final today = DateTime(now.year, now.month, now.day);
+      final difference = today.difference(start).inDays;
+      
+      if (difference < 0) {
+        statusStr = 'Upcoming';
+        currentDay = -difference; // Days until trip
+      } else if (difference >= 0 && difference < activeTrip.days) {
+        statusStr = 'Active';
+        currentDay = difference + 1;
+      } else if (difference >= activeTrip.days) {
+        statusStr = 'Completed';
+        currentDay = activeTrip.days;
+      }
+    } else if (activeTrip != null) {
+      statusStr = 'Planning';
+    }
 
     return Scaffold(
       body: Container(
@@ -164,8 +188,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     destination: activeTrip.destinationName,
                                     tagline: activeTrip.tagline,
                                     dates: activeTrip.dates,
-                                    status: 'Active',
-                                    currentDay: 1, // Placeholder until real-time tracking is implemented
+                                    status: statusStr,
+                                    currentDay: currentDay,
                                     totalDays: activeTrip.days,
                                     onTap: () => _handleTripCardPressed(activeTrip.id, activeTrip.destinationName),
                                   ),
