@@ -6,4 +6,5 @@ abstract interface class ExpenseRepository {
   Stream<List<Expense>> watchExpenses(String tripId);
   Future<void> syncPending(); // Mapped to Firestore, though not implemented in Fake
   Future<BudgetSummary> summaryFor(String tripId);
+  Future<void> setTripBudget(String tripId, int budgetInr);
 }

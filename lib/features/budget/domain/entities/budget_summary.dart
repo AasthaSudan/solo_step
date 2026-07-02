@@ -1,11 +1,13 @@
 class BudgetSummary {
   final int totalBudgetInr;
+  final int durationDays;
   final int dailyTargetInr;     // totalBudget / durationDays
   final int spentInr;           // sum of logged expenses
   final int estimatedToDateInr; // sum of estCostInr for elapsed days
 
   const BudgetSummary({
     required this.totalBudgetInr,
+    required this.durationDays,
     required this.dailyTargetInr,
     required this.spentInr,
     required this.estimatedToDateInr,

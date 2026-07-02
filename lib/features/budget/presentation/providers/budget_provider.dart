@@ -47,12 +47,12 @@ class BudgetNotifier extends FamilyAsyncNotifier<BudgetState, String> {
     return BudgetState(summary: initialSummary, expenses: []);
   }
 
-  Future<void> logSpend(SpendCategory category, int amountInr) async {
+  Future<void> logSpend(SpendCategory category, int amountInr, {int day = 0}) async {
     final repo = ref.read(expenseRepositoryProvider);
     final expense = Expense(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       tripId: arg, // arg is the tripId
-      day: 2, // Hardcoded for demo
+      day: day, 
       category: category,
       label: 'Manual entry', // Generic label for manual entries
       amountInr: amountInr,
@@ -62,6 +62,18 @@ class BudgetNotifier extends FamilyAsyncNotifier<BudgetState, String> {
 
     // Optimistically log it
     await repo.logExpense(expense);
+  }
+
+  Future<void> setBudget(int budgetInr) async {
+    final repo = ref.read(expenseRepositoryProvider);
+    await repo.setTripBudget(arg, budgetInr);
+    // Refresh the summary
+    final summary = await repo.summaryFor(arg);
+    
+    // Update the state
+    if (state.hasValue) {
+      state = AsyncData(BudgetState(summary: summary, expenses: state.value!.expenses));
+    }
   }
 
   void applyReplanSavings(int savings) {

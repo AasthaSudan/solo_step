@@ -9,6 +9,7 @@ import '../widgets/day_card_skeleton.dart';
 import '../../../../features/budget/presentation/providers/budget_provider.dart';
 import '../../../../features/budget/presentation/widgets/log_spend_sheet.dart';
 import '../../../../features/budget/domain/entities/expense.dart';
+import '../../../../features/budget/presentation/screens/budget_dashboard_view.dart';
 import '../widgets/booking_options_view.dart';
 import '../widgets/itinerary_map_view.dart';
 
@@ -17,11 +18,13 @@ import '../widgets/itinerary_map_view.dart';
 class ItineraryViewScreen extends ConsumerStatefulWidget {
   final String tripId;
   final String destinationName;
+  final int initialTabIndex;
 
   const ItineraryViewScreen({
     super.key,
     required this.tripId,
     required this.destinationName,
+    this.initialTabIndex = 0,
   });
 
   @override
@@ -36,7 +39,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this, initialIndex: widget.initialTabIndex);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.tripId == 'new') {
         ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
@@ -63,8 +66,8 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
         showLogSpendSheet(
           context,
           initialCategory: category,
-          onSave: (cat, amountInr) {
-            ref.read(budgetProvider(widget.tripId).notifier).logSpend(cat, amountInr);
+          onSave: (cat, amountInr, day) {
+            ref.read(budgetProvider(widget.tripId).notifier).logSpend(cat, amountInr, day: day);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Logged ₹$amountInr for ${cat.label}')),
             );
@@ -346,6 +349,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                     Tab(text: 'Itinerary Plan'),
                     Tab(text: 'Options & Booking'),
                     Tab(text: 'Map View'),
+                    Tab(text: 'Budget'),
                   ],
                 ),
               if (!isLoading && !hasError) const SizedBox(height: 8),
@@ -413,6 +417,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                                   ItineraryMapView(
                                     activities: asyncItinerary.value!.days.expand((d) => d.activities).toList(),
                                   ),
+                                  BudgetDashboardView(tripId: widget.tripId),
                                 ],
                               ),
                   ),
@@ -501,8 +506,8 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
               onPressed: () {
                 showLogSpendSheet(
                   context,
-                  onSave: (category, amountInr) {
-                    ref.read(budgetProvider(widget.tripId).notifier).logSpend(category, amountInr);
+                  onSave: (category, amountInr, day) {
+                    ref.read(budgetProvider(widget.tripId).notifier).logSpend(category, amountInr, day: day);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Logged ₹$amountInr for ${category.label}')),
                     );

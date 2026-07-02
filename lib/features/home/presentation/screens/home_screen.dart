@@ -5,8 +5,6 @@ import '../widgets/empty_state_widget.dart';
 import '../widgets/trip_summary_card.dart';
 import '../../../archive/presentation/providers/trips_provider.dart';
 import '../../../archive/domain/entities/trip.dart';
-import '../../../budget/presentation/providers/budget_provider.dart';
-import '../../../budget/presentation/widgets/log_spend_sheet.dart';
 
 /// The main dashboard screen (Layer 1 UI).
 /// Allows switching between empty-state and active-trip layouts using an App Bar toggle.
@@ -227,16 +225,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         label: 'Track Expenses',
                                         color: const Color(0xFFFBBC05),
                                         onTap: () {
-                                          showLogSpendSheet(
-                                            context,
-                                            onSave: (category, amountInr) {
-                                              ref.read(budgetProvider(activeTrip.id).notifier).logSpend(category, amountInr);
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                SnackBar(
-                                                  content: Text('Logged ₹$amountInr under ${category.label}'),
-                                                  duration: const Duration(seconds: 2),
-                                                ),
-                                              );
+                                          context.go(
+                                            '/trips/itinerary/${activeTrip.id}',
+                                            extra: {
+                                              'destinationName': activeTrip.destinationName,
+                                              'initialTabIndex': 3,
                                             },
                                           );
                                         },

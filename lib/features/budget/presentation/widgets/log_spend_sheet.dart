@@ -14,8 +14,9 @@ import '../../domain/entities/expense.dart';
 /// `budgetProvider.logSpend(...)` in Layer 2+.
 void showLogSpendSheet(
   BuildContext context, {
-  required void Function(SpendCategory category, int amountInr) onSave,
+  required void Function(SpendCategory category, int amountInr, int day) onSave,
   SpendCategory initialCategory = SpendCategory.food,
+  int durationDays = 1,
 }) {
   showModalBottomSheet(
     context: context,
@@ -23,7 +24,11 @@ void showLogSpendSheet(
     backgroundColor: Colors.transparent,
     // Ensure the sheet is not dismissed accidentally mid-entry
     isDismissible: true,
-    builder: (_) => _LogSpendSheet(onSave: onSave, initialCategory: initialCategory),
+    builder: (_) => _LogSpendSheet(
+      onSave: onSave, 
+      initialCategory: initialCategory,
+      durationDays: durationDays,
+    ),
   );
 }
 
@@ -32,10 +37,15 @@ void showLogSpendSheet(
 // ---------------------------------------------------------------------------
 
 class _LogSpendSheet extends StatefulWidget {
-  final void Function(SpendCategory category, int amountInr) onSave;
+  final void Function(SpendCategory category, int amountInr, int day) onSave;
   final SpendCategory initialCategory;
+  final int durationDays;
 
-  const _LogSpendSheet({required this.onSave, this.initialCategory = SpendCategory.food});
+  const _LogSpendSheet({
+    required this.onSave, 
+    this.initialCategory = SpendCategory.food,
+    this.durationDays = 1,
+  });
 
   @override
   State<_LogSpendSheet> createState() => _LogSpendSheetState();
@@ -43,6 +53,7 @@ class _LogSpendSheet extends StatefulWidget {
 
 class _LogSpendSheetState extends State<_LogSpendSheet> {
   late SpendCategory _selected;
+  int _selectedDay = 1;
   final TextEditingController _amountCtrl = TextEditingController();
   bool _hasAmount = false;
 
@@ -73,7 +84,7 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
   void _save() {
     if (!_canSave) return;
     Navigator.of(context).pop();
-    widget.onSave(_selected, _parsedAmount!);
+    widget.onSave(_selected, _parsedAmount!, _selectedDay);
   }
 
   @override
@@ -153,6 +164,46 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                   ],
                 ),
                 const SizedBox(height: 24),
+
+                // ── Step 0 label (Day) ──────────────────────────────────────────
+                if (widget.durationDays > 0) ...[
+                  Row(
+                    children: [
+                      _StepLabel(step: '0', label: 'Day', textScale: textScale),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: const Color.fromRGBO(255, 255, 255, 0.05),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<int>(
+                            value: _selectedDay,
+                            dropdownColor: const Color(0xFF15102A),
+                            icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
+                            style: TextStyle(color: Colors.white, fontSize: 14 * textScale),
+                            items: [
+                              DropdownMenuItem<int>(
+                                value: 0,
+                                child: Text('Pre-trip'),
+                              ),
+                              for (int i = 1; i <= widget.durationDays; i++)
+                                DropdownMenuItem<int>(
+                                  value: i,
+                                  child: Text('Day $i'),
+                                ),
+                            ],
+                            onChanged: (v) {
+                              if (v != null) setState(() => _selectedDay = v);
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                ],
 
                 // ── Step 1 label ──────────────────────────────────────────
                 _StepLabel(step: '1', label: 'Category', textScale: textScale),

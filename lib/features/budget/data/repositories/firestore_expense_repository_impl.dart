@@ -11,10 +11,8 @@ class FirestoreExpenseRepositoryImpl implements ExpenseRepository {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
 
-  // Hardcoded mock values that mimic the previous UI state for target budgets
-  static const int _totalBudget = 18000;
-  static const int _dailyTarget = 6000;
-  static const int _estimatedToDate = 3600;
+  // These will be calculated dynamically based on trip document and expenses.
+  static const int _estimatedToDate = 0;
 
   FirestoreExpenseRepositoryImpl({
     FirebaseFirestore? firestore,
@@ -72,6 +70,28 @@ class FirestoreExpenseRepositoryImpl implements ExpenseRepository {
   @override
   Future<BudgetSummary> summaryFor(String tripId) async {
     try {
+      final uid = _uid;
+      if (uid == null) throw Exception('User not authenticated');
+      
+      final tripRef = _firestore.collection('users').doc(uid).collection('trips').doc(tripId);
+      final tripSnap = await tripRef.get(const GetOptions(source: Source.serverAndCache));
+      
+      int totalBudget = 0;
+      int days = 1;
+      
+      if (tripSnap.exists) {
+        final data = tripSnap.data();
+        totalBudget = data?['totalBudgetInr'] as int? ?? 0;
+        
+        final itinerary = data?['itinerary'] as Map<String, dynamic>?;
+        if (itinerary != null) {
+          final daysList = itinerary['days'] as List?;
+          days = daysList?.length ?? 1;
+        }
+      }
+      
+      final dailyTarget = days > 0 ? (totalBudget / days).round() : 0;
+      
       final ref = _expensesRef(tripId);
       if (ref == null) throw Exception('User not authenticated');
       
@@ -84,8 +104,9 @@ class FirestoreExpenseRepositoryImpl implements ExpenseRepository {
       }
 
       return BudgetSummary(
-        totalBudgetInr: _totalBudget,
-        dailyTargetInr: _dailyTarget,
+        totalBudgetInr: totalBudget,
+        durationDays: days,
+        dailyTargetInr: dailyTarget,
         spentInr: totalSpent,
         estimatedToDateInr: _estimatedToDate,
       );
@@ -93,12 +114,24 @@ class FirestoreExpenseRepositoryImpl implements ExpenseRepository {
       debugPrint('Error calculating summary: $err');
       // Fallback
       return const BudgetSummary(
-        totalBudgetInr: _totalBudget,
-        dailyTargetInr: _dailyTarget,
+        totalBudgetInr: 0,
+        durationDays: 1,
+        dailyTargetInr: 0,
         spentInr: 0,
-        estimatedToDateInr: _estimatedToDate,
+        estimatedToDateInr: 0,
       );
     }
+  }
+
+  @override
+  Future<void> setTripBudget(String tripId, int budgetInr) async {
+    final uid = _uid;
+    if (uid == null) return;
+    
+    final tripRef = _firestore.collection('users').doc(uid).collection('trips').doc(tripId);
+    await tripRef.set({
+      'totalBudgetInr': budgetInr,
+    }, SetOptions(merge: true));
   }
 
   @override

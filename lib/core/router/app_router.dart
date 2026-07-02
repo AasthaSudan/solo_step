@@ -111,7 +111,12 @@ final GoRouter appRouter = GoRouter(
                     final tripId = state.pathParameters['tripId'] ?? 'Unknown';
                     final extra = state.extra as Map<String, dynamic>?;
                     final destinationName = extra?['destinationName'] as String? ?? 'Unknown Destination';
-                    return ItineraryViewScreen(tripId: tripId, destinationName: destinationName);
+                    final initialTabIndex = extra?['initialTabIndex'] as int? ?? 0;
+                    return ItineraryViewScreen(
+                      tripId: tripId, 
+                      destinationName: destinationName,
+                      initialTabIndex: initialTabIndex,
+                    );
                   },
                 ),
                 GoRoute(
