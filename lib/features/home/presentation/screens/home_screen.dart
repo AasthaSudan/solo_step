@@ -165,7 +165,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                     tagline: activeTrip.tagline,
                                     dates: activeTrip.dates,
                                     status: 'Active',
-                                    currentDay: activeTrip.days,
+                                    currentDay: 1, // Placeholder until real-time tracking is implemented
                                     totalDays: activeTrip.days,
                                     onTap: () => _handleTripCardPressed(activeTrip.id, activeTrip.destinationName),
                                   ),
