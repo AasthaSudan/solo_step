@@ -239,7 +239,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                         label: 'AI Travel Agent',
                                         color: const Color(0xFF4285F4),
                                         onTap: () {
-                                          context.go('/home/chat', extra: {'destinationName': activeTrip.destinationName});
+                                          context.go('/home/chat', extra: {
+                                            'destinationName': activeTrip.destinationName,
+                                            'tripId': activeTrip.id,
+                                          });
                                         },
                                       ),
                                     ],

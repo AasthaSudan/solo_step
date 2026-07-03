@@ -90,7 +90,11 @@ final GoRouter appRouter = GoRouter(
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     final destinationName = extra?['destinationName'] as String? ?? 'Your Destination';
-                    return AiAgentChatScreen(destinationName: destinationName);
+                    final tripId = extra?['tripId'] as String? ?? 'new';
+                    return AiAgentChatScreen(
+                      tripId: tripId,
+                      destinationName: destinationName,
+                    );
                   },
                 ),
               ],
