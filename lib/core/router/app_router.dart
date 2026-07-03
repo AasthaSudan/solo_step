@@ -13,6 +13,8 @@ import '../../features/itinerary/presentation/screens/itinerary_view_screen.dart
 import '../../features/onboarding/presentation/screens/onboarding_flow_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/chat/presentation/screens/ai_agent_chat_screen.dart';
+import '../../features/safety/presentation/screens/fake_call_screen.dart';
+import '../../features/safety/presentation/screens/safety_screen.dart';
 
 
 import '../../features/shell/presentation/screens/home_shell.dart';
@@ -134,7 +136,22 @@ final GoRouter appRouter = GoRouter(
             ),
           ],
         ),
-        // Tab 2: Profile
+        // Tab 2: Safety
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/safety',
+              builder: (context, state) => const SafetyScreen(),
+              routes: [
+                GoRoute(
+                  path: 'fake-call',
+                  builder: (context, state) => const FakeCallScreen(),
+                ),
+              ],
+            ),
+          ],
+        ),
+        // Tab 3: Profile
         StatefulShellBranch(
           routes: [
             GoRoute(
