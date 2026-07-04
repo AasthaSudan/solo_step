@@ -166,6 +166,157 @@ Return the itinerary as structured JSON.
   }
 
   @override
+  Future<Itinerary> replanItinerary(Itinerary currentItinerary, String reason) async {
+    return _replanWithRetry(currentItinerary, reason, 1);
+  }
+
+  Future<Itinerary> _replanWithRetry(Itinerary currentItinerary, String reason, int retriesLeft) async {
+    try {
+      final apiKey = dotenv.env['GEMINI_API_KEY'];
+      if (apiKey == null || apiKey.isEmpty) {
+        throw Exception('GEMINI_API_KEY is missing in .env');
+      }
+
+      final currentJson = jsonEncode(currentItinerary.toMap());
+
+      final prompt = '''
+You are an expert travel planner. I have an existing JSON itinerary for a solo female traveler.
+I need you to REWRITE this itinerary because: "$reason".
+
+Current Itinerary:
+$currentJson
+
+CRITICAL INSTRUCTIONS:
+1. You must return the updated itinerary in the exact same JSON schema as the input.
+2. Only change the activities that make sense to change based on the reason. Keep the rest the same.
+3. For new activities, follow the same rules: NO GENERIC ADVICE. Provide specific places, realistic costs, transit instructions, Google Maps queries, etc.
+4. Keep the same number of days.
+5. Provide exact `latitude` and `longitude` for any new activities.
+Return the itinerary as structured JSON.
+''';
+
+      final schema = Schema.object(
+        properties: {
+          'days': Schema.array(
+            items: Schema.object(
+              properties: {
+                'dayNumber': Schema.integer(),
+                'activities': Schema.array(
+                  items: Schema.object(
+                    properties: {
+                      'time': Schema.string(),
+                      'title': Schema.string(),
+                      'category': Schema.string(),
+                      'estimatedCost': Schema.number(),
+                      'notes': Schema.string(),
+                      'latitude': Schema.number(),
+                      'longitude': Schema.number(),
+                      'transitInstructions': Schema.string(),
+                      'googleMapsQuery': Schema.string(),
+                      'imageUrl': Schema.string(nullable: true),
+                      'bookingLink': Schema.string(nullable: true),
+                    },
+                    requiredProperties: ['time', 'title', 'category', 'estimatedCost', 'notes', 'transitInstructions', 'googleMapsQuery', 'latitude', 'longitude'],
+                  ),
+                ),
+                'stayName': Schema.string(),
+                'stayCost': Schema.number(),
+                'stayMapsQuery': Schema.string(),
+                'stayImageUrl': Schema.string(nullable: true),
+                'stayBookingLink': Schema.string(nullable: true),
+                'foodSuggestions': Schema.array(items: Schema.string()),
+              },
+              requiredProperties: ['dayNumber', 'activities', 'stayName', 'stayCost', 'stayMapsQuery', 'foodSuggestions'],
+            ),
+          ),
+          'accommodations': Schema.array(
+            items: Schema.object(
+              properties: {
+                'id': Schema.string(),
+                'type': Schema.string(),
+                'name': Schema.string(),
+                'description': Schema.string(),
+                'estimatedCostInr': Schema.integer(),
+                'searchLink': Schema.string(),
+              },
+              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+            ),
+          ),
+          'foodOptions': Schema.array(
+            items: Schema.object(
+              properties: {
+                'id': Schema.string(),
+                'type': Schema.string(),
+                'name': Schema.string(),
+                'description': Schema.string(),
+                'estimatedCostInr': Schema.integer(),
+                'searchLink': Schema.string(),
+              },
+              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+            ),
+          ),
+          'transportOptions': Schema.array(
+            items: Schema.object(
+              properties: {
+                'id': Schema.string(),
+                'type': Schema.string(),
+                'name': Schema.string(),
+                'description': Schema.string(),
+                'estimatedCostInr': Schema.integer(),
+                'searchLink': Schema.string(),
+              },
+              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+            ),
+          ),
+        },
+        requiredProperties: ['days', 'accommodations', 'foodOptions', 'transportOptions'],
+      );
+
+      final model = GenerativeModel(
+        model: 'gemini-2.5-flash',
+        apiKey: apiKey,
+        generationConfig: GenerationConfig(
+          responseMimeType: 'application/json',
+          responseSchema: schema,
+        ),
+      );
+
+      final response = await model.generateContent([Content.text(prompt)]);
+      if (response.text == null) {
+        throw Exception('Gemini did not return text.');
+      }
+
+      final data = jsonDecode(response.text!) as Map<String, dynamic>;
+      final itinerary = Itinerary.fromMap(data);
+
+      bool isValid = true;
+      for (final day in itinerary.days) {
+        for (final activity in day.activities) {
+          if (activity.category.isEmpty || activity.estimatedCost < 0.0) {
+            isValid = false;
+            break;
+          }
+        }
+        if (!isValid) break;
+      }
+
+      if (!isValid) {
+        if (retriesLeft > 0) {
+          print('Validation failed: missing category or cost. Retrying...');
+          return _replanWithRetry(currentItinerary, reason, retriesLeft - 1);
+        } else {
+          throw Exception('Validation failed: Some activities are missing category or estimatedCost after retries.');
+        }
+      }
+
+      return itinerary;
+    } catch (e) {
+      print('Error replanning itinerary: $e');
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> saveTrip(String uid, String tripId, String destinationName, Itinerary itinerary, {DateTime? startDate}) async {
     try {
       final docRef = _firestore.collection('users').doc(uid).collection('trips').doc(tripId);
@@ -184,7 +335,7 @@ Return the itinerary as structured JSON.
         tripData['endDate'] = Timestamp.fromDate(endDate);
       }
 
-      await docRef.set(tripData);
+      await docRef.set(tripData, SetOptions(merge: true));
       
       // Save to local Hive cache
       try {

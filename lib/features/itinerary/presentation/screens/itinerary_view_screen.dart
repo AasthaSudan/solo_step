@@ -12,6 +12,7 @@ import '../../../../features/budget/domain/entities/expense.dart';
 import '../../../../features/budget/presentation/screens/budget_dashboard_view.dart';
 import '../widgets/booking_options_view.dart';
 import '../widgets/itinerary_map_view.dart';
+import '../widgets/ai_replan_sheet.dart';
 
 /// Screen presenting the full day-by-day travel plan (Layer 1 UI).
 /// Simulates itinerary generation on load and offers a complete save workflow.
@@ -283,6 +284,22 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                         ),
                       ),
                     ),
+                    if (!isLoading && !hasError)
+                      IconButton(
+                        icon: const Icon(Icons.auto_awesome, color: Color(0xFFC77DFF)),
+                        tooltip: 'AI Replan',
+                        onPressed: () {
+                          showAiReplanSheet(
+                            context: context,
+                            onReplan: (reason) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Replanning... this might take a few seconds!')),
+                              );
+                              ref.read(itineraryProvider.notifier).replanItinerary(reason, widget.tripId, widget.destinationName);
+                            },
+                          );
+                        },
+                      ),
                   ],
                 ),
               ),
