@@ -47,14 +47,14 @@ class BudgetNotifier extends FamilyAsyncNotifier<BudgetState, String> {
     return BudgetState(summary: initialSummary, expenses: []);
   }
 
-  Future<void> logSpend(SpendCategory category, int amountInr, {int day = 0}) async {
+  Future<void> logSpend(SpendCategory category, int amountInr, {int day = 0, String label = ''}) async {
     final repo = ref.read(expenseRepositoryProvider);
     final expense = Expense(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       tripId: arg, // arg is the tripId
       day: day, 
       category: category,
-      label: 'Manual entry', // Generic label for manual entries
+      label: label.isEmpty ? 'Manual entry' : label, 
       amountInr: amountInr,
       spentAt: DateTime.now(),
       synced: false,

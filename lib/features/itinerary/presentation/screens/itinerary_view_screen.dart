@@ -13,6 +13,8 @@ import '../../../../features/budget/presentation/screens/budget_dashboard_view.d
 import '../widgets/booking_options_view.dart';
 import '../widgets/itinerary_map_view.dart';
 import '../widgets/ai_replan_sheet.dart';
+import '../widgets/packing_list_view.dart';
+import '../../domain/entities/itinerary.dart';
 
 /// Screen presenting the full day-by-day travel plan (Layer 1 UI).
 /// Simulates itinerary generation on load and offers a complete save workflow.
@@ -32,15 +34,13 @@ class ItineraryViewScreen extends ConsumerStatefulWidget {
   ConsumerState<ItineraryViewScreen> createState() => _ItineraryViewScreenState();
 }
 
-class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with WidgetsBindingObserver, SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with WidgetsBindingObserver {
   SpendCategory? _pendingBookingCategory;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _tabController = TabController(length: 4, vsync: this, initialIndex: widget.initialTabIndex);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.tripId == 'new') {
         ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
@@ -53,7 +53,6 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _tabController.dispose();
     super.dispose();
   }
 
@@ -67,8 +66,8 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
         showLogSpendSheet(
           context,
           initialCategory: category,
-          onSave: (cat, amountInr, day) {
-            ref.read(budgetProvider(widget.tripId).notifier).logSpend(cat, amountInr, day: day);
+          onSave: (cat, amountInr, day, label) {
+            ref.read(budgetProvider(widget.tripId).notifier).logSpend(cat, amountInr, day: day, label: label);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Logged ₹$amountInr for ${cat.label}')),
             );
@@ -82,8 +81,135 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
     ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Regenerating itinerary using Gemini Call #2 (Mock)...'),
+        content: Text('Regenerating itinerary...'),
         duration: Duration(milliseconds: 1200),
+      ),
+    );
+  }
+
+  void _showModal(Widget child, {bool fullScreen = false}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF15102A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: fullScreen ? 0.95 : 0.85,
+          child: Column(
+            children: [
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 12, bottom: 12),
+                  height: 4,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  child: child,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildQuickActions(Itinerary itinerary) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          _buildActionPill(
+            icon: Icons.backpack,
+            label: 'Packing',
+            onTap: () {
+              _showModal(
+                PackingListView(tripId: widget.tripId, destinationName: widget.destinationName),
+                fullScreen: true,
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          _buildActionPill(
+            icon: Icons.map_outlined,
+            label: 'Map',
+            onTap: () {
+              _showModal(
+                ItineraryMapView(activities: itinerary.days.expand((d) => d.activities).toList()),
+                fullScreen: true,
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          _buildActionPill(
+            icon: Icons.hotel_outlined,
+            label: 'Bookings',
+            onTap: () {
+              _showModal(
+                BookingOptionsView(
+                  accommodations: itinerary.accommodations,
+                  foodOptions: itinerary.foodOptions,
+                  transportOptions: itinerary.transportOptions,
+                  onOptionTapped: (cat) {
+                    Navigator.pop(context);
+                    _pendingBookingCategory = cat;
+                  },
+                ),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+          _buildActionPill(
+            icon: Icons.account_balance_wallet_outlined,
+            label: 'Budget',
+            onTap: () {
+              _showModal(
+                BudgetDashboardView(tripId: widget.tripId),
+                fullScreen: true,
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionPill({required IconData icon, required String label, required VoidCallback onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color.fromRGBO(255, 255, 255, 0.08),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: const Color.fromRGBO(255, 255, 255, 0.15)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: const Color(0xFFC77DFF), size: 18),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -239,7 +365,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     
     final asyncItinerary = ref.watch(itineraryProvider);
-    final bool isLoading = asyncItinerary.isLoading || (asyncItinerary.value == null && !asyncItinerary.hasError);
+    final bool isLoading = asyncItinerary.isLoading || (asyncItinerary.valueOrNull == null && !asyncItinerary.hasError);
     final bool hasError = asyncItinerary.hasError;
 
     return Scaffold(
@@ -355,21 +481,11 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                   },
                 ),
 
-              // Tabs for Plan and Bookings
-              if (!isLoading && !hasError)
-                TabBar(
-                  controller: _tabController,
-                  indicatorColor: const Color(0xFFC77DFF),
-                  labelColor: const Color(0xFFC77DFF),
-                  unselectedLabelColor: Colors.white54,
-                  tabs: const [
-                    Tab(text: 'Itinerary Plan'),
-                    Tab(text: 'Options & Booking'),
-                    Tab(text: 'Map View'),
-                    Tab(text: 'Budget'),
-                  ],
-                ),
-              if (!isLoading && !hasError) const SizedBox(height: 8),
+              if (!isLoading && !hasError && asyncItinerary.valueOrNull != null) ...[
+                const SizedBox(height: 8),
+                _buildQuickActions(asyncItinerary.valueOrNull!),
+                const SizedBox(height: 8),
+              ],
 
               // Main Schedule Body
               Expanded(
@@ -408,35 +524,18 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                                 itemCount: 3,
                                 itemBuilder: (context, index) => const DayCardSkeleton(),
                               )
-                            : TabBarView(
-                                controller: _tabController,
-                                children: [
-                                  ListView.builder(
-                                    key: const ValueKey('loaded_itinerary'),
-                                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                                    physics: const BouncingScrollPhysics(),
-                                    itemCount: asyncItinerary.value!.days.length,
-                                    itemBuilder: (context, index) {
-                                      return DayCard(
-                                        day: asyncItinerary.value!.days[index],
-                                        initiallyExpanded: index == 0, // Keep first day expanded by default
-                                      );
-                                    },
-                                  ),
-                                  BookingOptionsView(
-                                    accommodations: asyncItinerary.value!.accommodations,
-                                    foodOptions: asyncItinerary.value!.foodOptions,
-                                    transportOptions: asyncItinerary.value!.transportOptions,
-                                    onOptionTapped: (cat) {
-                                      _pendingBookingCategory = cat;
-                                    },
-                                  ),
-                                  ItineraryMapView(
-                                    activities: asyncItinerary.value!.days.expand((d) => d.activities).toList(),
-                                  ),
-                                  BudgetDashboardView(tripId: widget.tripId),
-                                ],
-                              ),
+                            : ListView.builder(
+                                  key: const ValueKey('loaded_itinerary'),
+                                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
+                                  physics: const BouncingScrollPhysics(),
+                                  itemCount: asyncItinerary.valueOrNull!.days.length,
+                                  itemBuilder: (context, index) {
+                                    return DayCard(
+                                      day: asyncItinerary.valueOrNull!.days[index],
+                                      initiallyExpanded: index == 0,
+                                    );
+                                  },
+                                ),
                   ),
                 ),
               ),
@@ -517,24 +616,6 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
           ),
         ),
       ),
-      floatingActionButton: widget.tripId != 'new'
-          ? FloatingActionButton.extended(
-              backgroundColor: const Color(0xFFFBBC05),
-              onPressed: () {
-                showLogSpendSheet(
-                  context,
-                  onSave: (category, amountInr, day) {
-                    ref.read(budgetProvider(widget.tripId).notifier).logSpend(category, amountInr, day: day);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Logged ₹$amountInr for ${category.label}')),
-                    );
-                  },
-                );
-              },
-              icon: const Icon(Icons.add, color: Colors.black87),
-              label: const Text('Log Spend', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
-            )
-          : null,
     );
   }
 }

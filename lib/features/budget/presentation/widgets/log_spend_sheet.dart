@@ -14,7 +14,7 @@ import '../../domain/entities/expense.dart';
 /// `budgetProvider.logSpend(...)` in Layer 2+.
 void showLogSpendSheet(
   BuildContext context, {
-  required void Function(SpendCategory category, int amountInr, int day) onSave,
+  required void Function(SpendCategory category, int amountInr, int day, String label) onSave,
   SpendCategory initialCategory = SpendCategory.food,
   int durationDays = 1,
 }) {
@@ -37,7 +37,7 @@ void showLogSpendSheet(
 // ---------------------------------------------------------------------------
 
 class _LogSpendSheet extends StatefulWidget {
-  final void Function(SpendCategory category, int amountInr, int day) onSave;
+  final void Function(SpendCategory category, int amountInr, int day, String label) onSave;
   final SpendCategory initialCategory;
   final int durationDays;
 
@@ -55,6 +55,7 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
   late SpendCategory _selected;
   int _selectedDay = 1;
   final TextEditingController _amountCtrl = TextEditingController();
+  final TextEditingController _labelCtrl = TextEditingController();
   bool _hasAmount = false;
 
   @override
@@ -70,6 +71,7 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
   @override
   void dispose() {
     _amountCtrl.dispose();
+    _labelCtrl.dispose();
     super.dispose();
   }
 
@@ -84,7 +86,7 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
   void _save() {
     if (!_canSave) return;
     Navigator.of(context).pop();
-    widget.onSave(_selected, _parsedAmount!, _selectedDay);
+    widget.onSave(_selected, _parsedAmount!, _selectedDay, _labelCtrl.text.trim());
   }
 
   @override
@@ -247,6 +249,40 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                     );
                   },
                   textScale: textScale,
+                ),
+
+                const SizedBox(height: 24),
+
+                // ── Step 3 label ──────────────────────────────────────────
+                _StepLabel(step: '3', label: 'Note / Description (Optional)', textScale: textScale),
+                const SizedBox(height: 12),
+
+                // ── Description field (step 3) ─────────
+                TextField(
+                  controller: _labelCtrl,
+                  style: TextStyle(color: Colors.white, fontSize: 16 * textScale),
+                  decoration: InputDecoration(
+                    hintText: 'e.g., Dinner at Spice Garden',
+                    hintStyle: TextStyle(
+                      color: const Color.fromRGBO(255, 255, 255, 0.2),
+                      fontSize: 16 * textScale,
+                    ),
+                    filled: true,
+                    fillColor: const Color.fromRGBO(255, 255, 255, 0.05),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.12)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.12)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: const Color(0xFFC77DFF), width: 2.0),
+                    ),
+                  ),
                 ),
 
                 const SizedBox(height: 24),

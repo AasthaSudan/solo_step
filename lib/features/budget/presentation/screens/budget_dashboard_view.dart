@@ -39,6 +39,24 @@ class BudgetDashboardView extends ConsumerWidget {
           body: hasBudget 
             ? _buildDashboard(context, ref, summary, expenses, progress, formatter, textScale)
             : _buildEmptyState(context, ref, textScale),
+          floatingActionButton: hasBudget
+              ? FloatingActionButton.extended(
+                  backgroundColor: const Color(0xFFFBBC05),
+                  onPressed: () {
+                    showLogSpendSheet(
+                      context,
+                      onSave: (category, amountInr, day, label) {
+                        ref.read(budgetProvider(tripId).notifier).logSpend(category, amountInr, day: day, label: label);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Logged ₹$amountInr for ${category.label}')),
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(Icons.add, color: Colors.black87),
+                  label: const Text('Log Spend', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                )
+              : null,
         );
       },
     );
@@ -246,6 +264,16 @@ class BudgetDashboardView extends ConsumerWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                if (expense.label.isNotEmpty && expense.label != 'Manual entry') ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    expense.label,
+                    style: TextStyle(
+                      color: const Color.fromRGBO(255, 255, 255, 0.8),
+                      fontSize: 14 * textScale,
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('MMM d, h:mm a').format(expense.spentAt),

@@ -4,6 +4,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../domain/entities/itinerary.dart';
+import '../../domain/entities/packing_item.dart';
 import '../../domain/repositories/itinerary_repository.dart';
 
 class GeminiItineraryRepositoryImpl implements ItineraryRepository {
@@ -312,6 +313,70 @@ Return the itinerary as structured JSON.
       return itinerary;
     } catch (e) {
       print('Error replanning itinerary: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<List<PackingItem>> generatePackingList(Itinerary itinerary) async {
+    try {
+      final apiKey = dotenv.env['GEMINI_API_KEY'];
+      if (apiKey == null || apiKey.isEmpty) {
+        throw Exception('GEMINI_API_KEY is missing in .env');
+      }
+
+      final itineraryJson = jsonEncode(itinerary.toMap());
+
+      final prompt = '''
+You are an expert travel assistant. I have an existing JSON itinerary for a solo female traveler.
+I need you to generate a smart, highly personalized packing list based ONLY on this specific itinerary.
+
+Itinerary:
+$itineraryJson
+
+INSTRUCTIONS:
+1. Generate a comprehensive packing list categorized into groups (e.g., Clothing, Toiletries, Electronics, Documents, Safety).
+2. Every item MUST have a specific, highly contextual "reason" that explicitly mentions a place or activity from the itinerary. 
+   - DO NOT say: "To keep you warm." 
+   - DO say: "To keep you warm during the evening boat ride on Day 2."
+3. Think about cultural norms (e.g., modest clothing for temples) and practical needs based on the generated itinerary.
+4. Return the result as a JSON array of objects.
+
+Follow the exact schema provided.
+''';
+
+      final schema = Schema.array(
+        items: Schema.object(
+          properties: {
+            'id': Schema.string(),
+            'name': Schema.string(),
+            'category': Schema.string(),
+            'reason': Schema.string(),
+          },
+          requiredProperties: ['id', 'name', 'category', 'reason'],
+        ),
+      );
+
+      final model = GenerativeModel(
+        model: 'gemini-2.5-flash',
+        apiKey: apiKey,
+        generationConfig: GenerationConfig(
+          responseMimeType: 'application/json',
+          responseSchema: schema,
+        ),
+      );
+
+      final response = await model.generateContent([Content.text(prompt)]);
+      if (response.text == null) {
+        throw Exception('Gemini did not return text.');
+      }
+
+      final dataList = jsonDecode(response.text!) as List<dynamic>;
+      final packingList = dataList.map((data) => PackingItem.fromMap(data as Map<String, dynamic>)).toList();
+
+      return packingList;
+    } catch (e) {
+      print('Error generating packing list: $e');
       rethrow;
     }
   }

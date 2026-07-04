@@ -45,7 +45,7 @@ class ItineraryNotifier extends Notifier<AsyncValue<Itinerary?>> {
       throw Exception('No active itinerary to replan');
     }
 
-    state = const AsyncLoading();
+    state = const AsyncLoading<Itinerary?>().copyWithPrevious(state);
     try {
       final repository = ref.read(itineraryRepositoryProvider);
       final updatedItinerary = await repository.replanItinerary(currentItinerary, reason);
@@ -66,6 +66,63 @@ class ItineraryNotifier extends Notifier<AsyncValue<Itinerary?>> {
       state = AsyncData(updatedItinerary);
     } catch (e, st) {
       state = AsyncError(e, st);
+    }
+  }
+
+  Future<void> generatePackingList(String tripId, String destinationName) async {
+    final currentItinerary = state.value;
+    if (currentItinerary == null) {
+      throw Exception('No active itinerary to generate packing list for');
+    }
+
+    state = const AsyncLoading<Itinerary?>().copyWithPrevious(state);
+    try {
+      final repository = ref.read(itineraryRepositoryProvider);
+      final packingList = await repository.generatePackingList(currentItinerary);
+      
+      final updatedItinerary = currentItinerary.copyWith(packingList: packingList);
+      
+      if (tripId != 'new') {
+        final uid = FirebaseAuth.instance.currentUser?.uid;
+        if (uid != null) {
+          await repository.saveTrip(uid, tripId, destinationName, updatedItinerary);
+        }
+      }
+      
+      state = AsyncData(updatedItinerary);
+    } catch (e, st) {
+      state = AsyncError(e, st);
+    }
+  }
+
+  Future<void> togglePackingItem(String itemId, String tripId, String destinationName) async {
+    final currentItinerary = state.value;
+    if (currentItinerary == null) return;
+
+    final updatedPackingList = currentItinerary.packingList.map((item) {
+      if (item.id == itemId) {
+        return item.copyWith(isPacked: !item.isPacked);
+      }
+      return item;
+    }).toList();
+
+    final updatedItinerary = currentItinerary.copyWith(packingList: updatedPackingList);
+    
+    // Update local state immediately for fast UI response
+    state = AsyncData(updatedItinerary);
+
+    // Save to Firebase in the background
+    if (tripId != 'new') {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid != null) {
+        try {
+          final repository = ref.read(itineraryRepositoryProvider);
+          await repository.saveTrip(uid, tripId, destinationName, updatedItinerary);
+        } catch (e) {
+          print('Error saving packing item toggle: $e');
+          // We could optionally revert the state here on failure
+        }
+      }
     }
   }
 
