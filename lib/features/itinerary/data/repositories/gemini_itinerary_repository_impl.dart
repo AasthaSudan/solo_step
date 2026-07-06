@@ -28,6 +28,7 @@ class GeminiItineraryRepositoryImpl implements ItineraryRepository {
       final prompt = '''
 You are an expert, protective local guide and travel planner for a solo female traveler in India.
 Create a detailed, hyper-specific day-by-day itinerary for a trip to $destinationName.
+IMPORTANT: Ensure a high degree of variety by including a mix of famous landmarks and unique, hidden gems or off-the-beaten-path experiences. Do not just return the standard tourist traps. Vary your recommendations each time.
 CRITICAL INSTRUCTIONS:
 1. NO GENERIC ADVICE. You must provide EXACT names of businesses (e.g. "Zostel Delhi", "Roshan Di Kulfi").
 2. For EVERY activity, you MUST provide explicit, step-by-step 'transitInstructions' (e.g., "Take Yellow Line metro to Rajiv Chowk, exit gate 5, walk 2 mins").
@@ -127,7 +128,6 @@ Return the itinerary as structured JSON.
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',
           responseSchema: schema,
-          temperature: 0.9,
         ),
       );
 
@@ -280,7 +280,6 @@ Return the itinerary as structured JSON.
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',
           responseSchema: schema,
-          temperature: 0.9,
         ),
       );
 
@@ -365,7 +364,6 @@ Follow the exact schema provided.
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',
           responseSchema: schema,
-          temperature: 0.9,
         ),
       );
 
