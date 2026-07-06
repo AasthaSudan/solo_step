@@ -45,22 +45,29 @@ class _DestinationCardSkeletonState extends State<DestinationCardSkeleton>
       child: AnimatedBuilder(
         animation: _alphaAnimation,
         builder: (context, child) {
-          final Color shimmerColor = Colors.white.withAlpha(
+          final Color shimmerColor = Colors.grey.shade400.withAlpha(
             _alphaAnimation.value.round(),
           );
           final Color indicatorShimmerColor = const Color(
-            0xFFC77DFF,
+            0xFF2C3E50,
           ).withAlpha(_alphaAnimation.value.round());
 
           return Container(
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
-              color: const Color.fromRGBO(255, 255, 255, 0.04),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
-                color: const Color.fromRGBO(255, 255, 255, 0.08),
+                color: Colors.grey.shade200,
                 width: 1.5,
               ),
+              boxShadow: [
+                const BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.04),
+                  blurRadius: 16,
+                  offset: Offset(0, 8),
+                ),
+              ],
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -179,10 +186,10 @@ class _DestinationCardSkeletonState extends State<DestinationCardSkeleton>
                         Container(
                           padding: const EdgeInsets.all(14.0),
                           decoration: BoxDecoration(
-                            color: const Color.fromRGBO(255, 255, 255, 0.02),
+                            color: const Color.fromRGBO(234, 67, 53, 0.03),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: const Color.fromRGBO(255, 255, 255, 0.05),
+                              color: const Color.fromRGBO(234, 67, 53, 0.1),
                               width: 1,
                             ),
                           ),

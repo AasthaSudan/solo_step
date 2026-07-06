@@ -25,23 +25,14 @@ class DebriefCardWidget extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          gradient: const LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF1E1035), // Deep Twilight Purple
-              Color(0xFF0F0B1E), // Dark Navy-Black
-              Color(0xFF1B1936), // Slate Midnight
-            ],
-            stops: [0.0, 0.6, 1.0],
-          ),
+          color: Colors.white,
           border: Border.all(
-            color: const Color.fromRGBO(199, 125, 255, 0.25),
+            color: Colors.grey.shade200,
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF9D4EDD).withAlpha(35),
+              color: Colors.black.withOpacity(0.04),
               blurRadius: 30,
               offset: const Offset(0, 10),
             ),
@@ -59,7 +50,7 @@ class DebriefCardWidget extends StatelessWidget {
                 height: 180,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFFC77DFF).withAlpha(30),
+                  color: const Color(0xFF2C3E50).withAlpha(20),
                 ),
               ),
             ),
@@ -71,7 +62,7 @@ class DebriefCardWidget extends StatelessWidget {
                 height: 150,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: const Color(0xFF34A853).withAlpha(15),
+                  color: const Color(0xFF2C3E50).withAlpha(15),
                 ),
               ),
             ),
@@ -91,20 +82,20 @@ class DebriefCardWidget extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF9D4EDD).withAlpha(40),
+                              color: const Color(0xFF2C3E50).withAlpha(30),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                               Icons.explore_rounded,
                               size: 14,
-                              color: Color(0xFFE0AAFF),
+                                color: const Color(0xFF2C3E50),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             'SOLOREADY',
                             style: TextStyle(
-                              color: const Color(0xFFE0AAFF),
+                              color: const Color(0xFF1A1A1A),
                               fontSize: 12 * textScale,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.5,
@@ -115,13 +106,13 @@ class DebriefCardWidget extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color.fromRGBO(255, 255, 255, 0.06),
+                          color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
                           '${card.daysCount} DAYS',
                           style: TextStyle(
-                            color: const Color.fromRGBO(255, 255, 255, 0.7),
+                            color: const Color(0xFF1A1A1A),
                             fontSize: 10 * textScale,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.0,
@@ -136,8 +127,8 @@ class DebriefCardWidget extends StatelessWidget {
                   Center(
                     child: Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: const BoxDecoration(
-                        color: Color.fromRGBO(199, 125, 255, 0.08),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -155,13 +146,13 @@ class DebriefCardWidget extends StatelessWidget {
                       card.personality.toUpperCase(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: const Color(0xFF1A1A1A),
                         fontSize: 24 * textScale,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.5,
                         shadows: [
                           Shadow(
-                            color: const Color(0xFF9D4EDD).withAlpha(120),
+                            color: Colors.transparent,
                             blurRadius: 10,
                           )
                         ],
@@ -179,16 +170,16 @@ class DebriefCardWidget extends StatelessWidget {
                       return Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color.fromRGBO(255, 255, 255, 0.04),
+                          color: Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: const Color.fromRGBO(255, 255, 255, 0.1),
+                            color: Colors.grey.shade200,
                           ),
                         ),
                         child: Text(
                           '#$trait',
                           style: TextStyle(
-                            color: const Color.fromRGBO(255, 255, 255, 0.8),
+                            color: Colors.grey.shade700,
                             fontSize: 11 * textScale,
                             fontWeight: FontWeight.w500,
                           ),
@@ -202,7 +193,7 @@ class DebriefCardWidget extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: const Color.fromRGBO(255, 255, 255, 0.02),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: isSaved
@@ -225,7 +216,7 @@ class DebriefCardWidget extends StatelessWidget {
                         Text(
                           'vs. original estimated plan',
                           style: TextStyle(
-                            color: const Color.fromRGBO(255, 255, 255, 0.4),
+                            color: Colors.grey.shade500,
                             fontSize: 12 * textScale,
                             fontWeight: FontWeight.w500,
                           ),
@@ -242,7 +233,7 @@ class DebriefCardWidget extends StatelessWidget {
                       '"${card.caption}"',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: const Color.fromRGBO(255, 255, 255, 0.8),
+                        color: Colors.grey.shade700,
                         fontSize: 14 * textScale,
                         fontStyle: FontStyle.italic,
                         height: 1.4,
@@ -252,7 +243,7 @@ class DebriefCardWidget extends StatelessWidget {
                   const Spacer(flex: 4),
 
                   // Footer info stats row
-                  const Divider(color: Color.fromRGBO(255, 255, 255, 0.08), height: 1),
+                  Divider(color: Colors.grey.shade300, height: 1),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -298,7 +289,7 @@ class _FooterStat extends StatelessWidget {
         Text(
           label.toUpperCase(),
           style: TextStyle(
-            color: const Color.fromRGBO(255, 255, 255, 0.35),
+            color: Colors.grey.shade500,
             fontSize: 9 * textScale,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -308,7 +299,7 @@ class _FooterStat extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF1A1A1A),
             fontSize: 12 * textScale,
             fontWeight: FontWeight.bold,
           ),

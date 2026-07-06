@@ -47,9 +47,9 @@ class BudgetStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Select your budget',
+          'Set your budget',
           style: TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF1A1A1A),
             fontSize: 24 * textScaleFactor,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -57,9 +57,9 @@ class BudgetStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'We use concrete price anchors to tailor accommodation and food suggestions.',
+          'How much do you plan to spend per day? This filters hotels and activities.',
           style: TextStyle(
-            color: const Color.fromRGBO(255, 255, 255, 0.6),
+            color: Colors.grey.shade600,
             fontSize: 15 * textScaleFactor,
             height: 1.3,
           ),

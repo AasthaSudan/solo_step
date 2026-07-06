@@ -52,23 +52,23 @@ class _DestinationCardState extends State<DestinationCard> {
           child: Container(
             padding: EdgeInsets.all(cardPadding),
             decoration: BoxDecoration(
-              color: const Color.fromRGBO(255, 255, 255, 0.05),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(28),
               border: Border.all(
                 color: _isHovered
-                    ? const Color.fromRGBO(199, 125, 255, 0.3)
-                    : const Color.fromRGBO(255, 255, 255, 0.12),
+                    ? const Color(0xFF2C3E50).withOpacity(0.3)
+                    : Colors.grey.shade200,
                 width: 1.5,
               ),
               boxShadow: [
                 const BoxShadow(
-                  color: Color.fromRGBO(0, 0, 0, 0.25),
+                  color: Color.fromRGBO(0, 0, 0, 0.04),
                   blurRadius: 16,
                   offset: Offset(0, 8),
                 ),
                 if (_isHovered)
                   const BoxShadow(
-                    color: Color.fromRGBO(157, 78, 221, 0.15),
+                    color: Color.fromRGBO(44, 62, 80, 0.1),
                     blurRadius: 24,
                     offset: Offset(0, 10),
                   ),
@@ -98,27 +98,17 @@ class _DestinationCardState extends State<DestinationCard> {
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color.fromRGBO(
-                                      199,
-                                      125,
-                                      255,
-                                      0.12,
-                                    ),
+                                    color: const Color.fromRGBO(44, 62, 80, 0.06),
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: const Color.fromRGBO(
-                                        199,
-                                        125,
-                                        255,
-                                        0.3,
-                                      ),
+                                      color: const Color.fromRGBO(44, 62, 80, 0.2),
                                       width: 1,
                                     ),
                                   ),
                                   child: Text(
                                     '₹${widget.destination.dailyBudgetEstimate.toInt()}/day',
                                     style: TextStyle(
-                                      color: const Color(0xFFE0AAFF),
+                                      color: const Color(0xFF2C3E50),
                                       fontSize: 12 * textScale,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 0.5,
@@ -127,7 +117,7 @@ class _DestinationCardState extends State<DestinationCard> {
                                 ),
                                 const Icon(
                                   Icons.arrow_forward_ios_outlined,
-                                  color: Color(0xFFC77DFF),
+                                  color: Color(0xFF2C3E50),
                                   size: 18,
                                 ),
                               ],
@@ -138,7 +128,7 @@ class _DestinationCardState extends State<DestinationCard> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: Colors.white,
+                                color: const Color(0xFF1A1A1A),
                                 fontSize: (isTablet ? 26.0 : 22.0) * textScale,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 0.5,
@@ -150,7 +140,7 @@ class _DestinationCardState extends State<DestinationCard> {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: const Color.fromRGBO(255, 255, 255, 0.7),
+                                color: Colors.grey.shade600,
                                 fontSize: 15 * textScale,
                                 fontWeight: FontWeight.w400,
                                 height: 1.35,
@@ -160,7 +150,7 @@ class _DestinationCardState extends State<DestinationCard> {
                             Text(
                               'HIGHLIGHTS',
                               style: TextStyle(
-                                color: const Color(0xFFC77DFF),
+                                color: const Color(0xFF2C3E50),
                                 fontSize: 12 * textScale,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.0,
@@ -181,7 +171,7 @@ class _DestinationCardState extends State<DestinationCard> {
                                           child: Icon(
                                             Icons.circle,
                                             size: 6,
-                                            color: Color(0xFFC77DFF),
+                                            color: Color(0xFF2C3E50),
                                           ),
                                         ),
                                         const SizedBox(width: 12),
@@ -189,12 +179,7 @@ class _DestinationCardState extends State<DestinationCard> {
                                           child: Text(
                                             highlight,
                                             style: TextStyle(
-                                              color: const Color.fromRGBO(
-                                                255,
-                                                255,
-                                                255,
-                                                0.8,
-                                              ),
+                                              color: const Color(0xFF1A1A1A),
                                               fontSize: 14 * textScale,
                                               fontWeight: FontWeight.w500,
                                               height: 1.3,
@@ -235,12 +220,7 @@ class _DestinationCardState extends State<DestinationCard> {
                                   maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: const Color.fromRGBO(
-                                      255,
-                                      255,
-                                      255,
-                                      0.75,
-                                    ),
+                                    color: Colors.grey.shade800,
                                     fontSize: 13 * textScale,
                                     fontWeight: FontWeight.w400,
                                     height: 1.35,

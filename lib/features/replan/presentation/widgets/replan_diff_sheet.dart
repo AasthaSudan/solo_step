@@ -47,20 +47,20 @@ class _ReplanDiffSheet extends ConsumerWidget {
           margin: const EdgeInsets.symmetric(horizontal: 24),
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            color: const Color(0xFF15102A),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: const Color.fromRGBO(199, 125, 255, 0.2)),
+            border: Border.all(color: Colors.grey.shade200),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const CircularProgressIndicator(color: Color(0xFFC77DFF)),
+              const CircularProgressIndicator(color: Color(0xFF2C3E50)),
               const SizedBox(height: 24),
               Text(
                 'Gemini is re-planning\nyour itinerary...',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: const Color(0xFF1A1A1A),
                   fontSize: 16 * textScale,
                   height: 1.4,
                   fontWeight: FontWeight.w500,
@@ -88,14 +88,10 @@ class _ReplanDiffSheet extends ConsumerWidget {
         child: Padding(
           padding: EdgeInsets.only(bottom: bottomInset),
           child: Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFF15102A),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              border: Border(
-                top: BorderSide(color: Color.fromRGBO(199, 125, 255, 0.2)),
-                left: BorderSide(color: Color.fromRGBO(199, 125, 255, 0.1)),
-                right: BorderSide(color: Color.fromRGBO(199, 125, 255, 0.1)),
-              ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              border: Border.all(color: Colors.grey.shade200),
             ),
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
             child: Column(
@@ -108,7 +104,7 @@ class _ReplanDiffSheet extends ConsumerWidget {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color.fromRGBO(255, 255, 255, 0.15),
+                      color: Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -120,13 +116,13 @@ class _ReplanDiffSheet extends ConsumerWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Color.fromRGBO(157, 78, 221, 0.15),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF2C3E50).withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.auto_awesome,
-                        color: Color(0xFFE0AAFF),
+                        color: Color(0xFF2C3E50),
                         size: 20,
                       ),
                     ),
@@ -138,7 +134,7 @@ class _ReplanDiffSheet extends ConsumerWidget {
                           Text(
                             'AI Budget Re-plan',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: const Color(0xFF1A1A1A),
                               fontSize: 20 * textScale,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.3,
@@ -147,7 +143,7 @@ class _ReplanDiffSheet extends ConsumerWidget {
                           Text(
                             'Optimized remaining itinerary to recover budget',
                             style: TextStyle(
-                              color: const Color.fromRGBO(255, 255, 255, 0.4),
+                              color: Colors.grey.shade600,
                               fontSize: 12 * textScale,
                             ),
                           ),
@@ -162,17 +158,17 @@ class _ReplanDiffSheet extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [
-                        Color.fromRGBO(157, 78, 221, 0.15),
-                        Color.fromRGBO(52, 168, 83, 0.1),
+                        const Color(0xFF2C3E50).withOpacity(0.05),
+                        const Color(0xFF34A853).withOpacity(0.1),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: const Color.fromRGBO(199, 125, 255, 0.2),
+                      color: Colors.grey.shade200,
                     ),
                   ),
                   child: Row(
@@ -199,7 +195,7 @@ class _ReplanDiffSheet extends ConsumerWidget {
                             Text(
                               'Itinerary cost reduced from ₹$totalOld to ₹$totalNew',
                               style: TextStyle(
-                                color: const Color.fromRGBO(255, 255, 255, 0.6),
+                                color: Colors.grey.shade700,
                                 fontSize: 11 * textScale,
                               ),
                             ),
@@ -215,7 +211,7 @@ class _ReplanDiffSheet extends ConsumerWidget {
                 Text(
                   'PROPOSED CHANGES',
                   style: TextStyle(
-                    color: const Color.fromRGBO(255, 255, 255, 0.4),
+                    color: Colors.grey.shade500,
                     fontSize: 11 * textScale,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.0,
@@ -245,9 +241,9 @@ class _ReplanDiffSheet extends ConsumerWidget {
                     Expanded(
                       child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: const Color.fromRGBO(255, 255, 255, 0.7),
-                          side: const BorderSide(
-                            color: Color.fromRGBO(255, 255, 255, 0.15),
+                          foregroundColor: Colors.grey.shade700,
+                          side: BorderSide(
+                            color: Colors.grey.shade300,
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -325,10 +321,10 @@ class _ReplanSwapCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(255, 255, 255, 0.03),
+        color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color.fromRGBO(255, 255, 255, 0.08),
+          color: Colors.grey.shade200,
         ),
       ),
       child: Column(
@@ -345,13 +341,13 @@ class _ReplanSwapCard extends StatelessWidget {
                     Icon(
                       swap.category.icon,
                       size: 14,
-                      color: const Color(0xFFC77DFF),
+                      color: const Color(0xFF2C3E50),
                     ),
                     const SizedBox(width: 6),
                     Text(
                       swap.category.label.toUpperCase(),
                       style: TextStyle(
-                        color: const Color(0xFFE0AAFF),
+                        color: const Color(0xFF2C3E50),
                         fontSize: 11 * textScale,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
@@ -381,7 +377,7 @@ class _ReplanSwapCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(color: Color.fromRGBO(255, 255, 255, 0.06), height: 1),
+          Divider(color: Colors.grey.shade200, height: 1),
 
           // Old Item Details (Original)
           Padding(
@@ -407,10 +403,10 @@ class _ReplanSwapCard extends StatelessWidget {
                   child: Text(
                     swap.oldTitle,
                     style: TextStyle(
-                      color: const Color.fromRGBO(255, 255, 255, 0.4),
+                      color: Colors.grey.shade500,
                       fontSize: 13 * textScale,
                       decoration: TextDecoration.lineThrough,
-                      decorationColor: const Color.fromRGBO(255, 255, 255, 0.3),
+                      decorationColor: Colors.grey.shade400,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -419,7 +415,7 @@ class _ReplanSwapCard extends StatelessWidget {
                 Text(
                   '₹${swap.oldCost}',
                   style: TextStyle(
-                    color: const Color.fromRGBO(255, 255, 255, 0.35),
+                    color: Colors.grey.shade400,
                     fontSize: 13 * textScale,
                     decoration: TextDecoration.lineThrough,
                   ),
@@ -433,16 +429,16 @@ class _ReplanSwapCard extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.arrow_downward_rounded,
                   size: 13,
-                  color: Color.fromRGBO(255, 255, 255, 0.25),
+                  color: Colors.grey.shade300,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Container(
                     height: 1,
-                    color: const Color.fromRGBO(255, 255, 255, 0.03),
+                    color: Colors.grey.shade200,
                   ),
                 ),
               ],
@@ -473,7 +469,7 @@ class _ReplanSwapCard extends StatelessWidget {
                   child: Text(
                     swap.newTitle,
                     style: TextStyle(
-                      color: const Color.fromRGBO(255, 255, 255, 0.9),
+                      color: const Color(0xFF1A1A1A),
                       fontSize: 14 * textScale,
                       fontWeight: FontWeight.w600,
                     ),

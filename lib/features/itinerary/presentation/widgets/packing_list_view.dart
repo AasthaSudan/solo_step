@@ -42,30 +42,30 @@ class PackingListView extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color(0xFFC77DFF).withOpacity(0.1),
+                color: const Color(0xFF2C3E50).withOpacity(0.05),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.backpack,
                 size: 64,
-                color: Color(0xFFC77DFF),
+                color: Color(0xFF2C3E50),
               ),
             ),
             const SizedBox(height: 24),
             const Text(
               'No Packing List Yet',
               style: TextStyle(
-                color: Colors.white,
+                color: Color(0xFF1A1A1A),
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Let Gemini analyze your itinerary, the local weather, and cultural norms to generate a hyper-personalized checklist for you.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white70,
+                color: Colors.grey.shade600,
                 fontSize: 16,
                 height: 1.5,
               ),
@@ -95,7 +95,7 @@ class PackingListView extends ConsumerWidget {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF9D4EDD),
+                  backgroundColor: const Color(0xFF2C3E50),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -136,7 +136,7 @@ class PackingListView extends ConsumerWidget {
                   const Text(
                     'Packing Progress',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Color(0xFF1A1A1A),
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -144,7 +144,7 @@ class PackingListView extends ConsumerWidget {
                   Text(
                     '$packedItems / $totalItems',
                     style: const TextStyle(
-                      color: Color(0xFFC77DFF),
+                      color: Color(0xFF2C3E50),
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -156,8 +156,8 @@ class PackingListView extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: LinearProgressIndicator(
                 value: progress,
-                backgroundColor: Colors.white.withValues(alpha: 0.1),
-                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFC77DFF)),
+                backgroundColor: Colors.grey.shade200,
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2C3E50)),
                 borderRadius: BorderRadius.circular(4),
                 minHeight: 8,
               ),
@@ -179,14 +179,14 @@ class PackingListView extends ConsumerWidget {
                     ),
                     child: ExpansionTile(
                       initiallyExpanded: true,
-                      iconColor: const Color(0xFFC77DFF),
-                      collapsedIconColor: Colors.white54,
+                      iconColor: const Color(0xFF2C3E50),
+                      collapsedIconColor: Colors.grey.shade500,
                       title: Row(
                         children: [
                           Text(
                             category.toUpperCase(),
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Color(0xFF1A1A1A),
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.2,
@@ -195,8 +195,8 @@ class PackingListView extends ConsumerWidget {
                           const Spacer(),
                           Text(
                             '$packedInCategory/${items.length}',
-                            style: const TextStyle(
-                              color: Colors.white54,
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
                               fontSize: 12,
                             ),
                           ),
@@ -213,17 +213,17 @@ class PackingListView extends ConsumerWidget {
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                               decoration: BoxDecoration(
-                                color: item.isPacked ? const Color.fromRGBO(199, 125, 255, 0.08) : Colors.transparent,
+                                color: item.isPacked ? const Color(0xFF2C3E50).withOpacity(0.06) : Colors.transparent,
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: item.isPacked ? const Color.fromRGBO(199, 125, 255, 0.3) : const Color.fromRGBO(255, 255, 255, 0.05),
+                                  color: item.isPacked ? const Color(0xFF2C3E50).withOpacity(0.2) : Colors.grey.shade200,
                                 ),
                               ),
                               child: Row(
                                 children: [
                                   Icon(
                                     item.isPacked ? Icons.check_circle : Icons.radio_button_unchecked,
-                                    color: item.isPacked ? const Color(0xFFC77DFF) : Colors.white38,
+                                    color: item.isPacked ? const Color(0xFF2C3E50) : Colors.grey.shade400,
                                     size: 22,
                                   ),
                                   const SizedBox(width: 12),
@@ -231,14 +231,15 @@ class PackingListView extends ConsumerWidget {
                                     child: Text(
                                       item.name,
                                       style: TextStyle(
-                                        color: item.isPacked ? Colors.white70 : Colors.white,
+                                        color: item.isPacked ? Colors.grey.shade500 : const Color(0xFF1A1A1A),
                                         fontSize: 15,
+                                        fontWeight: FontWeight.w500,
                                         decoration: item.isPacked ? TextDecoration.lineThrough : null,
                                       ),
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.info_outline, size: 20, color: Colors.white54),
+                                    icon: Icon(Icons.info_outline, size: 20, color: Colors.grey.shade500),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     onPressed: () {
@@ -273,31 +274,31 @@ class PackingListView extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF15102A),
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(color: Color(0xFFC77DFF), width: 1.5),
+          side: BorderSide(color: Colors.grey.shade200, width: 1.5),
         ),
         title: Row(
           children: [
-            const Icon(Icons.auto_awesome, color: Color(0xFFC77DFF)),
+            const Icon(Icons.auto_awesome, color: Color(0xFF2C3E50)),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 itemName,
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+                style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ],
         ),
         content: Text(
           reason,
-          style: const TextStyle(color: Colors.white70, fontSize: 15, height: 1.4),
+          style: TextStyle(color: Colors.grey.shade700, fontSize: 15, height: 1.4),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it', style: TextStyle(color: Color(0xFFC77DFF))),
+            child: const Text('Got it', style: TextStyle(color: Color(0xFF2C3E50))),
           ),
         ],
       ),

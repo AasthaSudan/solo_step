@@ -41,7 +41,7 @@ extension on TripStatus {
       case TripStatus.upcoming:
         return const Color(0xFFFBBC05);
       case TripStatus.active:
-        return const Color(0xFFC77DFF);
+        return const Color(0xFF2C3E50);
       case TripStatus.completed:
         return const Color(0xFF34A853);
     }
@@ -95,12 +95,7 @@ class TripsScreen extends ConsumerWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF0F0C20), Color(0xFF15102A), Color(0xFF2E1A47)],
-            stops: [0.0, 0.42, 1.0],
-          ),
+          color: Color(0xFFF7F5F0),
         ),
         child: SafeArea(
           child: Center(
@@ -124,17 +119,10 @@ class TripsScreen extends ConsumerWidget {
                                 height: 44,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFF9D4EDD),
-                                      Color(0xFFC77DFF),
-                                    ],
-                                  ),
+                                  color: const Color(0xFF2C3E50),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(
-                                        0xFF9D4EDD,
-                                      ).withAlpha(55),
+                                      color: const Color(0xFF2C3E50).withAlpha(55),
                                       blurRadius: 16,
                                       offset: const Offset(0, 6),
                                     ),
@@ -154,7 +142,7 @@ class TripsScreen extends ConsumerWidget {
                                     Text(
                                       'Trips',
                                       style: TextStyle(
-                                        color: Colors.white,
+                                        color: const Color(0xFF1A1A1A),
                                         fontSize: 24 * textScale,
                                         fontWeight: FontWeight.w800,
                                         letterSpacing: 0.2,
@@ -164,12 +152,7 @@ class TripsScreen extends ConsumerWidget {
                                     Text(
                                       'Grouped by status with hardcoded Layer 1 data.',
                                       style: TextStyle(
-                                        color: const Color.fromRGBO(
-                                          255,
-                                          255,
-                                          255,
-                                          0.6,
-                                        ),
+                                        color: Colors.grey.shade600,
                                         fontSize: 13 * textScale,
                                         height: 1.35,
                                       ),
@@ -219,7 +202,7 @@ class TripsScreen extends ConsumerWidget {
                       );
                     },
                     loading: () => const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator(color: Colors.white)),
+                      child: Center(child: CircularProgressIndicator(color: Color(0xFF2C3E50))),
                     ),
                     error: (err, stack) => SliverFillRemaining(
                       child: Center(child: Text('Error: $err', style: const TextStyle(color: Colors.redAccent))),
@@ -263,7 +246,7 @@ class _StatusSummaryChip extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withAlpha(230),
+              color: color,
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -315,7 +298,7 @@ class _StatusSection extends StatelessWidget {
                 child: Text(
                   status.label,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: const Color(0xFF1A1A1A),
                     fontSize: 18 * textScale,
                     fontWeight: FontWeight.w800,
                   ),
@@ -324,7 +307,7 @@ class _StatusSection extends StatelessWidget {
               Text(
                 '${trips.length}',
                 style: TextStyle(
-                  color: const Color.fromRGBO(255, 255, 255, 0.55),
+                  color: Colors.grey.shade500,
                   fontSize: 13 * textScale,
                   fontWeight: FontWeight.w700,
                 ),
@@ -335,7 +318,7 @@ class _StatusSection extends StatelessWidget {
           Text(
             status.sectionSubtitle,
             style: TextStyle(
-              color: const Color.fromRGBO(255, 255, 255, 0.55),
+              color: Colors.grey.shade600,
               fontSize: 13 * textScale,
             ),
           ),
@@ -421,14 +404,7 @@ class _TripCard extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(22),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                const Color.fromRGBO(255, 255, 255, 0.05),
-                const Color.fromRGBO(255, 255, 255, 0.025),
-              ],
-            ),
+            color: Colors.white,
             border: Border.all(color: borderColor),
             boxShadow: [
               BoxShadow(
@@ -454,7 +430,7 @@ class _TripCard extends StatelessWidget {
                     Text(
                       trip.dates,
                       style: TextStyle(
-                        color: const Color.fromRGBO(255, 255, 255, 0.45),
+                        color: Colors.grey.shade500,
                         fontSize: 11 * textScale,
                         fontWeight: FontWeight.w600,
                       ),
@@ -465,7 +441,7 @@ class _TripCard extends StatelessWidget {
                 Text(
                   trip.destinationName,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: const Color(0xFF1A1A1A),
                     fontSize: 18 * textScale,
                     fontWeight: FontWeight.w800,
                     height: 1.15,
@@ -475,7 +451,7 @@ class _TripCard extends StatelessWidget {
                 Text(
                   trip.tagline,
                   style: TextStyle(
-                    color: const Color.fromRGBO(255, 255, 255, 0.62),
+                    color: Colors.grey.shade600,
                     fontSize: 13 * textScale,
                     height: 1.4,
                   ),
@@ -571,7 +547,7 @@ class _InfoChip extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          color: Colors.white.withAlpha(225),
+          color: color,
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),

@@ -34,7 +34,7 @@ class OnboardingProgressIndicator extends StatelessWidget {
                 child: IgnorePointer(
                   ignoring: currentStep <= 1,
                   child: IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                    icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1A1A1A), size: 20),
                     onPressed: onBack,
                     tooltip: 'Back',
                   ),
@@ -45,7 +45,7 @@ class OnboardingProgressIndicator extends StatelessWidget {
               Text(
                 'Step $currentStep of $totalSteps',
                 style: TextStyle(
-                  color: const Color(0xFFE0AAFF),
+                  color: const Color(0xFF2C3E50),
                   fontSize: 14 * textScaleFactor,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 0.5,
@@ -68,7 +68,7 @@ class OnboardingProgressIndicator extends StatelessWidget {
                 height: 6,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color.fromRGBO(255, 255, 255, 0.1),
+                  color: Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(3),
                 ),
               ),
@@ -83,18 +83,11 @@ class OnboardingProgressIndicator extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [
-                          Color(0xFF9D4EDD), // Violet
-                          Color(0xFFC77DFF), // Light purple
+                          Color(0xFF2C3E50), // Dark Navy
+                          Color(0xFF34495E),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color.fromRGBO(199, 125, 255, 0.4),
-                          blurRadius: 6,
-                          spreadRadius: 1,
-                        ),
-                      ],
                     ),
                   );
                 },

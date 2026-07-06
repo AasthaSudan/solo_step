@@ -27,19 +27,19 @@ class _HomeScreenVibeChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(255, 255, 255, 0.05),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color.fromRGBO(255, 255, 255, 0.1), width: 1),
+        border: Border.all(color: Colors.grey.shade300, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: const Color(0xFFC77DFF)),
+          Icon(icon, size: 16, color: const Color(0xFF2C3E50)),
           const SizedBox(width: 8),
           Text(
             label,
             style: TextStyle(
-              color: Colors.white70,
+              color: Colors.grey.shade700,
               fontSize: 13 * textScale,
               fontWeight: FontWeight.w600,
             ),
@@ -93,16 +93,7 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0F0C20), // Dark space blue
-              Color(0xFF15102A), // Deep indigo
-              Color(0xFF2E1A47), // Rich twilight purple
-            ],
-            stops: [0.0, 0.4, 1.0],
-          ),
+          color: Color(0xFFF7F5F0),
         ),
         child: SafeArea(
           child: Column(
@@ -114,7 +105,7 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                      icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1A1A1A), size: 20),
                       onPressed: () => context.pop(),
                       tooltip: 'Back to Dashboard',
                     ),
@@ -122,7 +113,7 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
                     Text(
                       'AI Discovery',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: const Color(0xFF1A1A1A),
                         fontSize: 20 * textScale,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
@@ -132,7 +123,7 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
                 ),
               ),
 
-              const Divider(color: Color.fromRGBO(255, 255, 255, 0.08), height: 1),
+              const Divider(color: Color.fromRGBO(0, 0, 0, 0.05), height: 1),
 
               // Vibe Tweaks Confirmation Section
               Padding(
@@ -143,7 +134,7 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
                     Text(
                       'Vibe Check',
                       style: TextStyle(
-                        color: const Color(0xFFC77DFF),
+                        color: const Color(0xFF1A1A1A),
                         fontSize: 12 * textScale,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.0,
@@ -168,7 +159,7 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF9D4EDD),
+                            backgroundColor: const Color(0xFF2C3E50),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -229,14 +220,14 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
             Icon(
               Icons.travel_explore_outlined,
               size: 64,
-              color: const Color.fromRGBO(255, 255, 255, 0.3),
+              color: Colors.grey.shade400,
             ),
             const SizedBox(height: 16),
             Text(
               'Explore Custom Suggestions',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white70,
+                color: const Color(0xFF1A1A1A),
                 fontSize: 16 * textScale,
                 fontWeight: FontWeight.bold,
               ),
@@ -246,7 +237,7 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
               'Press the button above to run our Gemini recommendation model based on your profile inputs.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: const Color.fromRGBO(255, 255, 255, 0.5),
+                color: Colors.grey.shade600,
                 fontSize: 14 * textScale,
                 height: 1.4,
               ),
@@ -309,7 +300,7 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
               height: 8,
               width: isCurrent ? 24 : 8,
               decoration: BoxDecoration(
-                color: isCurrent ? const Color(0xFFC77DFF) : const Color.fromRGBO(255, 255, 255, 0.2),
+                color: isCurrent ? const Color(0xFF2C3E50) : Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(4),
               ),
             );

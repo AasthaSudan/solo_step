@@ -37,10 +37,10 @@ class _ItineraryMapViewState extends State<ItineraryMapView> {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.map_outlined, color: Colors.white54, size: 48),
-            SizedBox(height: 16),
-            Text('No coordinate data available for this day.', style: TextStyle(color: Colors.white54)),
+          children: [
+            Icon(Icons.map_outlined, color: Colors.grey.shade400, size: 48),
+            const SizedBox(height: 16),
+            Text('No coordinate data available for this day.', style: TextStyle(color: Colors.grey.shade600)),
           ],
         ),
       );
@@ -71,7 +71,7 @@ class _ItineraryMapViewState extends State<ItineraryMapView> {
           iconData = Icons.directions_bus;
           break;
         default:
-          markerColor = const Color(0xFFC77DFF);
+          markerColor = const Color(0xFF2C3E50);
           iconData = Icons.place;
       }
 
@@ -145,7 +145,7 @@ class _ItineraryMapViewState extends State<ItineraryMapView> {
             Polyline(
               points: points,
               strokeWidth: 3.0,
-              color: const Color(0xFFC77DFF).withValues(alpha: 0.7),
+              color: const Color(0xFF2C3E50).withValues(alpha: 0.7),
               pattern: const StrokePattern.dotted(),
             ),
           ],

@@ -127,6 +127,7 @@ Return the itinerary as structured JSON.
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',
           responseSchema: schema,
+          temperature: 0.9,
         ),
       );
 
@@ -279,6 +280,7 @@ Return the itinerary as structured JSON.
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',
           responseSchema: schema,
+          temperature: 0.9,
         ),
       );
 
@@ -363,6 +365,7 @@ Follow the exact schema provided.
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',
           responseSchema: schema,
+          temperature: 0.9,
         ),
       );
 

@@ -40,17 +40,17 @@ class _DayCardSkeletonState extends State<DayCardSkeleton>
     return AnimatedBuilder(
       animation: _alphaAnimation,
       builder: (context, child) {
-        final Color shimmerColor = Colors.white.withAlpha(_alphaAnimation.value.round());
-        final Color indicatorShimmerColor = const Color(0xFFC77DFF).withAlpha(_alphaAnimation.value.round());
+        final Color shimmerColor = Colors.grey.shade300.withAlpha((_alphaAnimation.value * 2).round().clamp(0, 255));
+        final Color indicatorShimmerColor = const Color(0xFF2C3E50).withAlpha((_alphaAnimation.value * 2).round().clamp(0, 255));
 
         return Container(
           margin: const EdgeInsets.only(bottom: 16.0),
           padding: const EdgeInsets.all(20.0),
           decoration: BoxDecoration(
-            color: const Color.fromRGBO(255, 255, 255, 0.04),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: const Color.fromRGBO(255, 255, 255, 0.08),
+              color: Colors.grey.shade300,
               width: 1.0,
             ),
           ),
@@ -97,7 +97,7 @@ class _DayCardSkeletonState extends State<DayCardSkeleton>
                 ],
               ),
               const SizedBox(height: 20),
-              const Divider(color: Color.fromRGBO(255, 255, 255, 0.06), height: 1),
+              Divider(color: Colors.grey.shade200, height: 1),
               const SizedBox(height: 20),
 
               // Activity 1 skeleton

@@ -104,9 +104,9 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
           padding: EdgeInsets.only(bottom: bottomInset),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF15102A),
+              color: Colors.white,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-              border: Border.all(color: const Color.fromRGBO(199, 125, 255, 0.15)),
+              border: Border.all(color: Colors.grey.shade200),
             ),
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
             child: Column(
@@ -119,7 +119,7 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color.fromRGBO(255, 255, 255, 0.15),
+                      color: Colors.grey.shade300,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -132,12 +132,12 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: const Color.fromRGBO(157, 78, 221, 0.15),
+                        color: const Color(0xFF2C3E50).withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
                         Icons.add_card_outlined,
-                        color: Color(0xFFE0AAFF),
+                        color: Color(0xFF2C3E50),
                         size: 20,
                       ),
                     ),
@@ -148,7 +148,7 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                         Text(
                           'Log a Spend',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: const Color(0xFF1A1A1A),
                             fontSize: 20 * textScale,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.3,
@@ -157,7 +157,7 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                         Text(
                           'Two taps — category then amount',
                           style: TextStyle(
-                            color: const Color.fromRGBO(255, 255, 255, 0.4),
+                            color: Colors.grey.shade600,
                             fontSize: 12 * textScale,
                           ),
                         ),
@@ -176,15 +176,15 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         decoration: BoxDecoration(
-                          color: const Color.fromRGBO(255, 255, 255, 0.05),
+                          color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton<int>(
                             value: _selectedDay,
-                            dropdownColor: const Color(0xFF15102A),
-                            icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
-                            style: TextStyle(color: Colors.white, fontSize: 14 * textScale),
+                            dropdownColor: Colors.white,
+                            icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
+                            style: TextStyle(color: const Color(0xFF1A1A1A), fontSize: 14 * textScale),
                             items: [
                               DropdownMenuItem<int>(
                                 value: 0,
@@ -260,27 +260,27 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                 // ── Description field (step 3) ─────────
                 TextField(
                   controller: _labelCtrl,
-                  style: TextStyle(color: Colors.white, fontSize: 16 * textScale),
+                  style: TextStyle(color: const Color(0xFF1A1A1A), fontSize: 16 * textScale),
                   decoration: InputDecoration(
                     hintText: 'e.g., Dinner at Spice Garden',
                     hintStyle: TextStyle(
-                      color: const Color.fromRGBO(255, 255, 255, 0.2),
+                      color: Colors.grey.shade400,
                       fontSize: 16 * textScale,
                     ),
                     filled: true,
-                    fillColor: const Color.fromRGBO(255, 255, 255, 0.05),
+                    fillColor: Colors.grey.shade50,
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.12)),
+                      borderSide: BorderSide(color: Colors.grey.shade200),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.12)),
+                      borderSide: BorderSide(color: Colors.grey.shade200),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: const Color(0xFFC77DFF), width: 2.0),
+                      borderSide: const BorderSide(color: Color(0xFF2C3E50), width: 2.0),
                     ),
                   ),
                 ),
@@ -295,10 +295,10 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                     opacity: _canSave ? 1.0 : 0.4,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF9D4EDD),
+                        backgroundColor: const Color(0xFF2C3E50),
                         foregroundColor: Colors.white,
-                        shadowColor: const Color.fromRGBO(157, 78, 221, 0.5),
-                        elevation: _canSave ? 6 : 0,
+                        shadowColor: const Color(0xFF2C3E50).withOpacity(0.5),
+                        elevation: _canSave ? 4 : 0,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -352,13 +352,13 @@ class _StepLabel extends StatelessWidget {
           height: 22,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: const Color.fromRGBO(157, 78, 221, 0.25),
+            color: const Color(0xFF2C3E50).withOpacity(0.1),
             shape: BoxShape.circle,
           ),
           child: Text(
             step,
             style: TextStyle(
-              color: const Color(0xFFE0AAFF),
+              color: const Color(0xFF2C3E50),
               fontSize: 12 * textScale,
               fontWeight: FontWeight.bold,
             ),
@@ -368,7 +368,7 @@ class _StepLabel extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: const Color.fromRGBO(255, 255, 255, 0.6),
+            color: Colors.grey.shade600,
             fontSize: 13 * textScale,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.4,
@@ -402,18 +402,18 @@ class _CategoryChip extends StatelessWidget {
         curve: Curves.easeOutCubic,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: selected ? col.withAlpha(40) : const Color.fromRGBO(255, 255, 255, 0.05),
+          color: selected ? col.withOpacity(0.15) : Colors.grey.shade50,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: selected ? col : const Color.fromRGBO(255, 255, 255, 0.1),
+            color: selected ? col : Colors.grey.shade200,
             width: selected ? 1.5 : 1.0,
           ),
           boxShadow: selected
               ? [
                   BoxShadow(
-                    color: col.withAlpha(60),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
+                    color: col.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   )
                 ]
               : [],
@@ -424,13 +424,13 @@ class _CategoryChip extends StatelessWidget {
             Icon(
               category.icon,
               size: 16,
-              color: selected ? col : const Color.fromRGBO(255, 255, 255, 0.5),
+              color: selected ? col : Colors.grey.shade400,
             ),
             const SizedBox(width: 7),
             Text(
               category.label,
               style: TextStyle(
-                color: selected ? col : const Color.fromRGBO(255, 255, 255, 0.65),
+                color: selected ? col : Colors.grey.shade600,
                 fontSize: 14 * textScale,
                 fontWeight: selected ? FontWeight.bold : FontWeight.w400,
               ),
@@ -465,14 +465,14 @@ class _AmountField extends StatelessWidget {
       ],
       textInputAction: TextInputAction.done,
       style: TextStyle(
-        color: Colors.white,
+        color: const Color(0xFF1A1A1A),
         fontSize: 22 * textScale,
         fontWeight: FontWeight.bold,
       ),
       decoration: InputDecoration(
         hintText: '0',
         hintStyle: TextStyle(
-          color: const Color.fromRGBO(255, 255, 255, 0.2),
+          color: Colors.grey.shade400,
           fontSize: 22 * textScale,
           fontWeight: FontWeight.bold,
         ),
@@ -489,15 +489,15 @@ class _AmountField extends StatelessWidget {
         ),
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
         filled: true,
-        fillColor: const Color.fromRGBO(255, 255, 255, 0.05),
+        fillColor: Colors.grey.shade50,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.12)),
+          borderSide: BorderSide(color: Colors.grey.shade200),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.12)),
+          borderSide: BorderSide(color: Colors.grey.shade200),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -532,16 +532,16 @@ class _QuickAmountRow extends StatelessWidget {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color.fromRGBO(255, 255, 255, 0.04),
+                  color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color.fromRGBO(255, 255, 255, 0.08),
+                    color: Colors.grey.shade200,
                   ),
                 ),
                 child: Text(
                   '₹$v',
                   style: TextStyle(
-                    color: const Color.fromRGBO(255, 255, 255, 0.55),
+                    color: Colors.grey.shade600,
                     fontSize: 13 * textScale,
                     fontWeight: FontWeight.w500,
                   ),

@@ -37,7 +37,7 @@ class ExperienceStep extends StatelessWidget {
         Text(
           'Solo travel experience',
           style: TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF1A1A1A),
             fontSize: 24 * textScaleFactor,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -45,9 +45,9 @@ class ExperienceStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'We use this flag to adjust the safety warnings and level of detail in your daily itinerary.',
+          'This helps us calibrate the amount of safety guidance we provide.',
           style: TextStyle(
-            color: const Color.fromRGBO(255, 255, 255, 0.6),
+            color: Colors.grey.shade600,
             fontSize: 15 * textScaleFactor,
             height: 1.3,
           ),

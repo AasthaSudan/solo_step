@@ -38,13 +38,13 @@ class _SelectableCardState extends State<SelectableCard> {
       scale = 1.02;
     }
 
-    // Colors matching a premium twilight theme
-    final Color selectedBorderColor = const Color(0xFFC77DFF); // Light violet/purple
-    final Color selectedBgColor = const Color.fromRGBO(199, 125, 255, 0.12);
-    final Color unselectedBorderColor = const Color.fromRGBO(255, 255, 255, 0.12);
-    final Color unselectedBgColor = const Color.fromRGBO(255, 255, 255, 0.04);
+    // Colors matching a premium light theme
+    final Color selectedBorderColor = const Color(0xFF2C3E50);
+    final Color selectedBgColor = const Color(0xFF2C3E50).withOpacity(0.04);
+    final Color unselectedBorderColor = Colors.grey.shade200;
+    final Color unselectedBgColor = Colors.white;
     
-    final Color activeBorderColor = widget.isSelected ? selectedBorderColor : (_isHovered ? const Color.fromRGBO(255, 255, 255, 0.3) : unselectedBorderColor);
+    final Color activeBorderColor = widget.isSelected ? selectedBorderColor : (_isHovered ? Colors.grey.shade400 : unselectedBorderColor);
     final Color activeBgColor = widget.isSelected ? selectedBgColor : unselectedBgColor;
 
     return MouseRegion(
@@ -73,13 +73,13 @@ class _SelectableCardState extends State<SelectableCard> {
               boxShadow: [
                 if (widget.isSelected)
                   BoxShadow(
-                    color: const Color.fromRGBO(157, 78, 221, 0.25),
+                    color: Colors.black.withOpacity(0.04),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   )
                 else if (_isHovered)
                   BoxShadow(
-                    color: const Color.fromRGBO(0, 0, 0, 0.15),
+                    color: Colors.black.withOpacity(0.08),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -93,14 +93,14 @@ class _SelectableCardState extends State<SelectableCard> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: widget.isSelected 
-                          ? const Color.fromRGBO(157, 78, 221, 0.2)
-                          : const Color.fromRGBO(255, 255, 255, 0.04),
+                          ? const Color(0xFF2C3E50).withOpacity(0.1)
+                          : Colors.grey.shade100,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       widget.icon,
                       size: 26,
-                      color: widget.isSelected ? const Color(0xFFE0AAFF) : Colors.white70,
+                      color: widget.isSelected ? const Color(0xFF2C3E50) : Colors.grey.shade500,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -113,7 +113,7 @@ class _SelectableCardState extends State<SelectableCard> {
                       Text(
                         widget.title,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: const Color(0xFF1A1A1A),
                           fontSize: 17 * textScaleFactor,
                           fontWeight: widget.isSelected ? FontWeight.w700 : FontWeight.w600,
                           letterSpacing: 0.15,
@@ -124,7 +124,7 @@ class _SelectableCardState extends State<SelectableCard> {
                         Text(
                           widget.subtitle!,
                           style: TextStyle(
-                            color: widget.isSelected ? const Color.fromRGBO(255, 255, 255, 0.8) : const Color.fromRGBO(255, 255, 255, 0.55),
+                            color: widget.isSelected ? const Color(0xFF1A1A1A) : Colors.grey.shade600,
                             fontSize: 14 * textScaleFactor,
                             fontWeight: FontWeight.w400,
                             height: 1.3,
@@ -142,7 +142,7 @@ class _SelectableCardState extends State<SelectableCard> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: widget.isSelected ? const Color(0xFFE0AAFF) : const Color.fromRGBO(255, 255, 255, 0.3),
+                      color: widget.isSelected ? const Color(0xFF2C3E50) : Colors.grey.shade300,
                       width: widget.isSelected ? 6 : 2,
                     ),
                     color: Colors.transparent,

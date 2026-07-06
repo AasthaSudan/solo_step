@@ -68,10 +68,10 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
       builder: (BuildContext context) {
         final textScale = MediaQuery.textScalerOf(context).scale(1.0);
         return Dialog(
-          backgroundColor: const Color(0xFF15102A),
+          backgroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24),
-            side: const BorderSide(color: Color(0xFFC77DFF), width: 1.5),
+            side: BorderSide(color: Colors.grey.shade200, width: 1.5),
           ),
           child: Padding(
             padding: const EdgeInsets.all(28.0),
@@ -80,13 +80,13 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(16),
-                  decoration: const BoxDecoration(
-                    color: Color.fromRGBO(199, 125, 255, 0.12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2C3E50).withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.check_circle_outline,
-                    color: Color(0xFFE0AAFF),
+                    color: Color(0xFF2C3E50),
                     size: 54,
                   ),
                 ),
@@ -95,7 +95,7 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                   'Onboarding Complete!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: const Color(0xFF1A1A1A),
                     fontSize: 22 * textScale,
                     fontWeight: FontWeight.bold,
                   ),
@@ -105,7 +105,7 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                   'Profile logic and Gemini recommendations will be wired in Phase B/Layer 2.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: const Color.fromRGBO(255, 255, 255, 0.7),
+                    color: Colors.grey.shade600,
                     fontSize: 14 * textScale,
                     height: 1.4,
                   ),
@@ -115,7 +115,7 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF9D4EDD),
+                      backgroundColor: const Color(0xFF2C3E50),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -169,21 +169,10 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
     final onboardingState = ref.watch(onboardingProvider);
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F5F0),
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0F0C20), // Dark space blue
-              Color(0xFF15102A), // Deep indigo
-              Color(0xFF2E1A47), // Rich twilight purple
-            ],
-            stops: [0.0, 0.4, 1.0],
-          ),
-        ),
         child: SafeArea(
           child: Column(
             children: [
@@ -288,10 +277,10 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                                 ignoring: onboardingState.interests.isEmpty,
                                 child: ElevatedButton(
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF9D4EDD), // Violet color matching the theme
+                                    backgroundColor: const Color(0xFF2C3E50),
                                     foregroundColor: Colors.white,
-                                    shadowColor: const Color.fromRGBO(157, 78, 221, 0.5),
-                                    elevation: 6,
+                                    shadowColor: Colors.black.withOpacity(0.1),
+                                    elevation: 2,
                                     padding: const EdgeInsets.symmetric(vertical: 16),
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(16),

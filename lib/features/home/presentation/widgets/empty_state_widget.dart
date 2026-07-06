@@ -107,22 +107,17 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 16),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF9D4EDD), // Violet
-                        Color(0xFFC77DFF), // Light purple
-                      ],
-                    ),
+                    color: const Color(0xFF2C3E50),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: const Color.fromRGBO(157, 78, 221, 0.4),
+                        color: const Color(0xFF2C3E50).withAlpha(100),
                         blurRadius: 16,
                         offset: const Offset(0, 4),
                       ),
                       if (_isHovered)
                         BoxShadow(
-                          color: const Color.fromRGBO(199, 125, 255, 0.6),
+                          color: const Color(0xFF2C3E50).withAlpha(150),
                           blurRadius: 20,
                           offset: const Offset(0, 6),
                         ),
@@ -161,12 +156,12 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
               icon: const Icon(
                 Icons.history_rounded,
                 size: 18,
-                color: Color(0xFFC77DFF),
+                color: Color(0xFF2C3E50),
               ),
               label: Text(
                 'View past trips',
                 style: TextStyle(
-                  color: const Color(0xFFC77DFF),
+                  color: const Color(0xFF2C3E50),
                   fontSize: 15 * textScale,
                   fontWeight: FontWeight.w500,
                 ),

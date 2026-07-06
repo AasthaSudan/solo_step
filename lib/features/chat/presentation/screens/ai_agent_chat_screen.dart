@@ -208,29 +208,29 @@ class _AiAgentChatScreenState extends ConsumerState<AiAgentChatScreen> {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0C20),
+      backgroundColor: const Color(0xFFF7F5F0),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF15102A),
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1A1A1A), size: 20),
           onPressed: () => context.pop(),
         ),
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(6),
-              decoration: const BoxDecoration(
-                color: Color.fromRGBO(157, 78, 221, 0.2),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2C3E50).withAlpha(25),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.support_agent, color: Color(0xFFC77DFF), size: 20),
+              child: const Icon(Icons.support_agent, color: Color(0xFF2C3E50), size: 20),
             ),
             const SizedBox(width: 10),
             Text(
               'Local Fixer',
               style: TextStyle(
-                color: Colors.white,
+                color: const Color(0xFF1A1A1A),
                 fontSize: 18 * textScale,
                 fontWeight: FontWeight.bold,
               ),
@@ -240,7 +240,7 @@ class _AiAgentChatScreenState extends ConsumerState<AiAgentChatScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: const Color.fromRGBO(255, 255, 255, 0.05),
+            color: Colors.grey.shade200,
             height: 1.0,
           ),
         ),
@@ -269,7 +269,7 @@ class _AiAgentChatScreenState extends ConsumerState<AiAgentChatScreen> {
               child: SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(color: Color(0xFFC77DFF), strokeWidth: 2),
+                child: CircularProgressIndicator(color: Color(0xFF2C3E50), strokeWidth: 2),
               ),
             ),
           _buildMessageInput(),
@@ -286,10 +286,10 @@ class _AiAgentChatScreenState extends ConsumerState<AiAgentChatScreen> {
         top: 12,
         bottom: 12 + MediaQuery.of(context).padding.bottom,
       ),
-      decoration: const BoxDecoration(
-        color: Color(0xFF15102A),
+      decoration: BoxDecoration(
+        color: Colors.white,
         border: Border(
-          top: BorderSide(color: Color.fromRGBO(255, 255, 255, 0.05), width: 1),
+          top: BorderSide(color: Colors.grey.shade200, width: 1),
         ),
       ),
       child: Row(
@@ -297,9 +297,9 @@ class _AiAgentChatScreenState extends ConsumerState<AiAgentChatScreen> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: const Color.fromRGBO(255, 255, 255, 0.05),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: const Color.fromRGBO(255, 255, 255, 0.1)),
+                border: Border.all(color: Colors.grey.shade300),
               ),
               child: Row(
                 children: [
@@ -307,10 +307,10 @@ class _AiAgentChatScreenState extends ConsumerState<AiAgentChatScreen> {
                   Expanded(
                     child: TextField(
                       controller: _textController,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Color(0xFF1A1A1A)),
                       decoration: const InputDecoration(
                         hintText: 'Ask for safe directions...',
-                        hintStyle: TextStyle(color: Colors.white30),
+                        hintStyle: TextStyle(color: Colors.grey),
                         border: InputBorder.none,
                       ),
                       onSubmitted: (_) => _sendMessage(),
@@ -326,7 +326,7 @@ class _AiAgentChatScreenState extends ConsumerState<AiAgentChatScreen> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: const BoxDecoration(
-                color: Color(0xFF9D4EDD),
+                color: const Color(0xFF2C3E50),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.send, color: Colors.white, size: 20),
@@ -360,7 +360,8 @@ class _ChatBubble extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isUser ? const Color(0xFF9D4EDD) : const Color.fromRGBO(255, 255, 255, 0.08),
+          color: isUser ? const Color(0xFF2C3E50) : Colors.white,
+          border: isUser ? null : Border.all(color: Colors.grey.shade200),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(20),
             topRight: const Radius.circular(20),
@@ -371,7 +372,7 @@ class _ChatBubble extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(
-            color: Colors.white,
+            color: isUser ? Colors.white : const Color(0xFF1A1A1A),
             fontSize: 14 * textScale,
             height: 1.4,
           ),

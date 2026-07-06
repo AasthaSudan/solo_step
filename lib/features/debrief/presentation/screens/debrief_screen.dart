@@ -79,29 +79,21 @@ class _DebriefScreenState extends ConsumerState<DebriefScreen> {
         title: Text(
           'Trip Debrief',
           style: TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF1A1A1A),
             fontSize: 20 * textScale,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: const Color(0xFF0F081D),
+        backgroundColor: const Color(0xFFF7F5F0),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: Colors.white),
+          icon: const Icon(Icons.close_rounded, color: Color(0xFF1A1A1A)),
           onPressed: () => context.pop(),
         ),
       ),
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF0F081D), // Dark Space Violet
-              Color(0xFF1E0E3B), // Midnight Purple
-              Color(0xFF0F081D), // Dark Space Violet
-            ],
-          ),
+          color: Color(0xFFF7F5F0),
         ),
         child: SafeArea(
           child: Center(
@@ -119,7 +111,7 @@ class _DebriefScreenState extends ConsumerState<DebriefScreen> {
                     Text(
                       'Trip Completed! 🎉',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: const Color(0xFF1A1A1A),
                         fontSize: 22 * textScale,
                         fontWeight: FontWeight.bold,
                       ),
@@ -129,7 +121,7 @@ class _DebriefScreenState extends ConsumerState<DebriefScreen> {
                     Text(
                       'Here is your custom travel personality card synthesized from your budget and safety loops.',
                       style: TextStyle(
-                        color: const Color.fromRGBO(255, 255, 255, 0.6),
+                        color: Colors.grey.shade600,
                         fontSize: 14 * textScale,
                         height: 1.4,
                       ),
@@ -153,9 +145,9 @@ class _DebriefScreenState extends ConsumerState<DebriefScreen> {
                             // Actions
                             ElevatedButton.icon(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF9D4EDD),
+                                backgroundColor: const Color(0xFF2C3E50),
                                 foregroundColor: Colors.white,
-                                shadowColor: const Color.fromRGBO(157, 78, 221, 0.4),
+                                shadowColor: const Color(0xFF2C3E50).withAlpha(100),
                                 elevation: 8,
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
@@ -166,7 +158,7 @@ class _DebriefScreenState extends ConsumerState<DebriefScreen> {
                                   ? const SizedBox(
                                       width: 20,
                                       height: 20,
-                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                      child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                     )
                                   : const Icon(Icons.share_rounded, size: 20),
                               label: Text(
@@ -182,9 +174,10 @@ class _DebriefScreenState extends ConsumerState<DebriefScreen> {
                             const SizedBox(height: 12),
                             OutlinedButton(
                               style: OutlinedButton.styleFrom(
-                                foregroundColor: const Color.fromRGBO(255, 255, 255, 0.7),
-                                side: const BorderSide(
-                                  color: Color.fromRGBO(255, 255, 255, 0.15),
+                                foregroundColor: const Color(0xFF1A1A1A),
+                                backgroundColor: Colors.transparent,
+                                side: BorderSide(
+                                  color: Colors.grey.shade300,
                                 ),
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
@@ -206,7 +199,7 @@ class _DebriefScreenState extends ConsumerState<DebriefScreen> {
                       loading: () => const Padding(
                         padding: EdgeInsets.symmetric(vertical: 64.0),
                         child: Center(
-                          child: CircularProgressIndicator(color: Colors.white),
+                          child: const CircularProgressIndicator(color: Color(0xFF2C3E50)),
                         ),
                       ),
                       error: (err, stack) => Padding(

@@ -41,7 +41,7 @@ class BudgetDashboardView extends ConsumerWidget {
             : _buildEmptyState(context, ref, textScale),
           floatingActionButton: hasBudget
               ? FloatingActionButton.extended(
-                  backgroundColor: const Color(0xFFFBBC05),
+                  backgroundColor: const Color(0xFF2C3E50),
                   onPressed: () {
                     showLogSpendSheet(
                       context,
@@ -53,8 +53,8 @@ class BudgetDashboardView extends ConsumerWidget {
                       },
                     );
                   },
-                  icon: const Icon(Icons.add, color: Colors.black87),
-                  label: const Text('Log Spend', style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold)),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text('Log Spend', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                 )
               : null,
         );
@@ -70,12 +70,12 @@ class BudgetDashboardView extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.account_balance_wallet_outlined, size: 80, color: Color(0xFFE0AAFF)),
+            const Icon(Icons.account_balance_wallet_outlined, size: 80, color: Color(0xFF2C3E50)),
             const SizedBox(height: 24),
             Text(
               'Set Your Trip Budget',
               style: TextStyle(
-                color: Colors.white,
+                color: const Color(0xFF1A1A1A),
                 fontSize: 24 * textScale,
                 fontWeight: FontWeight.bold,
               ),
@@ -85,7 +85,7 @@ class BudgetDashboardView extends ConsumerWidget {
               'To start tracking expenses, set a target budget for this trip.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: const Color.fromRGBO(255, 255, 255, 0.7),
+                color: Colors.grey.shade600,
                 fontSize: 16 * textScale,
                 height: 1.5,
               ),
@@ -94,21 +94,21 @@ class BudgetDashboardView extends ConsumerWidget {
             TextField(
               controller: controller,
               keyboardType: TextInputType.number,
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+              style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 18),
               decoration: InputDecoration(
                 prefixText: '₹ ',
-                prefixStyle: const TextStyle(color: Colors.white, fontSize: 18),
+                prefixStyle: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 18),
                 labelText: 'Total Budget (INR)',
-                labelStyle: const TextStyle(color: Color.fromRGBO(255, 255, 255, 0.6)),
+                labelStyle: TextStyle(color: Colors.grey.shade500),
                 filled: true,
-                fillColor: const Color.fromRGBO(255, 255, 255, 0.05),
+                fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color(0xFF9D4EDD)),
+                  borderSide: const BorderSide(color: Color(0xFF2C3E50)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.1)),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
                 ),
               ),
             ),
@@ -124,7 +124,7 @@ class BudgetDashboardView extends ConsumerWidget {
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF9D4EDD),
+                  backgroundColor: const Color(0xFF2C3E50),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -171,7 +171,7 @@ class BudgetDashboardView extends ConsumerWidget {
                       Text(
                         'Total Spent',
                         style: TextStyle(
-                          color: const Color.fromRGBO(255, 255, 255, 0.6),
+                          color: Colors.grey.shade600,
                           fontSize: 14 * textScale,
                         ),
                       ),
@@ -179,7 +179,7 @@ class BudgetDashboardView extends ConsumerWidget {
                       Text(
                         formatter.format(summary.spentInr),
                         style: TextStyle(
-                          color: progress > 1.0 ? Colors.redAccent : Colors.white,
+                          color: progress > 1.0 ? Colors.redAccent : const Color(0xFF1A1A1A),
                           fontSize: 28 * textScale,
                           fontWeight: FontWeight.bold,
                         ),
@@ -188,7 +188,7 @@ class BudgetDashboardView extends ConsumerWidget {
                       Text(
                         'of ${formatter.format(summary.totalBudgetInr)}',
                         style: TextStyle(
-                          color: const Color.fromRGBO(255, 255, 255, 0.4),
+                          color: Colors.grey.shade500,
                           fontSize: 12 * textScale,
                         ),
                       ),
@@ -204,7 +204,7 @@ class BudgetDashboardView extends ConsumerWidget {
         Text(
           'Recent Transactions',
           style: TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF1A1A1A),
             fontSize: 20 * textScale,
             fontWeight: FontWeight.bold,
           ),
@@ -218,7 +218,7 @@ class BudgetDashboardView extends ConsumerWidget {
               child: Text(
                 'No expenses logged yet.',
                 style: TextStyle(
-                  color: const Color.fromRGBO(255, 255, 255, 0.4),
+                  color: Colors.grey.shade500,
                   fontSize: 16 * textScale,
                 ),
               ),
@@ -237,16 +237,23 @@ class BudgetDashboardView extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(255, 255, 255, 0.05),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color.fromRGBO(255, 255, 255, 0.1), width: 1),
+        border: Border.all(color: Colors.grey.shade200, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: expense.category.color.withOpacity(0.15),
+              color: expense.category.color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(expense.category.icon, color: expense.category.color),
@@ -259,7 +266,7 @@ class BudgetDashboardView extends ConsumerWidget {
                 Text(
                   expense.category.label,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: const Color(0xFF1A1A1A),
                     fontSize: 16 * textScale,
                     fontWeight: FontWeight.bold,
                   ),
@@ -269,7 +276,7 @@ class BudgetDashboardView extends ConsumerWidget {
                   Text(
                     expense.label,
                     style: TextStyle(
-                      color: const Color.fromRGBO(255, 255, 255, 0.8),
+                      color: Colors.grey.shade700,
                       fontSize: 14 * textScale,
                     ),
                   ),
@@ -278,7 +285,7 @@ class BudgetDashboardView extends ConsumerWidget {
                 Text(
                   DateFormat('MMM d, h:mm a').format(expense.spentAt),
                   style: TextStyle(
-                    color: const Color.fromRGBO(255, 255, 255, 0.6),
+                    color: Colors.grey.shade500,
                     fontSize: 12 * textScale,
                   ),
                 ),
@@ -288,7 +295,7 @@ class BudgetDashboardView extends ConsumerWidget {
           Text(
             '-${formatter.format(expense.amountInr)}',
             style: TextStyle(
-              color: Colors.white,
+              color: const Color(0xFF1A1A1A),
               fontSize: 16 * textScale,
               fontWeight: FontWeight.bold,
             ),
@@ -313,7 +320,7 @@ class BudgetDashboardView extends ConsumerWidget {
           child: Text(
             day == 0 ? 'Pre-trip' : 'Day $day',
             style: TextStyle(
-              color: const Color.fromRGBO(255, 255, 255, 0.6),
+              color: Colors.grey.shade500,
               fontSize: 14 * textScale,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
@@ -347,7 +354,7 @@ class CategoryDonutPainter extends CustomPainter {
     final rect = Rect.fromCircle(center: center, radius: radius);
 
     final bgPaint = Paint()
-      ..color = const Color.fromRGBO(255, 255, 255, 0.05)
+      ..color = Colors.grey.shade200
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 

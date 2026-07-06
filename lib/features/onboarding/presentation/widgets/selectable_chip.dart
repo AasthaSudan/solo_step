@@ -34,14 +34,14 @@ class _SelectableChipState extends State<SelectableChip> {
     }
 
     // Theme colors
-    final Color selectedBg = const Color(0xFF9D4EDD); // Violet
-    final Color selectedBorder = const Color(0xFFC77DFF); // Light Violet
-    final Color unselectedBg = const Color.fromRGBO(255, 255, 255, 0.04);
-    final Color unselectedBorder = const Color.fromRGBO(255, 255, 255, 0.12);
+    final Color selectedBg = const Color(0xFF2C3E50); 
+    final Color selectedBorder = const Color(0xFF2C3E50); 
+    final Color unselectedBg = Colors.white;
+    final Color unselectedBorder = Colors.grey.shade200;
 
     final Color activeBg = widget.isSelected ? selectedBg : unselectedBg;
-    final Color activeBorder = widget.isSelected ? selectedBorder : (_isHovered ? const Color.fromRGBO(255, 255, 255, 0.3) : unselectedBorder);
-    final Color activeText = widget.isSelected ? Colors.white : const Color(0xFFE0AAFF);
+    final Color activeBorder = widget.isSelected ? selectedBorder : (_isHovered ? Colors.grey.shade400 : unselectedBorder);
+    final Color activeText = widget.isSelected ? Colors.white : const Color(0xFF1A1A1A);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -68,7 +68,7 @@ class _SelectableChipState extends State<SelectableChip> {
               boxShadow: [
                 if (widget.isSelected)
                   BoxShadow(
-                    color: const Color.fromRGBO(157, 78, 221, 0.2),
+                    color: Colors.black.withOpacity(0.1),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),

@@ -55,7 +55,7 @@ class MoodStep extends StatelessWidget {
         Text(
           'Choose your vibe',
           style: TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF1A1A1A),
             fontSize: 24 * textScaleFactor,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -65,7 +65,7 @@ class MoodStep extends StatelessWidget {
         Text(
           'This personalizes the initial tone and recommendation style of the trip.',
           style: TextStyle(
-            color: const Color.fromRGBO(255, 255, 255, 0.6),
+            color: Colors.grey.shade600,
             fontSize: 15 * textScaleFactor,
             height: 1.3,
           ),

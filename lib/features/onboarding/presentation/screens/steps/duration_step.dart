@@ -47,9 +47,9 @@ class DurationStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Choose your duration',
+          'How long is your trip?',
           style: TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF1A1A1A),
             fontSize: 24 * textScaleFactor,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -57,9 +57,9 @@ class DurationStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'This helps Gemini optimize travel pacing, rest stops, and itinerary density.',
+          'We\'ll pace your itinerary based on the time you have available.',
           style: TextStyle(
-            color: const Color.fromRGBO(255, 255, 255, 0.6),
+            color: Colors.grey.shade600,
             fontSize: 15 * textScaleFactor,
             height: 1.3,
           ),

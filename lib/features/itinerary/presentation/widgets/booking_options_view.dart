@@ -28,10 +28,10 @@ class BookingOptionsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (accommodations.isEmpty && foodOptions.isEmpty && transportOptions.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No specific booking options available for this trip.',
-          style: TextStyle(color: Colors.white54),
+          style: TextStyle(color: Colors.grey.shade600),
         ),
       );
     }
@@ -41,19 +41,19 @@ class BookingOptionsView extends StatelessWidget {
       physics: const BouncingScrollPhysics(),
       children: [
         if (accommodations.isNotEmpty) ...[
-          _buildSectionTitle('Recommended Stays', Icons.bed_outlined, const Color(0xFFC77DFF)),
+          _buildSectionTitle('Recommended Stays', Icons.bed_outlined, const Color(0xFF2C3E50)),
           const SizedBox(height: 16),
           ...accommodations.map((option) => _buildOptionCard(context, option, SpendCategory.stay)),
           const SizedBox(height: 32),
         ],
         if (foodOptions.isNotEmpty) ...[
-          _buildSectionTitle('Local Eats & Dining', Icons.restaurant_outlined, const Color(0xFFFBBC05)),
+          _buildSectionTitle('Local Eats & Dining', Icons.restaurant_outlined, const Color(0xFFE67E22)),
           const SizedBox(height: 16),
           ...foodOptions.map((option) => _buildOptionCard(context, option, SpendCategory.food)),
           const SizedBox(height: 32),
         ],
         if (transportOptions.isNotEmpty) ...[
-          _buildSectionTitle('Transport Routes', Icons.directions_transit_outlined, const Color(0xFF00E5FF)),
+          _buildSectionTitle('Transport Routes', Icons.directions_transit_outlined, const Color(0xFF2980B9)),
           const SizedBox(height: 16),
           ...transportOptions.map((option) => _buildOptionCard(context, option, SpendCategory.transport)),
         ],
@@ -69,7 +69,7 @@ class BookingOptionsView extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF1A1A1A),
             fontSize: 18,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -83,9 +83,16 @@ class BookingOptionsView extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(255, 255, 255, 0.03),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color.fromRGBO(255, 255, 255, 0.1)),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
@@ -104,7 +111,7 @@ class BookingOptionsView extends StatelessWidget {
                       Text(
                         option.name,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: const Color(0xFF1A1A1A),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
@@ -112,8 +119,8 @@ class BookingOptionsView extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         option.description,
-                        style: const TextStyle(
-                          color: Colors.white70,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
                           fontSize: 13,
                           height: 1.4,
                         ),
@@ -143,7 +150,7 @@ class BookingOptionsView extends StatelessWidget {
                     const SizedBox(height: 8),
                     Icon(
                       Icons.open_in_new,
-                      color: Colors.white38,
+                      color: Colors.grey.shade400,
                       size: 20,
                     ),
                   ],

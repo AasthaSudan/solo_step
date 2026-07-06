@@ -31,9 +31,9 @@ class InterestsStep extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Choose your interests',
+          'What interests you?',
           style: TextStyle(
-            color: Colors.white,
+            color: const Color(0xFF1A1A1A),
             fontSize: 24 * textScaleFactor,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -41,9 +41,9 @@ class InterestsStep extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Select at least one category to curate sightseeing and culinary options.',
+          'Select all that apply. We\'ll use this to find the best spots for you.',
           style: TextStyle(
-            color: const Color.fromRGBO(255, 255, 255, 0.6),
+            color: Colors.grey.shade600,
             fontSize: 15 * textScaleFactor,
             height: 1.3,
           ),

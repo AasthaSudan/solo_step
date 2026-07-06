@@ -27,9 +27,12 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xFFF7F5F0), // Warm Cream background
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2E1A47),
-          brightness: Brightness.dark,
+          seedColor: const Color(0xFF2C3E50), // Muted dark blue/grey
+          brightness: Brightness.light,
+          surface: Colors.white,
+          onSurface: const Color(0xFF1A1A1A), // Dark charcoal text
         ),
       ),
       routerConfig: appRouter,

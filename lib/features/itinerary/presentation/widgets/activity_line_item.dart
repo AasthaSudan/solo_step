@@ -18,32 +18,32 @@ class ActivityLineItem extends StatelessWidget {
       case 'sightseeing':
         return {
           'color': const Color(0xFF4285F4), // Blue
-          'bg': const Color.fromRGBO(66, 133, 244, 0.12),
+          'bg': const Color(0xFF4285F4).withOpacity(0.1),
           'icon': Icons.museum_outlined,
         };
       case 'food':
         return {
-          'color': const Color(0xFFFBBC05), // Amber
-          'bg': const Color.fromRGBO(251, 188, 5, 0.12),
+          'color': const Color(0xFFE67E22), // Orange/Amber
+          'bg': const Color(0xFFE67E22).withOpacity(0.1),
           'icon': Icons.restaurant_outlined,
         };
       case 'transport':
         return {
-          'color': const Color(0xFF00F5D4), // Teal
-          'bg': const Color.fromRGBO(0, 245, 212, 0.12),
+          'color': const Color(0xFF16A085), // Teal
+          'bg': const Color(0xFF16A085).withOpacity(0.1),
           'icon': Icons.directions_bus_filled_outlined,
         };
       case 'stay':
         return {
-          'color': const Color(0xFF9D4EDD), // Purple
-          'bg': const Color.fromRGBO(157, 78, 221, 0.12),
+          'color': const Color(0xFF2C3E50), // Dark Blue
+          'bg': const Color(0xFF2C3E50).withOpacity(0.1),
           'icon': Icons.hotel_outlined,
         };
       case 'activity':
       default:
         return {
-          'color': const Color(0xFFFF007F), // Rose/Pink
-          'bg': const Color.fromRGBO(255, 0, 127, 0.12),
+          'color': const Color(0xFFE74C3C), // Red/Pink
+          'bg': const Color(0xFFE74C3C).withOpacity(0.1),
           'icon': Icons.explore_outlined,
         };
     }
@@ -87,7 +87,7 @@ class ActivityLineItem extends StatelessWidget {
                 Text(
                   activity.time.toUpperCase(),
                   style: TextStyle(
-                    color: const Color(0xFFC77DFF),
+                    color: const Color(0xFF2C3E50),
                     fontSize: 11 * textScale,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.0,
@@ -96,7 +96,7 @@ class ActivityLineItem extends StatelessWidget {
                 const SizedBox(height: 4),
                 Icon(
                   iconData,
-                  color: Colors.white60,
+                  color: Colors.grey.shade400,
                   size: 18,
                 ),
               ],
@@ -112,14 +112,14 @@ class ActivityLineItem extends StatelessWidget {
                   width: 8,
                   height: 8,
                   decoration: const BoxDecoration(
-                    color: Color(0xFFE0AAFF),
+                    color: Color(0xFF2C3E50),
                     shape: BoxShape.circle,
                   ),
                 ),
                 Container(
                   width: 1.5,
                   height: 120, // Increased to accommodate new UI
-                  color: const Color.fromRGBO(255, 255, 255, 0.08),
+                  color: Colors.grey.shade200,
                 ),
               ],
             ),
@@ -135,7 +135,7 @@ class ActivityLineItem extends StatelessWidget {
                 Text(
                   activity.title,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: const Color(0xFF1A1A1A),
                     fontSize: 15 * textScale,
                     fontWeight: FontWeight.w600,
                   ),
@@ -161,20 +161,20 @@ class ActivityLineItem extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color.fromRGBO(0, 245, 212, 0.08),
+                      color: const Color(0xFF16A085).withOpacity(0.08),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color.fromRGBO(0, 245, 212, 0.3)),
+                      border: Border.all(color: const Color(0xFF16A085).withOpacity(0.3)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.directions_transit, size: 14, color: Color(0xFF00F5D4)),
+                        const Icon(Icons.directions_transit, size: 14, color: Color(0xFF16A085)),
                         const SizedBox(width: 6),
                         Expanded(
                           child: Text(
                             activity.transitInstructions!,
                             style: TextStyle(
-                              color: const Color(0xFF00F5D4),
+                              color: const Color(0xFF16A085),
                               fontSize: 12 * textScale,
                               height: 1.3,
                             ),
@@ -191,7 +191,7 @@ class ActivityLineItem extends StatelessWidget {
                 Text(
                   activity.notes,
                   style: TextStyle(
-                    color: const Color.fromRGBO(255, 255, 255, 0.65),
+                    color: Colors.grey.shade600,
                     fontSize: 13 * textScale,
                     fontWeight: FontWeight.w400,
                     height: 1.35,
@@ -209,7 +209,7 @@ class ActivityLineItem extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: bgColor,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: accentColor.withAlpha(51), width: 1),
+                        border: Border.all(color: accentColor.withOpacity(0.2), width: 1),
                       ),
                       child: Text(
                         '${activity.category.toUpperCase()}  •  ₹${activity.estimatedCost.toInt()}',
@@ -228,9 +228,9 @@ class ActivityLineItem extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: const Color.fromRGBO(66, 133, 244, 0.15),
+                            color: const Color(0xFF4285F4).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFF4285F4).withAlpha(100), width: 1),
+                            border: Border.all(color: const Color(0xFF4285F4).withOpacity(0.3), width: 1),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -256,19 +256,19 @@ class ActivityLineItem extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: const Color.fromRGBO(157, 78, 221, 0.15),
+                            color: const Color(0xFF2C3E50).withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: const Color(0xFF9D4EDD).withAlpha(100), width: 1),
+                            border: Border.all(color: const Color(0xFF2C3E50).withOpacity(0.3), width: 1),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.open_in_new_outlined, size: 14, color: Color(0xFF9D4EDD)),
+                              const Icon(Icons.open_in_new_outlined, size: 14, color: Color(0xFF2C3E50)),
                               const SizedBox(width: 4),
                               Text(
                                 'Book',
                                 style: TextStyle(
-                                  color: const Color(0xFF9D4EDD),
+                                  color: const Color(0xFF2C3E50),
                                   fontSize: 11 * textScale,
                                   fontWeight: FontWeight.w700,
                                 ),

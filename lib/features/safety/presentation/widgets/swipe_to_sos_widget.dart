@@ -48,19 +48,19 @@ class _SwipeToSosWidgetState extends State<SwipeToSosWidget> with TickerProvider
       _dragPosition += details.delta.dx;
       // Clamp between 0 and max draggable width
       if (_dragPosition < 0) _dragPosition = 0;
-      if (_dragPosition > maxWidth - 70) _dragPosition = maxWidth - 70;
+      if (_dragPosition > maxWidth - 56) _dragPosition = maxWidth - 56;
     });
   }
 
   void _onDragEnd(DragEndDetails details, double maxWidth) {
     if (_isCompleted) return;
 
-    if (_dragPosition > (maxWidth - 70) * 0.8) {
-      // Completed swipe
-      setState(() {
-        _isCompleted = true;
-        _dragPosition = maxWidth - 70;
-      });
+      if (_dragPosition > (maxWidth - 56) * 0.8) {
+        // Completed swipe
+        setState(() {
+          _isCompleted = true;
+          _dragPosition = maxWidth - 56;
+        });
       widget.onSOS();
     } else {
       // Snap back
@@ -76,9 +76,9 @@ class _SwipeToSosWidgetState extends State<SwipeToSosWidget> with TickerProvider
         final maxWidth = constraints.maxWidth;
         
         return Container(
-          height: 70,
+          height: 56,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(35),
+            borderRadius: BorderRadius.circular(28),
             color: const Color(0xFF2C1010),
             border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
             boxShadow: [
@@ -97,12 +97,12 @@ class _SwipeToSosWidgetState extends State<SwipeToSosWidget> with TickerProvider
                 padding: const EdgeInsets.only(left: 40),
                 child: Text(
                   _isCompleted ? 'SOS SENT' : 'SWIPE TO SOS ➔',
-                  style: TextStyle(
-                    color: Colors.red.shade400,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2,
-                    fontSize: 16,
-                  ),
+                    style: TextStyle(
+                      color: Colors.red.shade400,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 2,
+                      fontSize: 14,
+                    ),
                 ),
               ),
               
@@ -114,8 +114,8 @@ class _SwipeToSosWidgetState extends State<SwipeToSosWidget> with TickerProvider
                     animation: _pulseController,
                     builder: (context, child) {
                       return Container(
-                        width: 70,
-                        height: 70,
+                        width: 56,
+                        height: 56,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.red.withValues(alpha: 0.4 * (1 - _pulseController.value)),
@@ -139,8 +139,8 @@ class _SwipeToSosWidgetState extends State<SwipeToSosWidget> with TickerProvider
                   onHorizontalDragUpdate: (details) => _onDragUpdate(details, maxWidth),
                   onHorizontalDragEnd: (details) => _onDragEnd(details, maxWidth),
                   child: Container(
-                    height: 70,
-                    width: 70,
+                    height: 56,
+                    width: 56,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: const LinearGradient(
@@ -159,7 +159,7 @@ class _SwipeToSosWidgetState extends State<SwipeToSosWidget> with TickerProvider
                     child: const Icon(
                       Icons.warning_amber_rounded,
                       color: Colors.white,
-                      size: 32,
+                      size: 24,
                     ),
                   ),
                 ),

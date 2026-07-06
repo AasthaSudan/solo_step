@@ -72,16 +72,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0F0C20), // Dark space blue
-              Color(0xFF15102A), // Deep indigo
-              Color(0xFF2E1A47), // Rich twilight purple
-            ],
-            stops: [0.0, 0.4, 1.0],
-          ),
+          color: Color(0xFFF7F5F0),
         ),
         child: SafeArea(
           child: LayoutBuilder(
@@ -117,16 +108,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 curve: Curves.easeOut,
                                 padding: const EdgeInsets.all(24.0),
                                 decoration: BoxDecoration(
-                                  color: const Color.fromRGBO(255, 255, 255, 0.06),
+                                  color: Colors.white,
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: const Color.fromRGBO(255, 255, 255, 0.15),
+                                    color: Colors.grey.shade200,
                                     width: 1.5,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color.fromRGBO(157, 78, 221, 0.2),
-                                      blurRadius: 30,
+                                      color: Colors.black.withOpacity(0.04),
+                                      blurRadius: 10,
                                       spreadRadius: 2,
                                     ),
                                   ],
@@ -134,7 +125,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 child: Icon(
                                   Icons.explore_outlined,
                                   size: isTablet ? 80.0 : 64.0,
-                                  color: const Color(0xFFE0AAFF),
+                                  color: const Color(0xFF2C3E50),
                                 ),
                               ),
                               const SizedBox(height: 24),
@@ -143,17 +134,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               Text(
                                 'SoloStep',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: const Color(0xFF1A1A1A),
                                   fontSize: (isTablet ? 36.0 : 32.0) * textScaleFactor,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1.5,
-                                  shadows: [
-                                    Shadow(
-                                      color: const Color.fromRGBO(0, 0, 0, 0.3),
-                                      offset: const Offset(0, 2),
-                                      blurRadius: 4,
-                                    ),
-                                  ],
                                 ),
                               ),
                               const SizedBox(height: 12),
@@ -165,7 +149,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                   'Your AI companion for solo travel',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    color: const Color.fromRGBO(255, 255, 255, 0.7),
+                                    color: Colors.grey.shade600,
                                     fontSize: 16.0 * textScaleFactor,
                                     fontWeight: FontWeight.w400,
                                     height: 1.4,

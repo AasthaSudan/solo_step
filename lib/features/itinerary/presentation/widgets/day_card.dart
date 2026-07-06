@@ -76,12 +76,19 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0),
       decoration: BoxDecoration(
-        color: const Color.fromRGBO(255, 255, 255, 0.04),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _isExpanded ? const Color.fromRGBO(199, 125, 255, 0.25) : const Color.fromRGBO(255, 255, 255, 0.1),
+          color: _isExpanded ? const Color(0xFF2C3E50).withOpacity(0.3) : Colors.grey.shade200,
           width: _isExpanded ? 1.5 : 1.0,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
@@ -102,7 +109,7 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                           Text(
                             'Day ${widget.day.dayNumber}',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: const Color(0xFF1A1A1A),
                               fontSize: 18 * textScale,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
@@ -119,9 +126,9 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: const Color.fromRGBO(255, 255, 255, 0.5),
+                                    color: Colors.grey.shade600,
                                     fontSize: 13 * textScale,
-                                    fontWeight: FontWeight.w400,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
@@ -132,7 +139,7 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     margin: const EdgeInsets.only(left: 8),
                                     decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(66, 133, 244, 0.15),
+                                      color: const Color(0xFF4285F4).withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Row(
@@ -158,17 +165,17 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     margin: const EdgeInsets.only(left: 8),
                                     decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(157, 78, 221, 0.15),
+                                      color: const Color(0xFF2C3E50).withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: Row(
                                       children: [
-                                        const Icon(Icons.open_in_new_outlined, size: 10, color: Color(0xFF9D4EDD)),
+                                        const Icon(Icons.open_in_new_outlined, size: 10, color: Color(0xFF2C3E50)),
                                         const SizedBox(width: 4),
                                         Text(
                                           'Book',
                                           style: TextStyle(
-                                            color: const Color(0xFF9D4EDD),
+                                            color: const Color(0xFF2C3E50),
                                             fontSize: 9 * textScale,
                                             fontWeight: FontWeight.bold,
                                           ),
@@ -189,7 +196,7 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                       turns: _iconController,
                       child: const Icon(
                         Icons.keyboard_arrow_down_outlined,
-                        color: Color(0xFFC77DFF),
+                        color: Color(0xFF2C3E50),
                         size: 24,
                       ),
                     ),
@@ -208,7 +215,7 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Divider(color: Color.fromRGBO(255, 255, 255, 0.08), height: 1),
+                          Divider(color: Colors.grey.shade100, height: 1),
                           const SizedBox(height: 10),
 
                           if (widget.day.stayImageUrl != null && widget.day.stayImageUrl!.isNotEmpty) ...[
@@ -231,14 +238,14 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                           }),
 
                           const SizedBox(height: 16),
-                          const Divider(color: Color.fromRGBO(255, 255, 255, 0.08), height: 1),
+                          Divider(color: Colors.grey.shade100, height: 1),
                           const SizedBox(height: 16),
 
                           // Dining & Food Suggestions Box
                           Text(
                             'DIETARY RECOMMENDATIONS',
                             style: TextStyle(
-                              color: const Color(0xFFC77DFF),
+                              color: const Color(0xFF2C3E50),
                               fontSize: 11 * textScale,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.0,
@@ -249,10 +256,10 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                             width: double.infinity,
                             padding: const EdgeInsets.all(14.0),
                             decoration: BoxDecoration(
-                              color: const Color.fromRGBO(199, 125, 255, 0.06),
+                              color: const Color(0xFF2C3E50).withOpacity(0.04),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color.fromRGBO(199, 125, 255, 0.15),
+                                color: const Color(0xFF2C3E50).withOpacity(0.1),
                                 width: 1.0,
                               ),
                             ),
@@ -269,7 +276,7 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                                         child: Icon(
                                           Icons.fastfood_outlined,
                                           size: 14,
-                                          color: Color(0xFFE0AAFF),
+                                          color: Color(0xFF2C3E50),
                                         ),
                                       ),
                                       const SizedBox(width: 10),
@@ -277,7 +284,7 @@ class _DayCardState extends State<DayCard> with SingleTickerProviderStateMixin {
                                         child: Text(
                                           food,
                                           style: TextStyle(
-                                            color: const Color.fromRGBO(255, 255, 255, 0.75),
+                                            color: Colors.grey.shade800,
                                             fontSize: 13 * textScale,
                                             fontWeight: FontWeight.w400,
                                             height: 1.35,

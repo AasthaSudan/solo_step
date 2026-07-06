@@ -286,22 +286,22 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
           children: [
             TextField(
               controller: nameController,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Color(0xFF1A1A1A)),
               decoration: InputDecoration(
                 labelText: 'Name (e.g. Mom)',
-                labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                labelStyle: TextStyle(color: Colors.grey.shade500),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade300)),
               ),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: phoneController,
               keyboardType: TextInputType.phone,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Color(0xFF1A1A1A)),
               decoration: InputDecoration(
                 labelText: 'Phone Number',
-                labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
-                enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+                labelStyle: TextStyle(color: Colors.grey.shade500),
+                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.grey.shade300)),
               ),
             ),
           ],
@@ -309,7 +309,7 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: Text('Cancel', style: TextStyle(color: Colors.grey.shade600)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -318,7 +318,7 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                 Navigator.pop(context);
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.purpleAccent),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF2C3E50)),
             child: const Text('Save', style: TextStyle(color: Colors.white)),
           ),
         ],
@@ -329,18 +329,20 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1A1A24), 
+      backgroundColor: const Color(0xFFF7F5F0), 
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
           'Guardian Angel',
           style: TextStyle(
+            color: Color(0xFF1A1A1A),
             fontWeight: FontWeight.w800,
             letterSpacing: 1.2,
           ),
         ),
         centerTitle: true,
+        iconTheme: const IconThemeData(color: Color(0xFF1A1A1A)),
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -355,14 +357,17 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                 borderRadius: BorderRadius.circular(24),
                 gradient: LinearGradient(
                   colors: _isCheckedIn 
-                      ? [Colors.green.shade800, Colors.teal.shade900]
-                      : [const Color(0xFF2E1A47), const Color(0xFF1E1033)],
+                      ? [Colors.green.shade50, Colors.green.shade100]
+                      : [Colors.white, Colors.grey.shade50],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
+                border: Border.all(
+                  color: _isCheckedIn ? Colors.green.shade200 : Colors.grey.shade200,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: _isCheckedIn ? Colors.green.withValues(alpha: 0.2) : Colors.purple.withValues(alpha: 0.2),
+                    color: Colors.black.withOpacity(0.04),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -380,7 +385,7 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                           Text(
                             _isCheckedIn ? 'Status: Safe' : 'Daily Check-in',
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Color(0xFF1A1A1A),
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
                             ),
@@ -389,7 +394,7 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                           Text(
                             _isCheckedIn ? 'Checked in securely' : 'Due by 9:00 PM',
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: Colors.grey.shade600,
                               fontSize: 14,
                             ),
                           ),
@@ -399,11 +404,11 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Colors.white.withValues(alpha: 0.1),
+                          color: _isCheckedIn ? Colors.green.shade200 : Colors.grey.shade100,
                         ),
                         child: Icon(
                           _isCheckedIn ? Icons.verified_user : Icons.shield_outlined,
-                          color: _isCheckedIn ? Colors.greenAccent : Colors.purpleAccent,
+                          color: _isCheckedIn ? Colors.green.shade800 : Colors.grey.shade500,
                           size: 32,
                         ),
                       ),
@@ -418,16 +423,16 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        color: _isCheckedIn ? Colors.greenAccent.withValues(alpha: 0.2) : Colors.purpleAccent.withValues(alpha: 0.2),
+                        color: _isCheckedIn ? Colors.green.shade50 : Colors.grey.shade50,
                         border: Border.all(
-                          color: _isCheckedIn ? Colors.greenAccent.withValues(alpha: 0.5) : Colors.purpleAccent.withValues(alpha: 0.5),
+                          color: _isCheckedIn ? Colors.green.shade300 : Colors.grey.shade300,
                         ),
                       ),
                       child: Center(
                         child: Text(
                           _isCheckedIn ? 'UNDO CHECK-IN' : "I'M SAFE TODAY",
                           style: TextStyle(
-                            color: _isCheckedIn ? Colors.greenAccent : Colors.purpleAccent,
+                            color: _isCheckedIn ? Colors.green.shade800 : const Color(0xFF1A1A1A),
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.5,
                           ),
@@ -444,7 +449,7 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
             // Emergency Tools Grid
             const Text(
               'Quick Tools',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
             ),
             const SizedBox(height: 16),
             Row(
@@ -489,12 +494,12 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
               children: [
                 const Text(
                   'Emergency Contacts',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
                 ),
                 TextButton.icon(
                   onPressed: _showAddContactDialog, 
-                  icon: const Icon(Icons.add, color: Colors.purpleAccent, size: 18), 
-                  label: const Text('Add', style: TextStyle(color: Colors.purpleAccent))
+                  icon: const Icon(Icons.add, color: Color(0xFF2C3E50), size: 18), 
+                  label: const Text('Add', style: TextStyle(color: Color(0xFF2C3E50)))
                 ),
               ],
             ),
@@ -503,18 +508,18 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                 margin: const EdgeInsets.only(top: 8),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.redAccent.withValues(alpha: 0.1),
+                  color: Colors.red.shade50,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
+                  border: Border.all(color: Colors.red.shade200),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
-                    Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
-                    SizedBox(width: 12),
+                    Icon(Icons.warning_amber_rounded, color: Colors.red.shade700),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'No contacts added. SOS slider will not work until you add at least one.',
-                        style: TextStyle(color: Colors.redAccent, fontSize: 13),
+                        style: TextStyle(color: Colors.red.shade700, fontSize: 13),
                       ),
                     ),
                   ],
@@ -525,18 +530,22 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                 final index = entry.key;
                 final contact = entry.value;
                 return Card(
-                  color: const Color(0xFF242434),
+                  color: Colors.white,
+                  elevation: 0,
                   margin: const EdgeInsets.symmetric(vertical: 6),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(color: Colors.grey.shade200),
+                  ),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Colors.purpleAccent.withValues(alpha: 0.2),
-                      child: const Icon(Icons.person, color: Colors.purpleAccent),
+                      backgroundColor: Colors.grey.shade100,
+                      child: Icon(Icons.person, color: Colors.grey.shade500),
                     ),
-                    title: Text(contact['name'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    subtitle: Text(contact['phone'], style: const TextStyle(color: Colors.white70)),
+                    title: Text(contact['name'], style: const TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.bold)),
+                    subtitle: Text(contact['phone'], style: TextStyle(color: Colors.grey.shade600)),
                     trailing: IconButton(
-                      icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                      icon: Icon(Icons.delete_outline, color: Colors.red.shade400),
                       onPressed: () => _removeContact(index),
                     ),
                   ),
@@ -548,7 +557,7 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
             // Live Safety Map
             const Text(
               'Live Safety Map',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
             ),
             const SizedBox(height: 16),
             _buildRealMap(),
@@ -573,9 +582,9 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isActive ? color.withValues(alpha: 0.2) : const Color(0xFF242434),
+          color: isActive ? color.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: isActive ? color : Colors.white.withValues(alpha: 0.05)),
+          border: Border.all(color: isActive ? color : Colors.grey.shade200),
         ),
         child: Column(
           children: [
@@ -583,7 +592,7 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
+              style: const TextStyle(color: Color(0xFF1A1A1A), fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -596,15 +605,15 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
       height: 200,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        color: const Color(0xFF12121A),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        color: Colors.grey.shade100,
+        border: Border.all(color: Colors.grey.shade300),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: _isLoadingLocation 
             ? const Center(child: CircularProgressIndicator())
             : _currentPosition == null
-                ? const Center(child: Text('Location unavailable', style: TextStyle(color: Colors.white70)))
+                ? Text('Location unavailable', style: TextStyle(color: Colors.grey.shade600))
                 : FlutterMap(
                     options: MapOptions(
                       initialCenter: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),

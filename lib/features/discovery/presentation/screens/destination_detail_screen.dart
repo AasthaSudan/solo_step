@@ -30,16 +30,7 @@ class DestinationDetailScreen extends StatelessWidget {
         width: double.infinity,
         height: double.infinity,
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF0F0C20), // Dark space blue
-              Color(0xFF15102A), // Deep indigo
-              Color(0xFF2E1A47), // Rich twilight purple
-            ],
-            stops: [0.0, 0.4, 1.0],
-          ),
+          color: Color(0xFFF7F5F0),
         ),
         child: SafeArea(
           child: Column(
@@ -50,7 +41,7 @@ class DestinationDetailScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 20),
+                      icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1A1A1A), size: 20),
                       onPressed: () => context.pop(),
                       tooltip: 'Back to Suggestions',
                     ),
@@ -58,7 +49,7 @@ class DestinationDetailScreen extends StatelessWidget {
                     Text(
                       'Destination Details',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: const Color(0xFF1A1A1A),
                         fontSize: 20 * textScale,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 0.5,
@@ -68,7 +59,7 @@ class DestinationDetailScreen extends StatelessWidget {
                 ),
               ),
 
-              const Divider(color: Color.fromRGBO(255, 255, 255, 0.08), height: 1),
+              Divider(color: Colors.grey.shade300, height: 1),
 
               // Main Details Content
               Expanded(
@@ -87,7 +78,7 @@ class DestinationDetailScreen extends StatelessWidget {
                           Text(
                             destination.name,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: const Color(0xFF1A1A1A),
                               fontSize: (isTablet ? 32.0 : 28.0) * textScale,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 0.5,
@@ -97,7 +88,7 @@ class DestinationDetailScreen extends StatelessWidget {
                           Text(
                             destination.tagline,
                             style: TextStyle(
-                              color: const Color.fromRGBO(255, 255, 255, 0.7),
+                              color: Colors.grey.shade600,
                               fontSize: 16 * textScale,
                               fontWeight: FontWeight.w400,
                               height: 1.35,
@@ -110,15 +101,15 @@ class DestinationDetailScreen extends StatelessWidget {
                             width: double.infinity,
                             padding: const EdgeInsets.all(20.0),
                             decoration: BoxDecoration(
-                              color: const Color.fromRGBO(199, 125, 255, 0.08),
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: const Color.fromRGBO(199, 125, 255, 0.25),
+                                color: Colors.grey.shade200,
                                 width: 1.5,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color.fromRGBO(157, 78, 221, 0.08),
+                                  color: Colors.black.withOpacity(0.04),
                                   blurRadius: 16,
                                   offset: const Offset(0, 4),
                                 ),
@@ -131,14 +122,14 @@ class DestinationDetailScreen extends StatelessWidget {
                                   children: [
                                     const Icon(
                                       Icons.auto_awesome_outlined,
-                                      color: Color(0xFFC77DFF),
+                                      color: Color(0xFF2C3E50),
                                       size: 20,
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
                                       'Why this fits you',
                                       style: TextStyle(
-                                        color: const Color(0xFFE0AAFF),
+                                        color: const Color(0xFF2C3E50),
                                         fontSize: 14 * textScale,
                                         fontWeight: FontWeight.bold,
                                         letterSpacing: 0.5,
@@ -150,7 +141,7 @@ class DestinationDetailScreen extends StatelessWidget {
                                 Text(
                                   'This destination matches your selected Adventure Vibe. Based on your interest in exploring nature, street dining, and ancient heritage sites, Gemini curated this location to provide scenic trekking, local historical walks, and authentic regional eats.',
                                   style: TextStyle(
-                                    color: const Color.fromRGBO(255, 255, 255, 0.8),
+                                    color: Colors.grey.shade800,
                                     fontSize: 14 * textScale,
                                     fontWeight: FontWeight.w400,
                                     height: 1.45,
@@ -165,10 +156,10 @@ class DestinationDetailScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(20.0),
                             decoration: BoxDecoration(
-                              color: const Color.fromRGBO(255, 255, 255, 0.04),
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: const Color.fromRGBO(255, 255, 255, 0.08),
+                                color: Colors.grey.shade200,
                                 width: 1,
                               ),
                             ),
@@ -181,7 +172,7 @@ class DestinationDetailScreen extends StatelessWidget {
                                   textScale: textScale,
                                 ),
                                 const SizedBox(height: 16),
-                                const Divider(color: Color.fromRGBO(255, 255, 255, 0.08), height: 1),
+                                Divider(color: Colors.grey.shade300, height: 1),
                                 const SizedBox(height: 16),
                                 _buildDetailRow(
                                   icon: Icons.currency_rupee,
@@ -190,13 +181,13 @@ class DestinationDetailScreen extends StatelessWidget {
                                   textScale: textScale,
                                 ),
                                 const SizedBox(height: 16),
-                                const Divider(color: Color.fromRGBO(255, 255, 255, 0.08), height: 1),
+                                Divider(color: Colors.grey.shade300, height: 1),
                                 const SizedBox(height: 16),
                                 _buildDetailRow(
                                   icon: Icons.wallet_travel_outlined,
                                   label: 'Total Estimate (5 Days)',
                                   value: '₹${totalCostEstimate.toInt()}',
-                                  valueColor: const Color(0xFFC77DFF),
+                                  valueColor: const Color(0xFF2C3E50),
                                   textScale: textScale,
                                 ),
                               ],
@@ -208,7 +199,7 @@ class DestinationDetailScreen extends StatelessWidget {
                           Text(
                             'EXPLORATION HIGHLIGHTS',
                             style: TextStyle(
-                              color: const Color(0xFFC77DFF),
+                              color: const Color(0xFF2C3E50),
                               fontSize: 12 * textScale,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1.0,
@@ -234,7 +225,7 @@ class DestinationDetailScreen extends StatelessWidget {
                                     child: Text(
                                       highlight,
                                       style: TextStyle(
-                                        color: const Color.fromRGBO(255, 255, 255, 0.85),
+                                        color: const Color(0xFF1A1A1A),
                                         fontSize: 15 * textScale,
                                         fontWeight: FontWeight.w500,
                                         height: 1.35,
@@ -284,7 +275,7 @@ class DestinationDetailScreen extends StatelessWidget {
                                 Text(
                                   destination.safetyNote,
                                   style: TextStyle(
-                                    color: const Color.fromRGBO(255, 255, 255, 0.75),
+                                    color: Colors.grey.shade600,
                                     fontSize: 13 * textScale,
                                     fontWeight: FontWeight.w400,
                                     height: 1.4,
@@ -300,7 +291,7 @@ class DestinationDetailScreen extends StatelessWidget {
                             width: double.infinity,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF9D4EDD),
+                                backgroundColor: const Color(0xFF2C3E50),
                                 foregroundColor: Colors.white,
                                 shadowColor: const Color.fromRGBO(157, 78, 221, 0.5),
                                 elevation: 6,
@@ -330,14 +321,14 @@ class DestinationDetailScreen extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  side: const BorderSide(color: Color.fromRGBO(255, 255, 255, 0.12), width: 1.5),
+                                  side: BorderSide(color: Colors.grey.shade300, width: 1.5),
                                 ),
                               ),
                               onPressed: () => context.pop(),
                               child: Text(
                                 'Back to Suggestions',
                                 style: TextStyle(
-                                  color: Colors.white70,
+                                  color: const Color(0xFF1A1A1A),
                                   fontSize: 15 * textScale,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.5,
@@ -379,7 +370,7 @@ class DestinationDetailScreen extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: const Color.fromRGBO(255, 255, 255, 0.55),
+                color: Colors.grey.shade500,
                 fontSize: 14 * textScale,
                 fontWeight: FontWeight.w500,
               ),
@@ -389,7 +380,7 @@ class DestinationDetailScreen extends StatelessWidget {
         Text(
           value,
           style: TextStyle(
-            color: valueColor ?? Colors.white,
+            color: valueColor ?? const Color(0xFF1A1A1A),
             fontSize: 14 * textScale,
             fontWeight: FontWeight.bold,
           ),

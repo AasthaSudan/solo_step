@@ -29,18 +29,11 @@ class _GuestSignInLinkState extends State<GuestSignInLink> {
         child: AnimatedDefaultTextStyle(
           duration: const Duration(milliseconds: 150),
           style: TextStyle(
-            color: _isHovered ? Colors.white : Colors.white70,
+            color: _isHovered ? const Color(0xFF1A1A1A) : Colors.grey.shade600,
             fontSize: 14 * textScaleFactor,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
             decoration: _isHovered ? TextDecoration.underline : TextDecoration.none,
-            decorationColor: Colors.white,
-            shadows: [
-              Shadow(
-                color: const Color.fromRGBO(0, 0, 0, 0.2),
-                offset: const Offset(0, 1),
-                blurRadius: 2,
-              ),
-            ],
+            decorationColor: const Color(0xFF1A1A1A),
           ),
           child: const Padding(
             padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),

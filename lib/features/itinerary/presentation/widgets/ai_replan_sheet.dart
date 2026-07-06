@@ -48,10 +48,10 @@ class _AiReplanSheetState extends State<AiReplanSheet> {
         top: 24,
         bottom: bottomInset + 24,
       ),
-      decoration: const BoxDecoration(
-        color: Color(0xFF15102A),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(top: BorderSide(color: Color(0xFFC77DFF), width: 1.5)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border.all(color: Colors.grey.shade200),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -63,21 +63,21 @@ class _AiReplanSheetState extends State<AiReplanSheet> {
               const Text(
                 '✨ AI Travel Companion',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Color(0xFF1A1A1A),
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               IconButton(
                 onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.close, color: Colors.white54),
+                icon: Icon(Icons.close, color: Colors.grey.shade500),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Tell me why you want to replan this itinerary, and I will magically rewrite it for you!',
-            style: TextStyle(color: Colors.white70, fontSize: 14),
+            style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
           ),
           const SizedBox(height: 24),
           
@@ -91,8 +91,8 @@ class _AiReplanSheetState extends State<AiReplanSheet> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: const Color.fromRGBO(199, 125, 255, 0.1),
-                    border: Border.all(color: const Color.fromRGBO(199, 125, 255, 0.5)),
+                    color: Colors.grey.shade50,
+                    border: Border.all(color: Colors.grey.shade200),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
@@ -102,7 +102,7 @@ class _AiReplanSheetState extends State<AiReplanSheet> {
                       const SizedBox(width: 8),
                       Text(
                         opt['label']!,
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                        style: const TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.w500),
                       ),
                     ],
                   ),
@@ -113,32 +113,36 @@ class _AiReplanSheetState extends State<AiReplanSheet> {
           
           const SizedBox(height: 24),
           Row(
-            children: const [
-              Expanded(child: Divider(color: Colors.white24)),
+            children: [
+              Expanded(child: Divider(color: Colors.grey.shade300)),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text('OR', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text('OR', style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
               ),
-              Expanded(child: Divider(color: Colors.white24)),
+              Expanded(child: Divider(color: Colors.grey.shade300)),
             ],
           ),
           const SizedBox(height: 24),
           
           TextField(
             controller: _customReasonController,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: Color(0xFF1A1A1A)),
             decoration: InputDecoration(
               hintText: 'e.g., I suddenly want to eat spicy street food',
-              hintStyle: const TextStyle(color: Colors.white38),
+              hintStyle: TextStyle(color: Colors.grey.shade400),
               filled: true,
-              fillColor: const Color(0xFF0F0C20),
+              fillColor: Colors.grey.shade50,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
+                borderSide: BorderSide(color: Colors.grey.shade200),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: Colors.grey.shade200),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(16),
-                borderSide: const BorderSide(color: Color(0xFF9D4EDD)),
+                borderSide: const BorderSide(color: Color(0xFF2C3E50)),
               ),
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
@@ -151,7 +155,7 @@ class _AiReplanSheetState extends State<AiReplanSheet> {
           const SizedBox(height: 16),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF9D4EDD),
+              backgroundColor: const Color(0xFF2C3E50),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(

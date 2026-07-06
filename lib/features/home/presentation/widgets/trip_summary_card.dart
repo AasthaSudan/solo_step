@@ -68,21 +68,21 @@ class _TripSummaryCardState extends State<TripSummaryCard> {
             curve: Curves.easeInOut,
             padding: const EdgeInsets.all(24.0),
             decoration: BoxDecoration(
-              color: const Color.fromRGBO(255, 255, 255, 0.05),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: _isHovered ? const Color.fromRGBO(199, 125, 255, 0.3) : const Color.fromRGBO(255, 255, 255, 0.12),
+                color: _isHovered ? const Color(0xFF2C3E50).withOpacity(0.3) : Colors.grey.shade200,
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color.fromRGBO(0, 0, 0, 0.2),
+                  color: Colors.black.withOpacity(0.04),
                   blurRadius: 16,
                   offset: const Offset(0, 8),
                 ),
                 if (_isHovered)
                   BoxShadow(
-                    color: const Color.fromRGBO(157, 78, 221, 0.15),
+                    color: Colors.black.withOpacity(0.08),
                     blurRadius: 24,
                     offset: const Offset(0, 10),
                   ),
@@ -133,9 +133,9 @@ class _TripSummaryCardState extends State<TripSummaryCard> {
                       child: Text(
                         widget.dates,
                         style: TextStyle(
-                          color: const Color.fromRGBO(255, 255, 255, 0.6),
+                          color: Colors.grey.shade500,
                           fontSize: 13 * textScale,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.right,
@@ -149,7 +149,7 @@ class _TripSummaryCardState extends State<TripSummaryCard> {
                 Text(
                   widget.destination,
                   style: TextStyle(
-                    color: Colors.white,
+                    color: const Color(0xFF1A1A1A),
                     fontSize: (isTablet ? 24.0 : 20.0) * textScale,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
@@ -159,15 +159,15 @@ class _TripSummaryCardState extends State<TripSummaryCard> {
                 Text(
                   widget.tagline,
                   style: TextStyle(
-                    color: const Color.fromRGBO(255, 255, 255, 0.7),
+                    color: Colors.grey.shade600,
                     fontSize: 15 * textScale,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w500,
                     height: 1.3,
                   ),
                 ),
                 
                 const SizedBox(height: 24),
-                const Divider(color: Color.fromRGBO(255, 255, 255, 0.1), height: 1),
+                Divider(color: Colors.grey.shade100, height: 1),
                 const SizedBox(height: 20),
 
                 // Progress Indicator Label
@@ -177,9 +177,9 @@ class _TripSummaryCardState extends State<TripSummaryCard> {
                     Text(
                       isActive ? 'Trip Progress' : 'Time to Departure',
                       style: TextStyle(
-                        color: const Color.fromRGBO(255, 255, 255, 0.5),
+                        color: Colors.grey.shade600,
                         fontSize: 13 * textScale,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
@@ -187,7 +187,7 @@ class _TripSummaryCardState extends State<TripSummaryCard> {
                           ? 'Day ${widget.currentDay} of ${widget.totalDays}'
                           : '${widget.currentDay} days left',
                       style: TextStyle(
-                        color: const Color(0xFFE0AAFF),
+                        color: const Color(0xFF2C3E50),
                         fontSize: 13 * textScale,
                         fontWeight: FontWeight.bold,
                       ),
@@ -203,7 +203,7 @@ class _TripSummaryCardState extends State<TripSummaryCard> {
                       height: 6,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: const Color.fromRGBO(255, 255, 255, 0.1),
+                        color: Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),
@@ -213,20 +213,8 @@ class _TripSummaryCardState extends State<TripSummaryCard> {
                           height: 6,
                           width: constraints.maxWidth * (isActive ? progress : 1.0 - (widget.currentDay / 10.0).clamp(0.0, 1.0)),
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF9D4EDD), // Violet
-                                Color(0xFFC77DFF), // Light purple
-                              ],
-                            ),
+                            color: const Color(0xFF2C3E50), // Muted dark blue
                             borderRadius: BorderRadius.circular(3),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color.fromRGBO(199, 125, 255, 0.3),
-                                blurRadius: 4,
-                                spreadRadius: 1,
-                              ),
-                            ],
                           ),
                         );
                       },
