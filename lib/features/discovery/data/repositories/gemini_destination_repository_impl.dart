@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../../../core/config/app_config.dart';
 import '../../domain/entities/destination.dart';
 import '../../domain/repositories/destination_repository.dart';
 
@@ -9,15 +9,12 @@ class GeminiDestinationRepositoryImpl implements DestinationRepository {
   final FirebaseFirestore _firestore;
 
   GeminiDestinationRepositoryImpl({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<List<Destination>> generateDestinations(String uid) async {
     try {
-      final apiKey = dotenv.env['GEMINI_API_KEY'];
-      if (apiKey == null || apiKey.isEmpty) {
-        throw Exception('GEMINI_API_KEY is missing in .env');
-      }
+      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
 
       final userDoc = await _firestore.collection('users').doc(uid).get();
       final userProfile = userDoc.exists && userDoc.data() != null
@@ -25,13 +22,14 @@ class GeminiDestinationRepositoryImpl implements DestinationRepository {
           : <String, dynamic>{
               'budget': 'medium',
               'interests': ['sightseeing', 'culture', 'food'],
-              'experienceLevel': 'first_timer'
+              'experienceLevel': 'first_timer',
             };
 
       // Remove Firestore specific objects like Timestamps to avoid jsonEncode exception
       userProfile.removeWhere((key, value) => value is Timestamp);
 
-      final prompt = '''
+      final prompt =
+          '''
 You are an expert travel planner specializing in Indian tourism. Recommend exactly 5 personalized travel destinations WITHIN INDIA for a user based on this profile:
 ${jsonEncode(userProfile)}
 
@@ -53,7 +51,7 @@ Return exactly 5 destinations as structured JSON. All destinations MUST be in In
             'tagline',
             'dailyBudgetEstimate',
             'highlights',
-            'safetyNote'
+            'safetyNote',
           ],
         ),
       );
@@ -64,9 +62,7 @@ Return exactly 5 destinations as structured JSON. All destinations MUST be in In
         generationConfig: GenerationConfig(
           responseMimeType: 'application/json',
           responseSchema: Schema.object(
-            properties: {
-              'destinations': schema,
-            },
+            properties: {'destinations': schema},
             requiredProperties: ['destinations'],
           ),
         ),
@@ -85,7 +81,8 @@ Return exactly 5 destinations as structured JSON. All destinations MUST be in In
         return Destination(
           name: destMap['name'] as String,
           tagline: destMap['tagline'] as String,
-          dailyBudgetEstimate: (destMap['dailyBudgetEstimate'] as num).toDouble(),
+          dailyBudgetEstimate: (destMap['dailyBudgetEstimate'] as num)
+              .toDouble(),
           highlights: (destMap['highlights'] as List<dynamic>)
               .map((e) => e as String)
               .toList(),

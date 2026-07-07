@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import '../../../../core/config/app_config.dart';
 import '../../domain/entities/itinerary.dart';
 import '../../domain/entities/packing_item.dart';
 import '../../domain/repositories/itinerary_repository.dart';
@@ -11,21 +11,22 @@ class GeminiItineraryRepositoryImpl implements ItineraryRepository {
   final FirebaseFirestore _firestore;
 
   GeminiItineraryRepositoryImpl({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   @override
   Future<Itinerary> generateItinerary(String destinationName) async {
     return _generateWithRetry(destinationName, 1);
   }
 
-  Future<Itinerary> _generateWithRetry(String destinationName, int retriesLeft) async {
+  Future<Itinerary> _generateWithRetry(
+    String destinationName,
+    int retriesLeft,
+  ) async {
     try {
-      final apiKey = dotenv.env['GEMINI_API_KEY'];
-      if (apiKey == null || apiKey.isEmpty) {
-        throw Exception('GEMINI_API_KEY is missing in .env');
-      }
+      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
 
-      final prompt = '''
+      final prompt =
+          '''
 You are an expert, protective local guide and travel planner for a solo female traveler in India.
 Create a detailed, hyper-specific day-by-day itinerary for a trip to $destinationName.
 IMPORTANT: Ensure a high degree of variety by including a mix of famous landmarks and unique, hidden gems or off-the-beaten-path experiences. Do not just return the standard tourist traps. Vary your recommendations each time.
@@ -66,7 +67,17 @@ Return the itinerary as structured JSON.
                       'imageUrl': Schema.string(nullable: true),
                       'bookingLink': Schema.string(nullable: true),
                     },
-                    requiredProperties: ['time', 'title', 'category', 'estimatedCost', 'notes', 'transitInstructions', 'googleMapsQuery', 'latitude', 'longitude'],
+                    requiredProperties: [
+                      'time',
+                      'title',
+                      'category',
+                      'estimatedCost',
+                      'notes',
+                      'transitInstructions',
+                      'googleMapsQuery',
+                      'latitude',
+                      'longitude',
+                    ],
                   ),
                 ),
                 'stayName': Schema.string(),
@@ -76,7 +87,14 @@ Return the itinerary as structured JSON.
                 'stayBookingLink': Schema.string(nullable: true),
                 'foodSuggestions': Schema.array(items: Schema.string()),
               },
-              requiredProperties: ['dayNumber', 'activities', 'stayName', 'stayCost', 'stayMapsQuery', 'foodSuggestions'],
+              requiredProperties: [
+                'dayNumber',
+                'activities',
+                'stayName',
+                'stayCost',
+                'stayMapsQuery',
+                'foodSuggestions',
+              ],
             ),
           ),
           'accommodations': Schema.array(
@@ -89,7 +107,14 @@ Return the itinerary as structured JSON.
                 'estimatedCostInr': Schema.integer(),
                 'searchLink': Schema.string(),
               },
-              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+              requiredProperties: [
+                'id',
+                'type',
+                'name',
+                'description',
+                'estimatedCostInr',
+                'searchLink',
+              ],
             ),
           ),
           'foodOptions': Schema.array(
@@ -102,7 +127,14 @@ Return the itinerary as structured JSON.
                 'estimatedCostInr': Schema.integer(),
                 'searchLink': Schema.string(),
               },
-              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+              requiredProperties: [
+                'id',
+                'type',
+                'name',
+                'description',
+                'estimatedCostInr',
+                'searchLink',
+              ],
             ),
           ),
           'transportOptions': Schema.array(
@@ -115,11 +147,23 @@ Return the itinerary as structured JSON.
                 'estimatedCostInr': Schema.integer(),
                 'searchLink': Schema.string(),
               },
-              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+              requiredProperties: [
+                'id',
+                'type',
+                'name',
+                'description',
+                'estimatedCostInr',
+                'searchLink',
+              ],
             ),
           ),
         },
-        requiredProperties: ['days', 'accommodations', 'foodOptions', 'transportOptions'],
+        requiredProperties: [
+          'days',
+          'accommodations',
+          'foodOptions',
+          'transportOptions',
+        ],
       );
 
       final model = GenerativeModel(
@@ -156,7 +200,9 @@ Return the itinerary as structured JSON.
           print('Validation failed: missing category or cost. Retrying...');
           return _generateWithRetry(destinationName, retriesLeft - 1);
         } else {
-          throw Exception('Validation failed: Some activities are missing category or estimatedCost after retries.');
+          throw Exception(
+            'Validation failed: Some activities are missing category or estimatedCost after retries.',
+          );
         }
       }
 
@@ -168,20 +214,25 @@ Return the itinerary as structured JSON.
   }
 
   @override
-  Future<Itinerary> replanItinerary(Itinerary currentItinerary, String reason) async {
+  Future<Itinerary> replanItinerary(
+    Itinerary currentItinerary,
+    String reason,
+  ) async {
     return _replanWithRetry(currentItinerary, reason, 1);
   }
 
-  Future<Itinerary> _replanWithRetry(Itinerary currentItinerary, String reason, int retriesLeft) async {
+  Future<Itinerary> _replanWithRetry(
+    Itinerary currentItinerary,
+    String reason,
+    int retriesLeft,
+  ) async {
     try {
-      final apiKey = dotenv.env['GEMINI_API_KEY'];
-      if (apiKey == null || apiKey.isEmpty) {
-        throw Exception('GEMINI_API_KEY is missing in .env');
-      }
+      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
 
       final currentJson = jsonEncode(currentItinerary.toMap());
 
-      final prompt = '''
+      final prompt =
+          '''
 You are an expert travel planner. I have an existing JSON itinerary for a solo female traveler.
 I need you to REWRITE this itinerary because: "$reason".
 
@@ -218,7 +269,17 @@ Return the itinerary as structured JSON.
                       'imageUrl': Schema.string(nullable: true),
                       'bookingLink': Schema.string(nullable: true),
                     },
-                    requiredProperties: ['time', 'title', 'category', 'estimatedCost', 'notes', 'transitInstructions', 'googleMapsQuery', 'latitude', 'longitude'],
+                    requiredProperties: [
+                      'time',
+                      'title',
+                      'category',
+                      'estimatedCost',
+                      'notes',
+                      'transitInstructions',
+                      'googleMapsQuery',
+                      'latitude',
+                      'longitude',
+                    ],
                   ),
                 ),
                 'stayName': Schema.string(),
@@ -228,7 +289,14 @@ Return the itinerary as structured JSON.
                 'stayBookingLink': Schema.string(nullable: true),
                 'foodSuggestions': Schema.array(items: Schema.string()),
               },
-              requiredProperties: ['dayNumber', 'activities', 'stayName', 'stayCost', 'stayMapsQuery', 'foodSuggestions'],
+              requiredProperties: [
+                'dayNumber',
+                'activities',
+                'stayName',
+                'stayCost',
+                'stayMapsQuery',
+                'foodSuggestions',
+              ],
             ),
           ),
           'accommodations': Schema.array(
@@ -241,7 +309,14 @@ Return the itinerary as structured JSON.
                 'estimatedCostInr': Schema.integer(),
                 'searchLink': Schema.string(),
               },
-              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+              requiredProperties: [
+                'id',
+                'type',
+                'name',
+                'description',
+                'estimatedCostInr',
+                'searchLink',
+              ],
             ),
           ),
           'foodOptions': Schema.array(
@@ -254,7 +329,14 @@ Return the itinerary as structured JSON.
                 'estimatedCostInr': Schema.integer(),
                 'searchLink': Schema.string(),
               },
-              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+              requiredProperties: [
+                'id',
+                'type',
+                'name',
+                'description',
+                'estimatedCostInr',
+                'searchLink',
+              ],
             ),
           ),
           'transportOptions': Schema.array(
@@ -267,11 +349,23 @@ Return the itinerary as structured JSON.
                 'estimatedCostInr': Schema.integer(),
                 'searchLink': Schema.string(),
               },
-              requiredProperties: ['id', 'type', 'name', 'description', 'estimatedCostInr', 'searchLink'],
+              requiredProperties: [
+                'id',
+                'type',
+                'name',
+                'description',
+                'estimatedCostInr',
+                'searchLink',
+              ],
             ),
           ),
         },
-        requiredProperties: ['days', 'accommodations', 'foodOptions', 'transportOptions'],
+        requiredProperties: [
+          'days',
+          'accommodations',
+          'foodOptions',
+          'transportOptions',
+        ],
       );
 
       final model = GenerativeModel(
@@ -307,7 +401,9 @@ Return the itinerary as structured JSON.
           print('Validation failed: missing category or cost. Retrying...');
           return _replanWithRetry(currentItinerary, reason, retriesLeft - 1);
         } else {
-          throw Exception('Validation failed: Some activities are missing category or estimatedCost after retries.');
+          throw Exception(
+            'Validation failed: Some activities are missing category or estimatedCost after retries.',
+          );
         }
       }
 
@@ -321,14 +417,12 @@ Return the itinerary as structured JSON.
   @override
   Future<List<PackingItem>> generatePackingList(Itinerary itinerary) async {
     try {
-      final apiKey = dotenv.env['GEMINI_API_KEY'];
-      if (apiKey == null || apiKey.isEmpty) {
-        throw Exception('GEMINI_API_KEY is missing in .env');
-      }
+      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
 
       final itineraryJson = jsonEncode(itinerary.toMap());
 
-      final prompt = '''
+      final prompt =
+          '''
 You are an expert travel assistant. I have an existing JSON itinerary for a solo female traveler.
 I need you to generate a smart, highly personalized packing list based ONLY on this specific itinerary.
 
@@ -373,7 +467,9 @@ Follow the exact schema provided.
       }
 
       final dataList = jsonDecode(response.text!) as List<dynamic>;
-      final packingList = dataList.map((data) => PackingItem.fromMap(data as Map<String, dynamic>)).toList();
+      final packingList = dataList
+          .map((data) => PackingItem.fromMap(data as Map<String, dynamic>))
+          .toList();
 
       return packingList;
     } catch (e) {
@@ -383,10 +479,20 @@ Follow the exact schema provided.
   }
 
   @override
-  Future<void> saveTrip(String uid, String tripId, String destinationName, Itinerary itinerary, {DateTime? startDate}) async {
+  Future<void> saveTrip(
+    String uid,
+    String tripId,
+    String destinationName,
+    Itinerary itinerary, {
+    DateTime? startDate,
+  }) async {
     try {
-      final docRef = _firestore.collection('users').doc(uid).collection('trips').doc(tripId);
-      
+      final docRef = _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('trips')
+          .doc(tripId);
+
       final tripData = {
         'id': tripId,
         'destinationName': destinationName,
@@ -394,15 +500,17 @@ Follow the exact schema provided.
         'createdAt': FieldValue.serverTimestamp(),
         'status': 'active',
       };
-      
+
       if (startDate != null) {
         tripData['startDate'] = Timestamp.fromDate(startDate);
-        final endDate = startDate.add(Duration(days: itinerary.days.length - 1));
+        final endDate = startDate.add(
+          Duration(days: itinerary.days.length - 1),
+        );
         tripData['endDate'] = Timestamp.fromDate(endDate);
       }
 
       await docRef.set(tripData, SetOptions(merge: true));
-      
+
       // Save to local Hive cache
       try {
         final box = Hive.box('itineraries');
@@ -410,7 +518,6 @@ Follow the exact schema provided.
       } catch (e) {
         print('Error caching to Hive: $e');
       }
-      
     } catch (e) {
       print('Error saving trip: $e');
       rethrow;
@@ -433,17 +540,23 @@ Follow the exact schema provided.
       }
 
       // 2. Fallback to Firestore
-      final docRef = _firestore.collection('users').doc(uid).collection('trips').doc(tripId);
+      final docRef = _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('trips')
+          .doc(tripId);
       // Use cache source first if offline
-      final doc = await docRef.get(const GetOptions(source: Source.serverAndCache));
+      final doc = await docRef.get(
+        const GetOptions(source: Source.serverAndCache),
+      );
       if (!doc.exists) return null;
-      
+
       final data = doc.data();
       if (data == null || !data.containsKey('itinerary')) return null;
-      
+
       final itineraryData = data['itinerary'] as Map<String, dynamic>;
       final itinerary = Itinerary.fromMap(itineraryData);
-      
+
       // Cache it for next time
       try {
         final box = Hive.box('itineraries');

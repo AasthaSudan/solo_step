@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../../../core/config/app_config.dart';
 import '../../domain/entities/debrief_card.dart';
 import '../../domain/repositories/debrief_repository.dart';
 import '../../../budget/domain/entities/budget_summary.dart';
@@ -17,8 +17,8 @@ class GeminiDebriefRepositoryImpl implements DebriefRepository {
   GeminiDebriefRepositoryImpl({
     FirebaseFirestore? firestore,
     FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+  }) : _firestore = firestore ?? FirebaseFirestore.instance,
+       _auth = auth ?? FirebaseAuth.instance;
 
   String get _uid {
     final user = _auth.currentUser;
@@ -35,7 +35,11 @@ class GeminiDebriefRepositoryImpl implements DebriefRepository {
     required List<Expense> expenses,
   }) async {
     try {
-      final tripDocRef = _firestore.collection('users').doc(_uid).collection('trips').doc(tripId);
+      final tripDocRef = _firestore
+          .collection('users')
+          .doc(_uid)
+          .collection('trips')
+          .doc(tripId);
       final tripSnapshot = await tripDocRef.get();
 
       String destinationName = 'Unknown Destination';
@@ -43,8 +47,9 @@ class GeminiDebriefRepositoryImpl implements DebriefRepository {
 
       if (tripSnapshot.exists) {
         final tripData = tripSnapshot.data()!;
-        destinationName = tripData['destinationName'] as String? ?? 'Unknown Destination';
-        
+        destinationName =
+            tripData['destinationName'] as String? ?? 'Unknown Destination';
+
         final itineraryData = tripData['itinerary'] as Map<String, dynamic>?;
         if (itineraryData != null) {
           final itinerary = Itinerary.fromMap(itineraryData);
@@ -52,7 +57,9 @@ class GeminiDebriefRepositoryImpl implements DebriefRepository {
         }
       } else {
         // Fallback for when the trip doesn't exist during Layer 3 UI testing
-        debugPrint('Trip doc $tripId not found. Using fallback data for Debrief.');
+        debugPrint(
+          'Trip doc $tripId not found. Using fallback data for Debrief.',
+        );
         destinationName = 'Mystery Location';
         daysCount = 3;
       }
@@ -61,13 +68,11 @@ class GeminiDebriefRepositoryImpl implements DebriefRepository {
       final savedVsEstimateInr = summary.estimatedToDateInr - summary.spentInr;
       final totalSpentInr = summary.spentInr;
       final topCategory = _calculateTopCategory(expenses);
-      
-      final apiKey = dotenv.env['GEMINI_API_KEY'];
-      if (apiKey == null || apiKey.isEmpty) {
-        throw Exception('GEMINI_API_KEY is missing in .env');
-      }
 
-      final prompt = '''
+      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
+
+      final prompt =
+          '''
 You are a fun, witty travel companion analyzing a user's recently completed trip to $destinationName.
 Based on their spending habits, they saved ₹$savedVsEstimateInr compared to their original estimates, and their highest spend category was "$topCategory".
 
@@ -104,10 +109,15 @@ Return the result as structured JSON.
       }
 
       final flavorData = jsonDecode(response.text!) as Map<String, dynamic>;
-      
+
       final debriefCard = DebriefCard(
-        personality: flavorData['personality'] as String? ?? 'The Unknown Traveler',
-        traits: (flavorData['traits'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+        personality:
+            flavorData['personality'] as String? ?? 'The Unknown Traveler',
+        traits:
+            (flavorData['traits'] as List<dynamic>?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            [],
         caption: flavorData['caption'] as String? ?? 'A trip for the books.',
         savedVsEstimateInr: savedVsEstimateInr,
         totalSpentInr: totalSpentInr,
@@ -126,7 +136,7 @@ Return the result as structured JSON.
             'totalSpentInr': debriefCard.totalSpentInr,
             'daysCount': debriefCard.daysCount,
             'topCategory': debriefCard.topCategory,
-          }
+          },
         });
       }
 
