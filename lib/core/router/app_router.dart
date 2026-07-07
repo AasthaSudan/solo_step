@@ -201,11 +201,38 @@ final GoRouter appRouter = GoRouter(
                     }
 
                     final extra = _mapExtra(state);
-                    final destinationName = extra?['destinationName'] as String? ?? (tripId == 'new' ? 'Your Destination' : 'Trip');
+                    final destinationName = extra?['destinationName'] as String?;
                     final initialTabIndex = extra?['initialTabIndex'] as int? ?? 0;
+
+                    if (tripId == 'new' && (destinationName == null || destinationName.isEmpty)) {
+                      return Scaffold(
+                        appBar: AppBar(title: const Text('Itinerary Error')),
+                        body: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'A destination is required to create a new itinerary.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 12),
+                                ElevatedButton(
+                                  onPressed: () => context.go('/home/discover'),
+                                  child: const Text('Back to Discover'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
                     return ItineraryViewScreen(
                       tripId: tripId,
-                      destinationName: destinationName,
+                      destinationName: destinationName ?? (tripId == 'new' ? 'Your Destination' : 'Trip'),
                       initialTabIndex: initialTabIndex,
                     );
                   },

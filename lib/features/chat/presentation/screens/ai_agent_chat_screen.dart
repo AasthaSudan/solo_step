@@ -44,6 +44,20 @@ class _AiAgentChatScreenState extends ConsumerState<AiAgentChatScreen> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
+      if (!AppConfig.instance.hasGeminiApiKey) {
+        setState(() {
+          _messages.add(
+            ChatMessage(
+              id: const Uuid().v4(),
+              role: 'model',
+              text: 'Gemini API key is not configured. Run the app with `--dart-define=GEMINI_API_KEY=YOUR_KEY` and restart to use chat.',
+              timestamp: DateTime.now(),
+            ),
+          );
+        });
+        return;
+      }
+
       final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
       setState(() => _isLoading = true);
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uuid/uuid.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import '../providers/itinerary_provider.dart';
@@ -193,7 +192,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -268,12 +267,10 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
     });
 
     try {
-      final tripId = const Uuid().v4();
-      await ref.read(itineraryProvider.notifier).saveTrip(
+      await ref.read(itineraryProvider.notifier).saveNewTrip(
             user.uid,
-            tripId,
             widget.destinationName,
-            startDate: pickedDate,
+            pickedDate,
           );
 
       if (!mounted) return;
@@ -297,7 +294,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2C3E50).withOpacity(0.1),
+                      color: const Color(0xFF2C3E50).withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -633,7 +630,7 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF2C3E50),
                                 foregroundColor: Colors.white,
-                                shadowColor: Colors.black.withOpacity(0.1),
+                                shadowColor: Colors.black.withValues(alpha: 0.1),
                                 elevation: 6,
                                 padding: const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(

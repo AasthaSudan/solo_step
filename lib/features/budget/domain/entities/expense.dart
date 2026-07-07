@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 enum SpendCategory {
@@ -110,19 +111,53 @@ class Expense {
   }
 
   factory Expense.fromMap(Map<String, dynamic> map, String id) {
+    DateTime spentAt = DateTime.now();
+    final rawSpentAt = map['spentAt'];
+
+    if (rawSpentAt is String && rawSpentAt.isNotEmpty) {
+      try {
+        spentAt = DateTime.parse(rawSpentAt);
+      } catch (_) {
+        spentAt = DateTime.now();
+      }
+    } else if (rawSpentAt is DateTime) {
+      spentAt = rawSpentAt;
+    } else if (rawSpentAt is Timestamp) {
+      spentAt = rawSpentAt.toDate();
+    } else if (rawSpentAt is Map<String, dynamic>) {
+      final seconds = rawSpentAt['_seconds'] as int?;
+      final nanoseconds = rawSpentAt['_nanoseconds'] as int?;
+      if (seconds != null) {
+        spentAt = DateTime.fromMillisecondsSinceEpoch(
+          seconds * 1000 + (nanoseconds ?? 0) ~/ 1000000,
+        );
+      }
+    }
+
+    final amountValue = map['amountInr'];
+    final amountInr = amountValue is int
+        ? amountValue
+        : (amountValue is num ? amountValue.toInt() : 0);
+
+    final dayValue = map['day'];
+    final day = dayValue is int
+        ? dayValue
+        : (dayValue is num ? dayValue.toInt() : 1);
+
+    final categoryName = map['category'] as String?;
+    final category = SpendCategory.values.firstWhere(
+      (e) => e.name == categoryName,
+      orElse: () => SpendCategory.other,
+    );
+
     return Expense(
       id: id,
       tripId: map['tripId'] as String? ?? '',
-      day: map['day'] as int? ?? 1,
-      category: SpendCategory.values.firstWhere(
-        (e) => e.name == map['category'],
-        orElse: () => SpendCategory.other,
-      ),
+      day: day,
+      category: category,
       label: map['label'] as String? ?? '',
-      amountInr: map['amountInr'] as int? ?? 0,
-      spentAt: map['spentAt'] != null 
-          ? DateTime.parse(map['spentAt'] as String) 
-          : DateTime.now(),
+      amountInr: amountInr,
+      spentAt: spentAt,
       synced: map['synced'] as bool? ?? true,
     );
   }

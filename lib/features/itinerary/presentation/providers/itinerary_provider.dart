@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
 import '../../domain/entities/itinerary.dart';
 import '../../domain/repositories/itinerary_repository.dart';
 import '../../data/repositories/gemini_itinerary_repository_impl.dart';
@@ -119,7 +121,7 @@ class ItineraryNotifier extends Notifier<AsyncValue<Itinerary?>> {
           final repository = ref.read(itineraryRepositoryProvider);
           await repository.saveTrip(uid, tripId, destinationName, updatedItinerary);
         } catch (e) {
-          print('Error saving packing item toggle: $e');
+          debugPrint('Error saving packing item toggle: $e');
           // We could optionally revert the state here on failure
         }
       }
@@ -134,6 +136,12 @@ class ItineraryNotifier extends Notifier<AsyncValue<Itinerary?>> {
     
     final repository = ref.read(itineraryRepositoryProvider);
     await repository.saveTrip(uid, tripId, destinationName, currentItinerary, startDate: startDate);
+  }
+
+  Future<String> saveNewTrip(String uid, String destinationName, DateTime startDate) async {
+    final tripId = const Uuid().v4();
+    await saveTrip(uid, tripId, destinationName, startDate: startDate);
+    return tripId;
   }
 }
 
