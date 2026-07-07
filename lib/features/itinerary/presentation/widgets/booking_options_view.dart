@@ -29,9 +29,26 @@ class BookingOptionsView extends StatelessWidget {
   Widget build(BuildContext context) {
     if (accommodations.isEmpty && foodOptions.isEmpty && transportOptions.isEmpty) {
       return Center(
-        child: Text(
-          'No specific booking options available for this trip.',
-          style: TextStyle(color: Colors.grey.shade600),
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.hotel_outlined, size: 64, color: Colors.grey.shade400),
+              const SizedBox(height: 16),
+              Text(
+                'No specific booking options were generated.',
+                style: TextStyle(color: Colors.grey.shade800, fontSize: 18, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'You can use the Local Fixer (AI Agent) chat to ask for specific hotel or transport recommendations!',
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 14, height: 1.4),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       );
     }

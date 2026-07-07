@@ -46,11 +46,11 @@ class _DestinationCardSkeletonState extends State<DestinationCardSkeleton>
         animation: _alphaAnimation,
         builder: (context, child) {
           final Color shimmerColor = Colors.grey.shade400.withAlpha(
-            _alphaAnimation.value.round(),
+            (_alphaAnimation.value * 2.5).round().clamp(0, 255),
           );
           final Color indicatorShimmerColor = const Color(
             0xFF2C3E50,
-          ).withAlpha(_alphaAnimation.value.round());
+          ).withAlpha((_alphaAnimation.value * 2.5).round().clamp(0, 255));
 
           return Container(
             padding: const EdgeInsets.all(24.0),

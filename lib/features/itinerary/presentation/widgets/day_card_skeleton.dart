@@ -40,8 +40,8 @@ class _DayCardSkeletonState extends State<DayCardSkeleton>
     return AnimatedBuilder(
       animation: _alphaAnimation,
       builder: (context, child) {
-        final Color shimmerColor = Colors.grey.shade300.withAlpha((_alphaAnimation.value * 2).round().clamp(0, 255));
-        final Color indicatorShimmerColor = const Color(0xFF2C3E50).withAlpha((_alphaAnimation.value * 2).round().clamp(0, 255));
+        final Color shimmerColor = Colors.grey.shade400.withAlpha((_alphaAnimation.value * 2.5).round().clamp(0, 255));
+        final Color indicatorShimmerColor = const Color(0xFF2C3E50).withAlpha((_alphaAnimation.value * 2.5).round().clamp(0, 255));
 
         return Container(
           margin: const EdgeInsets.only(bottom: 16.0),

@@ -57,8 +57,8 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
   @override
   void initState() {
     super.initState();
-    // Viewport fraction 0.85 gives a beautiful peek effect of neighboring cards
-    _pageController = PageController(viewportFraction: 0.85);
+    // Viewport fraction 0.95 gives a beautiful full screen card feel
+    _pageController = PageController(viewportFraction: 0.95);
   }
 
   @override
@@ -68,7 +68,7 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
   }
 
   void _triggerGeneration() {
-    final authUser = ref.read(authStateProvider).value;
+    final authUser = ref.read(authStateProvider).valueOrNull;
     if (authUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please wait for authentication to load...')),
@@ -209,7 +209,30 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
       );
     }
 
-    final destinations = asyncResults.value ?? [];
+    if (asyncResults.hasError) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 64, color: Colors.redAccent),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to generate destinations.',
+              style: TextStyle(color: const Color(0xFF1A1A1A), fontSize: 16 * textScale, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${asyncResults.error}',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade600, fontSize: 14 * textScale),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final destinations = asyncResults.valueOrNull ?? [];
 
     if (destinations.isEmpty) {
       return Padding(

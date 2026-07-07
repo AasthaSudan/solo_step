@@ -72,7 +72,7 @@ class BudgetNotifier extends FamilyAsyncNotifier<BudgetState, String> {
     
     // Update the state
     if (state.hasValue) {
-      state = AsyncData(BudgetState(summary: summary, expenses: state.value!.expenses));
+      state = AsyncData(BudgetState(summary: summary, expenses: state.valueOrNull?.expenses ?? []));
     }
   }
 

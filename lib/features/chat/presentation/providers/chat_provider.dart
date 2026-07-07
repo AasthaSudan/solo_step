@@ -10,7 +10,7 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 });
 
 final chatMessagesProvider = StreamProvider.family<List<ChatMessage>, String>((ref, tripId) {
-  final user = ref.watch(authStateProvider).value;
+  final user = ref.watch(authStateProvider).valueOrNull;
   if (user == null) {
     return const Stream.empty();
   }

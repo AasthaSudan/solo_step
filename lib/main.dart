@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'core/router/app_router.dart';
 
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         scaffoldBackgroundColor: const Color(0xFFF7F5F0), // Warm Cream background
+        textTheme: GoogleFonts.outfitTextTheme(),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF2C3E50), // Muted dark blue/grey
           brightness: Brightness.light,

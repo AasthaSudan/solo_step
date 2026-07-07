@@ -5,6 +5,7 @@ import '../widgets/empty_state_widget.dart';
 import '../widgets/trip_summary_card.dart';
 import '../../../archive/presentation/providers/trips_provider.dart';
 import '../../../archive/domain/entities/trip.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 /// The main dashboard screen (Layer 1 UI).
 /// Allows switching between empty-state and active-trip layouts using an App Bar toggle.
@@ -41,7 +42,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
     
     final tripsAsync = ref.watch(tripsProvider);
-    final activeTrip = tripsAsync.value?.where((t) => t.status == TripStatus.active || t.status == TripStatus.upcoming).firstOrNull;
+    final activeTrip = tripsAsync.valueOrNull?.where((t) => t.status == TripStatus.active || t.status == TripStatus.upcoming).firstOrNull;
     final hasActiveTrip = activeTrip != null;
     
     int currentDay = 1;
@@ -69,184 +70,208 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F5F0), // Warm Cream
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Custom Navigation/App Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // User Info Greeting
-                  Row(
-                    children: [
-                      // Avatar placeholder
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white,
-                          border: Border.all(color: Colors.grey.shade200, width: 1.5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.person_outline,
-                          color: Color(0xFF2C3E50),
-                          size: 22,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hello, Explorer!',
-                            style: TextStyle(
-                              color: const Color(0xFF1A1A1A),
-                              fontSize: 16 * textScale,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Ready for your next adventure?',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12 * textScale,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            Divider(color: Colors.grey.shade200, height: 1),
-
-            // Main Dashboard Area
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: isTablet ? 540.0 : double.infinity,
-                  ),
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 400),
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeInCubic,
-                      child: hasActiveTrip
-                          ? Column(
-                              key: const ValueKey('active_trip_state'),
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Active Trip',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade800,
-                                    fontSize: 14 * textScale,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.0,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                
-                                // Active Trip Summary Card
-                                TripSummaryCard(
-                                  destination: activeTrip.destinationName,
-                                  tagline: activeTrip.tagline,
-                                  dates: activeTrip.dates,
-                                  status: statusStr,
-                                  currentDay: currentDay,
-                                  totalDays: activeTrip.days,
-                                  onTap: () => _handleTripCardPressed(activeTrip.id, activeTrip.destinationName),
-                                ),
-                                const SizedBox(height: 28),
-                                
-                                // Quick Actions Section
-                                Text(
-                                  'Quick Actions',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade800,
-                                    fontSize: 14 * textScale,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1.0,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                
-                                // Active Trip Quick Controls (Bento Boxes)
-                                GridView.count(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                  childAspectRatio: 1.4,
-                                  children: [
-                                    _buildQuickActionItem(
-                                      icon: Icons.map_outlined,
-                                      label: 'View Itinerary',
-                                      color: const Color(0xFFC77DFF),
-                                      onTap: () => _handleTripCardPressed(activeTrip.id, activeTrip.destinationName),
-                                    ),
-                                    _buildQuickActionItem(
-                                      icon: Icons.account_balance_wallet_outlined,
-                                      label: 'Track Expenses',
-                                      color: const Color(0xFFFBBC05),
-                                      onTap: () {
-                                        context.go(
-                                          '/trips/itinerary/${activeTrip.id}',
-                                          extra: {
-                                            'destinationName': activeTrip.destinationName,
-                                            'initialTabIndex': 3,
-                                          },
-                                        );
-                                      },
-                                    ),
-                                    _buildQuickActionItem(
-                                      icon: Icons.chat_bubble_outline,
-                                      label: 'AI Travel Agent',
-                                      color: const Color(0xFF4285F4),
-                                      onTap: () {
-                                        context.go('/home/chat', extra: {
-                                          'destinationName': activeTrip.destinationName,
-                                          'tripId': activeTrip.id,
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            )
-                          : Container(
-                              key: const ValueKey('empty_state'),
-                              padding: const EdgeInsets.symmetric(vertical: 40.0),
-                              child: EmptyStateWidget(
-                                onPlanTripPressed: _handlePlanNewTrip,
-                              ),
-                            ),
-                    ),
-                  ),
+      body: Stack(
+        children: [
+          // Dynamic Background Image with Gradient Overlay
+          Positioned.fill(
+            child: Image.network(
+              'https://loremflickr.com/800/1200/travel,landscape',
+              fit: BoxFit.cover,
+            ).animate().fade(duration: 800.ms),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFFF7F5F0).withValues(alpha: 0.8),
+                    const Color(0xFFF7F5F0),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                // Custom Navigation/App Bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // User Info Greeting
+                      Row(
+                        children: [
+                          // Avatar placeholder
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white,
+                              border: Border.all(color: Colors.grey.shade200, width: 1.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.person_outline,
+                              color: Color(0xFF2C3E50),
+                              size: 22,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Hello, Explorer!',
+                                style: TextStyle(
+                                  color: const Color(0xFF1A1A1A),
+                                  fontSize: 16 * textScale,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Ready for your next adventure?',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12 * textScale,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ).animate().fade(duration: 600.ms).slideX(begin: -0.1),
+                    ],
+                  ),
+                ),
+    
+                Divider(color: Colors.grey.shade300.withValues(alpha: 0.5), height: 1),
+    
+                // Main Dashboard Area
+                Expanded(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: isTablet ? 540.0 : double.infinity,
+                      ),
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          switchInCurve: Curves.easeOutCubic,
+                          switchOutCurve: Curves.easeInCubic,
+                          child: hasActiveTrip
+                              ? Column(
+                                  key: const ValueKey('active_trip_state'),
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Active Trip',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade800,
+                                        fontSize: 14 * textScale,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.0,
+                                      ),
+                                    ).animate().fade().slideY(begin: 0.2),
+                                    const SizedBox(height: 12),
+                                    
+                                    // Active Trip Summary Card
+                                    TripSummaryCard(
+                                      destination: activeTrip.destinationName,
+                                      tagline: activeTrip.tagline,
+                                      dates: activeTrip.dates,
+                                      status: statusStr,
+                                      currentDay: currentDay,
+                                      totalDays: activeTrip.days,
+                                      onTap: () => _handleTripCardPressed(activeTrip.id, activeTrip.destinationName),
+                                    ).animate().fade(delay: 100.ms).slideY(begin: 0.2),
+                                    const SizedBox(height: 28),
+                                    
+                                    // Quick Actions Section
+                                    Text(
+                                      'Quick Actions',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade800,
+                                        fontSize: 14 * textScale,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1.0,
+                                      ),
+                                    ).animate().fade(delay: 200.ms).slideY(begin: 0.2),
+                                    const SizedBox(height: 12),
+                                    
+                                    // Active Trip Quick Controls (Bento Boxes)
+                                    GridView.count(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      crossAxisCount: 2,
+                                      crossAxisSpacing: 16,
+                                      mainAxisSpacing: 16,
+                                      childAspectRatio: 1.4,
+                                      children: [
+                                        _buildQuickActionItem(
+                                          icon: Icons.map_outlined,
+                                          label: 'View Itinerary',
+                                          color: const Color(0xFFC77DFF),
+                                          onTap: () => _handleTripCardPressed(activeTrip.id, activeTrip.destinationName),
+                                        ).animate().fade(delay: 300.ms).scale(),
+                                        _buildQuickActionItem(
+                                          icon: Icons.account_balance_wallet_outlined,
+                                          label: 'Track Expenses',
+                                          color: const Color(0xFFFBBC05),
+                                          onTap: () {
+                                            context.go(
+                                              '/trips/itinerary/${activeTrip.id}',
+                                              extra: {
+                                                'destinationName': activeTrip.destinationName,
+                                                'initialTabIndex': 3,
+                                              },
+                                            );
+                                          },
+                                        ).animate().fade(delay: 400.ms).scale(),
+                                        _buildQuickActionItem(
+                                          icon: Icons.chat_bubble_outline,
+                                          label: 'AI Travel Agent',
+                                          color: const Color(0xFF4285F4),
+                                          onTap: () {
+                                            context.go('/home/chat', extra: {
+                                              'destinationName': activeTrip.destinationName,
+                                              'tripId': activeTrip.id,
+                                            });
+                                          },
+                                        ).animate().fade(delay: 500.ms).scale(),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              : Container(
+                                  key: const ValueKey('empty_state'),
+                                  padding: const EdgeInsets.symmetric(vertical: 40.0),
+                                  child: EmptyStateWidget(
+                                    onPlanTripPressed: _handlePlanNewTrip,
+                                  ),
+                                ).animate().fade().slideY(begin: 0.1),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton: hasActiveTrip
           ? FloatingActionButton.extended(

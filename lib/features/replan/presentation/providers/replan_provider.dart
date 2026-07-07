@@ -37,13 +37,13 @@ class ReplanNotifier extends AsyncNotifier<ReplanResult?> {
   }
 
   Future<void> accept() async {
-    if (state.value == null || _currentTripId == null) return;
+    if (state.valueOrNull == null || _currentTripId == null) return;
     
     try {
       final repo = ref.read(replanRepositoryProvider);
       await repo.acceptReplan(
         tripId: _currentTripId!,
-        newItinerary: state.value!.newItinerary,
+        newItinerary: state.valueOrNull!.newItinerary,
       );
       state = const AsyncValue.data(null);
     } catch (e) {

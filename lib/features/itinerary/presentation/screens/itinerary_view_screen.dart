@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uuid/uuid.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../features/auth/presentation/providers/auth_provider.dart';
 import '../providers/itinerary_provider.dart';
 import '../widgets/day_card.dart';
@@ -380,55 +381,130 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
     final bool isLoading = asyncItinerary.isLoading || (asyncItinerary.valueOrNull == null && !asyncItinerary.hasError);
     final bool hasError = asyncItinerary.hasError;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F5F0), // Warm Cream
-      body: SafeArea(
-        child: Column(
+    final String placeholderUrl =
+        'https://loremflickr.com/1200/400/${Uri.encodeComponent(widget.destinationName)},travel,landscape/all';
+
+    return PopScope(
+      canPop: widget.tripId != 'new',
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (widget.tripId == 'new') {
+          final shouldPop = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Discard Trip?'),
+              content: const Text('If you go back now, this generated itinerary will be lost. Make sure to tap "Save Trip" at the bottom if you want to keep it.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Keep Exploring', style: TextStyle(color: Color(0xFF2C3E50))),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Discard', style: TextStyle(color: Colors.redAccent)),
+                ),
+              ],
+            ),
+          );
+          if (shouldPop == true && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF7F5F0), // Warm Cream
+        body: Column(
           children: [
-            // Custom Header Row (Back Button & Title)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1A1A1A), size: 20),
-                    onPressed: isLoading ? null : () => Navigator.of(context).pop(),
-                    tooltip: 'Back to Details',
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      '${widget.destinationName} Itinerary',
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: const Color(0xFF1A1A1A),
-                        fontSize: 20 * textScale,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+            // Banner Image
+            Stack(
+              children: [
+                CachedNetworkImage(
+                  imageUrl: placeholderUrl,
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => Container(color: Colors.grey.shade300, height: 180),
+                  errorWidget: (context, url, error) => Container(color: Colors.grey.shade300, height: 180),
+                ),
+                // Gradient for text readability and fade into background
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.4),
+                          Colors.transparent,
+                          const Color(0xFFF7F5F0),
+                        ],
+                        stops: const [0.0, 0.5, 1.0],
                       ),
                     ),
                   ),
-                  if (!isLoading && !hasError)
-                    IconButton(
-                      icon: const Icon(Icons.auto_awesome, color: Color(0xFF2C3E50)),
-                      tooltip: 'AI Replan',
-                      onPressed: () {
-                        showAiReplanSheet(
-                          context: context,
-                          onReplan: (reason) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Replanning... this might take a few seconds!')),
-                            );
-                            ref.read(itineraryProvider.notifier).replanItinerary(reason, widget.tripId, widget.destinationName);
-                          },
-                        );
-                      },
-                    ),
-                ],
+                ),
+                SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.white.withValues(alpha: 0.8),
+                          child: BackButton(
+                            color: const Color(0xFF1A1A1A),
+                            onPressed: isLoading ? null : () {
+                              if (widget.tripId != 'new') {
+                                Navigator.of(context).pop();
+                              } else {
+                                // Trigger PopScope onPopInvokedWithResult
+                                Navigator.of(context).maybePop();
+                              }
+                            },
+                          ),
+                        ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '${widget.destinationName} Itinerary',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24 * textScale,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 4),
+                            ]
+                          ),
+                        ),
+                      ),
+                      if (!isLoading && !hasError)
+                        CircleAvatar(
+                          backgroundColor: Colors.white.withValues(alpha: 0.8),
+                          child: IconButton(
+                            icon: const Icon(Icons.auto_awesome, color: Color(0xFF2C3E50)),
+                            tooltip: 'AI Replan',
+                            onPressed: () {
+                              showAiReplanSheet(
+                                context: context,
+                                onReplan: (reason) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Replanning... this might take a few seconds!')),
+                                  );
+                                  ref.read(itineraryProvider.notifier).replanItinerary(reason, widget.tripId, widget.destinationName);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
+          ),
 
-            Divider(color: Colors.grey.shade200, height: 1),
+          Divider(color: Colors.grey.shade200, height: 1),
 
               // Budget Progress Bar for existing active trips
               if (widget.tripId != 'new')
