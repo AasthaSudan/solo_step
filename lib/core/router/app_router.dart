@@ -22,9 +22,45 @@ import '../../features/shell/presentation/screens/home_shell.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
+Map<String, dynamic>? _mapExtra(GoRouterState state) {
+  final extra = state.extra;
+  return extra is Map<String, dynamic> ? extra : null;
+}
+
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/sign-in',
+  errorBuilder: (context, state) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Route Error')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Sorry, this route could not be opened.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                state.error?.toString() ?? 'Invalid route state.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => context.go('/home/discover'),
+                child: const Text('Back to Discover'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  },
   routes: [
     GoRoute(
       path: '/sign-in',
@@ -45,10 +81,8 @@ final GoRouter appRouter = GoRouter(
             GoRoute(
               path: '/home',
               builder: (context, state) {
-                bool startWithActiveTrip = false;
-                if (state.extra is Map<String, dynamic>) {
-                  startWithActiveTrip = (state.extra as Map<String, dynamic>)['startWithActiveTrip'] as bool? ?? false;
-                }
+                final extra = _mapExtra(state);
+                final startWithActiveTrip = extra?['startWithActiveTrip'] as bool? ?? false;
                 return HomeScreen(startWithActiveTrip: startWithActiveTrip);
               },
               routes: [
@@ -90,9 +124,34 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'chat',
                   builder: (context, state) {
-                    final extra = state.extra as Map<String, dynamic>?;
-                    final destinationName = extra?['destinationName'] as String? ?? 'Your Destination';
-                    final tripId = extra?['tripId'] as String? ?? 'new';
+                    final extra = _mapExtra(state);
+                    final destinationName = extra?['destinationName'] as String?;
+                    final tripId = extra?['tripId'] as String?;
+                    if (destinationName == null || destinationName.isEmpty || tripId == null || tripId.isEmpty) {
+                      return Scaffold(
+                        appBar: AppBar(title: const Text('AI Agent Error')),
+                        body: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Unable to open the travel agent without a valid trip.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 12),
+                                ElevatedButton(
+                                  onPressed: () => context.go('/home/discover'),
+                                  child: const Text('Back to Discover'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
                     return AiAgentChatScreen(
                       tripId: tripId,
                       destinationName: destinationName,
@@ -114,12 +173,38 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'itinerary/:tripId',
                   builder: (context, state) {
-                    final tripId = state.pathParameters['tripId'] ?? 'Unknown';
-                    final extra = state.extra as Map<String, dynamic>?;
-                    final destinationName = extra?['destinationName'] as String? ?? 'Unknown Destination';
+                    final tripId = state.pathParameters['tripId'] ?? '';
+                    if (tripId.isEmpty) {
+                      return Scaffold(
+                        appBar: AppBar(title: const Text('Itinerary Error')),
+                        body: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Trip identifier is missing or invalid.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 12),
+                                ElevatedButton(
+                                  onPressed: () => context.go('/trips'),
+                                  child: const Text('Back to Trips'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    final extra = _mapExtra(state);
+                    final destinationName = extra?['destinationName'] as String? ?? (tripId == 'new' ? 'Your Destination' : 'Trip');
                     final initialTabIndex = extra?['initialTabIndex'] as int? ?? 0;
                     return ItineraryViewScreen(
-                      tripId: tripId, 
+                      tripId: tripId,
                       destinationName: destinationName,
                       initialTabIndex: initialTabIndex,
                     );
