@@ -69,7 +69,10 @@ class GeminiDebriefRepositoryImpl implements DebriefRepository {
       final totalSpentInr = summary.spentInr;
       final topCategory = _calculateTopCategory(expenses);
 
-      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
+      final apiKey = AppConfig.instance.geminiApiKeyOrNull;
+      if (apiKey == null) {
+        throw const GeminiApiKeyMissingException();
+      }
 
       final prompt =
           '''

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../../../../core/config/app_config.dart';
+import '../demo/demo_itinerary_factory.dart';
 import '../../domain/entities/itinerary.dart';
 import '../../domain/entities/packing_item.dart';
 import '../../domain/repositories/itinerary_repository.dart';
@@ -15,7 +16,12 @@ class GeminiItineraryRepositoryImpl implements ItineraryRepository {
 
   @override
   Future<Itinerary> generateItinerary(String destinationName) async {
-    return _generateWithRetry(destinationName, 1);
+    try {
+      return await _generateWithRetry(destinationName, 1);
+    } catch (error) {
+      print('Falling back to demo itinerary after Gemini error: $error');
+      return DemoItineraryFactory.create(destinationName);
+    }
   }
 
   Future<Itinerary> _generateWithRetry(
@@ -23,7 +29,10 @@ class GeminiItineraryRepositoryImpl implements ItineraryRepository {
     int retriesLeft,
   ) async {
     try {
-      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
+      final apiKey = AppConfig.instance.geminiApiKeyOrNull;
+      if (apiKey == null) {
+        throw const GeminiApiKeyMissingException();
+      }
 
       final prompt =
           '''
@@ -227,7 +236,10 @@ Return the itinerary as structured JSON.
     int retriesLeft,
   ) async {
     try {
-      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
+      final apiKey = AppConfig.instance.geminiApiKeyOrNull;
+      if (apiKey == null) {
+        throw const GeminiApiKeyMissingException();
+      }
 
       final currentJson = jsonEncode(currentItinerary.toMap());
 
@@ -417,7 +429,10 @@ Return the itinerary as structured JSON.
   @override
   Future<List<PackingItem>> generatePackingList(Itinerary itinerary) async {
     try {
-      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
+      final apiKey = AppConfig.instance.geminiApiKeyOrNull;
+      if (apiKey == null) {
+        throw const GeminiApiKeyMissingException();
+      }
 
       final itineraryJson = jsonEncode(itinerary.toMap());
 

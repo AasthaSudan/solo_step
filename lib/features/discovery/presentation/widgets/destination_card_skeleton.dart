@@ -61,8 +61,8 @@ class _DestinationCardSkeletonState extends State<DestinationCardSkeleton>
                 color: Colors.grey.shade200,
                 width: 1.5,
               ),
-              boxShadow: [
-                const BoxShadow(
+              boxShadow: const [
+                BoxShadow(
                   color: Color.fromRGBO(0, 0, 0, 0.04),
                   blurRadius: 16,
                   offset: Offset(0, 8),

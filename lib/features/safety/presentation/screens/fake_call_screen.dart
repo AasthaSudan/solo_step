@@ -10,7 +10,6 @@ class FakeCallScreen extends StatefulWidget {
 class _FakeCallScreenState extends State<FakeCallScreen> {
   bool _isAccepted = false;
   int _callDuration = 0;
-  bool _isRinging = true;
 
   @override
   void initState() {
@@ -22,7 +21,6 @@ class _FakeCallScreenState extends State<FakeCallScreen> {
   void _acceptCall() {
     setState(() {
       _isAccepted = true;
-      _isRinging = false;
     });
     _startTimer();
   }

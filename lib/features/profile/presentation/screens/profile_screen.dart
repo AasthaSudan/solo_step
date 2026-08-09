@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -100,6 +99,20 @@ class ProfileScreen extends ConsumerWidget {
                             textAlign: TextAlign.center,
                           ),
                           
+                          const SizedBox(height: 32),
+                          
+                          // ── Travel Stats ────────────────────────────────
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _buildStatColumn('3', 'Trips Planned'),
+                              Container(height: 40, width: 1, color: Colors.grey.shade300),
+                              _buildStatColumn('12', 'Places Saved'),
+                              Container(height: 40, width: 1, color: Colors.grey.shade300),
+                              _buildStatColumn('0', 'Reviews'),
+                            ],
+                          ),
+
                           const SizedBox(height: 48),
                           
                           // ── Travel Vibes Section ────────────────────────
@@ -117,7 +130,7 @@ class ProfileScreen extends ConsumerWidget {
                           profileAsync.when(
                             data: (profile) {
                               if (profile == null) {
-                                return _buildEmptyVibeState();
+                                return _buildEmptyVibeState(context);
                               }
                               return _buildVibeCard(profile, context);
                             },
@@ -308,20 +321,93 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildEmptyVibeState() {
+  Widget _buildEmptyVibeState(BuildContext context) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Center(
-        child: Text(
-          'No travel profile set up yet.',
-          style: TextStyle(color: Colors.grey.shade500),
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade50, Colors.purple.shade50],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.travel_explore, color: Colors.blueAccent, size: 32),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Discover Your Travel Style',
+            style: TextStyle(
+              color: Color(0xFF1A1A1A),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Take our AI quiz to uncover your unique travel persona and get personalized recommendations.',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.black54, fontSize: 13, height: 1.4),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF2C3E50),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              elevation: 0,
+            ),
+            onPressed: () {
+              context.push('/onboarding');
+            },
+            child: const Text('Take the Quiz', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatColumn(String value, String label) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF1A1A1A),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 

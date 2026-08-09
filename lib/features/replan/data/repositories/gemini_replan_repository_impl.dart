@@ -49,7 +49,10 @@ class GeminiReplanRepositoryImpl implements ReplanRepository {
       final currentItineraryData =
           tripData['itinerary'] as Map<String, dynamic>? ?? {'days': []};
 
-      final apiKey = AppConfig.instance.geminiApiKeyOrThrow;
+      final apiKey = AppConfig.instance.geminiApiKeyOrNull;
+      if (apiKey == null) {
+        throw const GeminiApiKeyMissingException();
+      }
 
       final prompt =
           '''

@@ -158,7 +158,7 @@ class _DebriefScreenState extends ConsumerState<DebriefScreen> {
                                   ? const SizedBox(
                                       width: 20,
                                       height: 20,
-                                      child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                                     )
                                   : const Icon(Icons.share_rounded, size: 20),
                               label: Text(
@@ -199,7 +199,7 @@ class _DebriefScreenState extends ConsumerState<DebriefScreen> {
                       loading: () => const Padding(
                         padding: EdgeInsets.symmetric(vertical: 64.0),
                         child: Center(
-                          child: const CircularProgressIndicator(color: Color(0xFF2C3E50)),
+                          child: CircularProgressIndicator(color: Color(0xFF2C3E50)),
                         ),
                       ),
                       error: (err, stack) => Padding(

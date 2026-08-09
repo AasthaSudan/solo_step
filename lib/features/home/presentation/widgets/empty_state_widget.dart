@@ -43,15 +43,12 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
           Container(
             padding: EdgeInsets.all(isTablet ? 36.0 : 28.0),
             decoration: BoxDecoration(
-              color: const Color.fromRGBO(255, 255, 255, 0.04),
+              color: Colors.white,
               shape: BoxShape.circle,
-              border: Border.all(
-                color: const Color.fromRGBO(255, 255, 255, 0.1),
-                width: 1.5,
-              ),
-              boxShadow: [
+              border: Border.all(color: const Color(0xFFE5E0D7), width: 1.5),
+              boxShadow: const [
                 BoxShadow(
-                  color: const Color.fromRGBO(157, 78, 221, 0.15),
+                  color: Color.fromRGBO(157, 78, 221, 0.15),
                   blurRadius: 40,
                   spreadRadius: 4,
                 ),
@@ -60,7 +57,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
             child: Icon(
               Icons.map_outlined,
               size: isTablet ? 84.0 : 72.0,
-              color: const Color(0xFFE0AAFF),
+              color: const Color(0xFF2C3E50),
             ),
           ),
           SizedBox(height: isTablet ? 36.0 : 28.0),
@@ -69,7 +66,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
           Text(
             'Where to next?',
             style: TextStyle(
-              color: Colors.white,
+              color: const Color(0xFF1A1A1A),
               fontSize: (isTablet ? 26.0 : 22.0) * textScale,
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
@@ -82,7 +79,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
               'No active trips scheduled. Let our AI design a personalized, day-by-day travel plan based on your unique travel vibe and interests.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: const Color.fromRGBO(255, 255, 255, 0.6),
+                color: Colors.grey.shade600,
                 fontSize: 15.0 * textScale,
                 fontWeight: FontWeight.w400,
                 height: 1.45,
@@ -105,7 +102,10 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
                 duration: const Duration(milliseconds: 150),
                 curve: Curves.easeOutCubic,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 36,
+                    vertical: 16,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF2C3E50),
                     borderRadius: BorderRadius.circular(20),
@@ -149,7 +149,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
           ),
 
           // Secondary link: view past trips archive
-          if (widget.onMyTripsPressed != null) ...[  
+          if (widget.onMyTripsPressed != null) ...[
             const SizedBox(height: 20),
             TextButton.icon(
               onPressed: widget.onMyTripsPressed,

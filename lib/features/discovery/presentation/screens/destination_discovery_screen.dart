@@ -12,7 +12,8 @@ class DestinationDiscoveryScreen extends ConsumerStatefulWidget {
   const DestinationDiscoveryScreen({super.key});
 
   @override
-  ConsumerState<DestinationDiscoveryScreen> createState() => _DestinationDiscoveryScreenState();
+  ConsumerState<DestinationDiscoveryScreen> createState() =>
+      _DestinationDiscoveryScreenState();
 }
 
 class _HomeScreenVibeChip extends StatelessWidget {
@@ -50,7 +51,8 @@ class _HomeScreenVibeChip extends StatelessWidget {
   }
 }
 
-class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscoveryScreen> {
+class _DestinationDiscoveryScreenState
+    extends ConsumerState<DestinationDiscoveryScreen> {
   late PageController _pageController;
   int _currentPage = 0;
 
@@ -71,7 +73,9 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
     final authUser = ref.read(authStateProvider).valueOrNull;
     if (authUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please wait for authentication to load...')),
+        const SnackBar(
+          content: Text('Please wait for authentication to load...'),
+        ),
       );
       return;
     }
@@ -79,7 +83,10 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
   }
 
   void _handleSelectDestination(Destination destination) {
-    context.go('/home/destination/${Uri.encodeComponent(destination.name)}', extra: destination);
+    context.go(
+      '/home/destination/${Uri.encodeComponent(destination.name)}',
+      extra: destination,
+    );
   }
 
   @override
@@ -92,20 +99,25 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF7F5F0),
-        ),
+        decoration: const BoxDecoration(color: Color(0xFFF7F5F0)),
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Custom Header Row (Back Button & Title)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF1A1A1A), size: 20),
+                      icon: const Icon(
+                        Icons.arrow_back_ios_new,
+                        color: Color(0xFF1A1A1A),
+                        size: 20,
+                      ),
                       onPressed: () => context.pop(),
                       tooltip: 'Back to Dashboard',
                     ),
@@ -132,29 +144,46 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Vibe Check',
+                      'Your trip, your way',
                       style: TextStyle(
                         color: const Color(0xFF1A1A1A),
-                        fontSize: 12 * textScale,
+                        fontSize: 22 * textScale,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 1.0,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Suggestions shaped around your travel profile.',
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 14 * textScale,
                       ),
                     ),
                     const SizedBox(height: 12),
                     // Wrap of dynamic profile tag highlights
-                    Wrap(
+                    const Wrap(
                       spacing: 10,
                       runSpacing: 10,
-                      children: const [
-                        _HomeScreenVibeChip(label: 'Adventure Vibe', icon: Icons.terrain_outlined),
-                        _HomeScreenVibeChip(label: 'Comfort Budget', icon: Icons.hotel_outlined),
-                        _HomeScreenVibeChip(label: 'Short Trip (4-7 days)', icon: Icons.calendar_month_outlined),
+                      children: [
+                        _HomeScreenVibeChip(
+                          label: 'Adventure',
+                          icon: Icons.terrain_outlined,
+                        ),
+                        _HomeScreenVibeChip(
+                          label: 'Comfort',
+                          icon: Icons.hotel_outlined,
+                        ),
+                        _HomeScreenVibeChip(
+                          label: '4–7 days',
+                          icon: Icons.calendar_month_outlined,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Generate Destinations Trigger Button
-                    if (ref.watch(discoveryResultsProvider).value?.isEmpty ?? true)
+                    if (ref.watch(discoveryResultsProvider).value?.isEmpty ??
+                        true)
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -166,9 +195,14 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          onPressed: ref.watch(discoveryResultsProvider).isLoading ? null : _triggerGeneration,
+                          onPressed:
+                              ref.watch(discoveryResultsProvider).isLoading
+                              ? null
+                              : _triggerGeneration,
                           child: Text(
-                            ref.watch(discoveryResultsProvider).isLoading ? 'Analyzing Profile...' : 'Generate Destinations',
+                            ref.watch(discoveryResultsProvider).isLoading
+                                ? 'Finding your matches…'
+                                : 'Find my destinations',
                             style: TextStyle(
                               fontSize: 16 * textScale,
                               fontWeight: FontWeight.bold,
@@ -203,9 +237,9 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
     final asyncResults = ref.watch(discoveryResultsProvider);
 
     if (asyncResults.isLoading) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        child: const DestinationCardSkeleton(),
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.0),
+        child: DestinationCardSkeleton(),
       );
     }
 
@@ -219,13 +253,20 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
             const SizedBox(height: 16),
             Text(
               'Failed to generate destinations.',
-              style: TextStyle(color: const Color(0xFF1A1A1A), fontSize: 16 * textScale, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: const Color(0xFF1A1A1A),
+                fontSize: 16 * textScale,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               '${asyncResults.error}',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14 * textScale),
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontSize: 14 * textScale,
+              ),
             ),
           ],
         ),
@@ -294,11 +335,14 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
                   } else {
                     value = index == 0 ? 1.0 : 0.9;
                   }
-                  
+
                   return Transform.scale(
                     scale: value,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 10.0,
+                      ),
                       child: child,
                     ),
                   );
@@ -323,7 +367,9 @@ class _DestinationDiscoveryScreenState extends ConsumerState<DestinationDiscover
               height: 8,
               width: isCurrent ? 24 : 8,
               decoration: BoxDecoration(
-                color: isCurrent ? const Color(0xFF2C3E50) : Colors.grey.shade300,
+                color: isCurrent
+                    ? const Color(0xFF2C3E50)
+                    : Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(4),
               ),
             );

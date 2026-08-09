@@ -34,9 +34,9 @@ class _SelectableChipState extends State<SelectableChip> {
     }
 
     // Theme colors
-    final Color selectedBg = const Color(0xFF2C3E50); 
-    final Color selectedBorder = const Color(0xFF2C3E50); 
-    final Color unselectedBg = Colors.white;
+    const Color selectedBg = Color(0xFF2C3E50); 
+    const Color selectedBorder = Color(0xFF2C3E50); 
+    const Color unselectedBg = Colors.white;
     final Color unselectedBorder = Colors.grey.shade200;
 
     final Color activeBg = widget.isSelected ? selectedBg : unselectedBg;

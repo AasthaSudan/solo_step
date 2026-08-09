@@ -85,8 +85,8 @@ class BookingOptionsView extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           title,
-          style: TextStyle(
-            color: const Color(0xFF1A1A1A),
+          style: const TextStyle(
+            color: Color(0xFF1A1A1A),
             fontSize: 18,
             fontWeight: FontWeight.bold,
             letterSpacing: 0.5,
@@ -128,7 +128,7 @@ class BookingOptionsView extends StatelessWidget {
                       Text(
                         option.name,
                         style: const TextStyle(
-                          color: const Color(0xFF1A1A1A),
+                          color: Color(0xFF1A1A1A),
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),

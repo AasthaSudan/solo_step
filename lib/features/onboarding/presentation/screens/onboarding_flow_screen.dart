@@ -25,6 +25,17 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
   int _currentStepIndex = 0; // 0-indexed (0 to 4)
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profile = ref.read(userProfileProvider).value;
+      if (profile != null) {
+        ref.read(onboardingProvider.notifier).initializeWithProfile(profile);
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
@@ -102,7 +113,7 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  'Profile logic and Gemini recommendations will be wired in Phase B/Layer 2.',
+                  'Your travel profile has been saved. We will use this to personalize your journey.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: Colors.grey.shade600,
@@ -170,7 +181,7 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F5F0),
-      body: Container(
+      body: SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: SafeArea(

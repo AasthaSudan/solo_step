@@ -131,16 +131,16 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
-                BoxShadow(
-                  color: const Color.fromRGBO(0, 0, 0, 0.08),
+                const BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.08),
                   blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  offset: Offset(0, 4),
                 ),
                 if (_isHovered)
-                  BoxShadow(
-                    color: const Color.fromRGBO(0, 0, 0, 0.12),
+                  const BoxShadow(
+                    color: Color.fromRGBO(0, 0, 0, 0.12),
                     blurRadius: 16,
-                    offset: const Offset(0, 6),
+                    offset: Offset(0, 6),
                   ),
               ],
               border: Border.all(

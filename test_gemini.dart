@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'dart:io';
 
@@ -16,7 +15,7 @@ void main() async {
     return;
   }
   
-  final prompt = '''
+  const prompt = '''
 You are an expert, protective local guide and travel planner for a solo female traveler in India.
 Create a detailed, hyper-specific day-by-day itinerary for a trip to Manali.
 CRITICAL INSTRUCTIONS:
@@ -105,6 +104,6 @@ Return the itinerary as structured JSON.
     final response = await model.generateContent([Content.text(prompt)]);
     print(response.text);
   } catch (e) {
-    print('ERROR: ' + e.toString());
+    print('ERROR: $e');
   }
 }

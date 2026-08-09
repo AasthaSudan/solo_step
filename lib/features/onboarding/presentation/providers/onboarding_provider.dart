@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../domain/entities/user_profile.dart';
 
 class OnboardingState {
   final String? mood;
@@ -60,6 +61,16 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
 
   void setExperience(String experience) {
     state = state.copyWith(experienceLevel: experience);
+  }
+
+  void initializeWithProfile(UserProfile profile) {
+    state = OnboardingState(
+      mood: profile.mood.isNotEmpty ? profile.mood : null,
+      budgetTier: profile.budgetTier.isNotEmpty ? profile.budgetTier : null,
+      tripDuration: profile.tripDuration.isNotEmpty ? profile.tripDuration : null,
+      interests: List<String>.from(profile.interests),
+      experienceLevel: profile.experienceLevel.isNotEmpty ? profile.experienceLevel : null,
+    );
   }
 }
 

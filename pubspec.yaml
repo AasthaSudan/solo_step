@@ -58,6 +58,7 @@ dependencies:
   google_fonts: ^8.1.0
   cached_network_image: ^3.4.1
 
+  intl: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -81,7 +82,11 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
+  assets:
+    - .env
+
+  # To add additional assets to your application, add more paths under assets.
+  # For example:
   # assets:
   #   - assets/example.png
 

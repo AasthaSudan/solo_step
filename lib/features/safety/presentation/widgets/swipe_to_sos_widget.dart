@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SwipeToSosWidget extends StatefulWidget {
-  final VoidCallback onSOS;
+  final void Function(VoidCallback resetSlider) onSOS;
 
   const SwipeToSosWidget({super.key, required this.onSOS});
 
@@ -14,6 +14,16 @@ class _SwipeToSosWidgetState extends State<SwipeToSosWidget> with TickerProvider
   late AnimationController _pulseController;
   double _dragPosition = 0.0;
   bool _isCompleted = false;
+
+  void _resetSlider() {
+    if (mounted) {
+      setState(() {
+        _isCompleted = false;
+        _dragPosition = 0.0;
+      });
+      _dragController.value = 0.0;
+    }
+  }
 
   @override
   void initState() {
@@ -61,7 +71,7 @@ class _SwipeToSosWidgetState extends State<SwipeToSosWidget> with TickerProvider
           _isCompleted = true;
           _dragPosition = maxWidth - 56;
         });
-      widget.onSOS();
+      widget.onSOS(_resetSlider);
     } else {
       // Snap back
       _dragController.value = _dragPosition;
@@ -96,7 +106,7 @@ class _SwipeToSosWidgetState extends State<SwipeToSosWidget> with TickerProvider
               Padding(
                 padding: const EdgeInsets.only(left: 40),
                 child: Text(
-                  _isCompleted ? 'SOS SENT' : 'SWIPE TO SOS ➔',
+                  _isCompleted ? 'SOS READY' : 'SWIPE TO SOS ➔',
                     style: TextStyle(
                       color: Colors.red.shade400,
                       fontWeight: FontWeight.w900,

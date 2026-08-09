@@ -24,7 +24,6 @@ class _DestinationCardState extends State<DestinationCard> {
 
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
 
     double scale = 1.0;
@@ -34,8 +33,7 @@ class _DestinationCardState extends State<DestinationCard> {
       scale = 1.01;
     }
 
-    final String placeholderUrl =
-        'https://loremflickr.com/800/1200/${Uri.encodeComponent(widget.destination.name)},travel/all';
+    final String destinationUrl = widget.destination.imageUrl;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -54,8 +52,8 @@ class _DestinationCardState extends State<DestinationCard> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(32),
               color: Colors.grey.shade300,
-              boxShadow: [
-                const BoxShadow(
+              boxShadow: const [
+                BoxShadow(
                   color: Color.fromRGBO(0, 0, 0, 0.2),
                   blurRadius: 20,
                   offset: Offset(0, 10),
@@ -67,7 +65,7 @@ class _DestinationCardState extends State<DestinationCard> {
                 // Background Image
                 Positioned.fill(
                   child: CachedNetworkImage(
-                    imageUrl: placeholderUrl,
+                    imageUrl: destinationUrl,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
                       color: Colors.grey.shade300,
@@ -157,7 +155,9 @@ class _DestinationCardState extends State<DestinationCard> {
                                     color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: Colors.white.withValues(alpha: 0.5),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.5,
+                                      ),
                                     ),
                                   ),
                                   child: Text(
@@ -185,38 +185,8 @@ class _DestinationCardState extends State<DestinationCard> {
                                 height: 1.3,
                               ),
                             ),
-                            const SizedBox(height: 16),
 
-                            // Highlights
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              children: widget.destination.highlights
-                                  .take(3)
-                                  .map((highlight) => Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withValues(alpha: 0.3),
-                                          borderRadius: BorderRadius.circular(20),
-                                          border: Border.all(
-                                            color: Colors.white.withValues(alpha: 0.2),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          highlight,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12 * textScale,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ))
-                                  .toList(),
-                            ),
-                            
+
                             const SizedBox(height: 16),
                             // Call to Action
                             Center(

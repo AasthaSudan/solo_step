@@ -88,7 +88,7 @@ class DebriefCardWidget extends StatelessWidget {
                             child: const Icon(
                               Icons.explore_rounded,
                               size: 14,
-                                color: const Color(0xFF2C3E50),
+                                color: Color(0xFF2C3E50),
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -150,7 +150,7 @@ class DebriefCardWidget extends StatelessWidget {
                         fontSize: 24 * textScale,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.5,
-                        shadows: [
+                        shadows: const [
                           Shadow(
                             color: Colors.transparent,
                             blurRadius: 10,

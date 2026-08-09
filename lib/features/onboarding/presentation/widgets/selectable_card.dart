@@ -39,10 +39,10 @@ class _SelectableCardState extends State<SelectableCard> {
     }
 
     // Colors matching a premium light theme
-    final Color selectedBorderColor = const Color(0xFF2C3E50);
+    const Color selectedBorderColor = Color(0xFF2C3E50);
     final Color selectedBgColor = const Color(0xFF2C3E50).withOpacity(0.04);
     final Color unselectedBorderColor = Colors.grey.shade200;
-    final Color unselectedBgColor = Colors.white;
+    const Color unselectedBgColor = Colors.white;
     
     final Color activeBorderColor = widget.isSelected ? selectedBorderColor : (_isHovered ? Colors.grey.shade400 : unselectedBorderColor);
     final Color activeBgColor = widget.isSelected ? selectedBgColor : unselectedBgColor;

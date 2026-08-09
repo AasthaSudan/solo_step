@@ -15,6 +15,7 @@ import '../widgets/itinerary_map_view.dart';
 import '../widgets/ai_replan_sheet.dart';
 import '../widgets/packing_list_view.dart';
 import '../../domain/entities/itinerary.dart';
+import '../../../../core/utils/destination_image.dart';
 
 /// Screen presenting the full day-by-day travel plan (Layer 1 UI).
 /// Simulates itinerary generation on load and offers a complete save workflow.
@@ -31,10 +32,12 @@ class ItineraryViewScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ItineraryViewScreen> createState() => _ItineraryViewScreenState();
+  ConsumerState<ItineraryViewScreen> createState() =>
+      _ItineraryViewScreenState();
 }
 
-class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with WidgetsBindingObserver {
+class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen>
+    with WidgetsBindingObserver {
   SpendCategory? _pendingBookingCategory;
 
   @override
@@ -43,7 +46,9 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.tripId == 'new') {
-        ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
+        ref
+            .read(itineraryProvider.notifier)
+            .generateItinerary(widget.destinationName);
       } else {
         ref.read(itineraryProvider.notifier).loadItinerary(widget.tripId);
       }
@@ -63,11 +68,16 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
       _pendingBookingCategory = null;
       Future.delayed(const Duration(milliseconds: 500), () {
         if (!mounted) return;
+        final itinerary = ref.read(itineraryProvider).value;
+        final durationDays = itinerary?.days.length ?? 1;
         showLogSpendSheet(
           context,
           initialCategory: category,
+          durationDays: durationDays > 0 ? durationDays : 1,
           onSave: (cat, amountInr, day, label) {
-            ref.read(budgetProvider(widget.tripId).notifier).logSpend(cat, amountInr, day: day, label: label);
+            ref
+                .read(budgetProvider(widget.tripId).notifier)
+                .logSpend(cat, amountInr, day: day, label: label);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text('Logged ₹$amountInr for ${cat.label}')),
             );
@@ -78,7 +88,9 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
   }
 
   void _handleRegenerate() {
-    ref.read(itineraryProvider.notifier).generateItinerary(widget.destinationName);
+    ref
+        .read(itineraryProvider.notifier)
+        .generateItinerary(widget.destinationName);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Regenerating itinerary...'),
@@ -113,7 +125,9 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
               ),
               Expanded(
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
                   child: child,
                 ),
               ),
@@ -135,7 +149,10 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
             label: 'Packing',
             onTap: () {
               _showModal(
-                PackingListView(tripId: widget.tripId, destinationName: widget.destinationName),
+                PackingListView(
+                  tripId: widget.tripId,
+                  destinationName: widget.destinationName,
+                ),
                 fullScreen: true,
               );
             },
@@ -146,7 +163,11 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
             label: 'Map',
             onTap: () {
               _showModal(
-                ItineraryMapView(activities: itinerary.days.expand((d) => d.activities).toList()),
+                ItineraryMapView(
+                  activities: itinerary.days
+                      .expand((d) => d.activities)
+                      .toList(),
+                ),
                 fullScreen: true,
               );
             },
@@ -185,7 +206,11 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
     );
   }
 
-  Widget _buildActionPill({required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildActionPill({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -216,7 +241,11 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                 const SizedBox(width: 8),
                 Text(
                   label,
-                  style: const TextStyle(color: Color(0xFF1A1A1A), fontWeight: FontWeight.w600, fontSize: 14),
+                  style: const TextStyle(
+                    color: Color(0xFF1A1A1A),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -267,14 +296,12 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
     });
 
     try {
-      await ref.read(itineraryProvider.notifier).saveNewTrip(
-            user.uid,
-            widget.destinationName,
-            pickedDate,
-          );
+      await ref
+          .read(itineraryProvider.notifier)
+          .saveNewTrip(user.uid, widget.destinationName, pickedDate);
 
       if (!mounted) return;
-      
+
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -337,7 +364,10 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                       ),
                       onPressed: () {
                         Navigator.of(context).pop(); // dismiss dialog
-                        context.go('/home', extra: const {'startWithActiveTrip': true});
+                        context.go(
+                          '/home',
+                          extra: const {'startWithActiveTrip': true},
+                        );
                       },
                       child: Text(
                         'Go to Dashboard',
@@ -356,9 +386,9 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save trip: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to save trip: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -373,13 +403,14 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
     final Size screenSize = MediaQuery.of(context).size;
     final bool isTablet = screenSize.width > 600;
     final textScale = MediaQuery.textScalerOf(context).scale(1.0);
-    
+
     final asyncItinerary = ref.watch(itineraryProvider);
-    final bool isLoading = asyncItinerary.isLoading || (asyncItinerary.valueOrNull == null && !asyncItinerary.hasError);
+    final bool isLoading =
+        asyncItinerary.isLoading ||
+        (asyncItinerary.valueOrNull == null && !asyncItinerary.hasError);
     final bool hasError = asyncItinerary.hasError;
 
-    final String placeholderUrl =
-        'https://loremflickr.com/1200/400/${Uri.encodeComponent(widget.destinationName)},travel,landscape/all';
+    final String placeholderUrl = destinationImageUrl(widget.destinationName);
 
     return PopScope(
       canPop: widget.tripId != 'new',
@@ -390,15 +421,23 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
             context: context,
             builder: (context) => AlertDialog(
               title: const Text('Discard Trip?'),
-              content: const Text('If you go back now, this generated itinerary will be lost. Make sure to tap "Save Trip" at the bottom if you want to keep it.'),
+              content: const Text(
+                'If you go back now, this generated itinerary will be lost. Make sure to tap "Save Trip" at the bottom if you want to keep it.',
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Keep Exploring', style: TextStyle(color: Color(0xFF2C3E50))),
+                  child: const Text(
+                    'Keep Exploring',
+                    style: TextStyle(color: Color(0xFF2C3E50)),
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Discard', style: TextStyle(color: Colors.redAccent)),
+                  child: const Text(
+                    'Discard',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
                 ),
               ],
             ),
@@ -420,8 +459,10 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                   height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(color: Colors.grey.shade300, height: 180),
-                  errorWidget: (context, url, error) => Container(color: Colors.grey.shade300, height: 180),
+                  placeholder: (context, url) =>
+                      Container(color: Colors.grey.shade300, height: 180),
+                  errorWidget: (context, url, error) =>
+                      Container(color: Colors.grey.shade300, height: 180),
                 ),
                 // Gradient for text readability and fade into background
                 Positioned.fill(
@@ -443,249 +484,361 @@ class _ItineraryViewScreenState extends ConsumerState<ItineraryViewScreen> with 
                 SafeArea(
                   bottom: false,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 8.0,
+                    ),
                     child: Row(
                       children: [
                         CircleAvatar(
                           backgroundColor: Colors.white.withValues(alpha: 0.8),
                           child: BackButton(
                             color: const Color(0xFF1A1A1A),
-                            onPressed: isLoading ? null : () {
-                              if (widget.tripId != 'new') {
-                                Navigator.of(context).pop();
-                              } else {
-                                // Trigger PopScope onPopInvokedWithResult
-                                Navigator.of(context).maybePop();
-                              }
-                            },
+                            onPressed: isLoading
+                                ? null
+                                : () {
+                                    if (widget.tripId != 'new') {
+                                      Navigator.of(context).pop();
+                                    } else {
+                                      // Trigger PopScope onPopInvokedWithResult
+                                      Navigator.of(context).maybePop();
+                                    }
+                                  },
                           ),
                         ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            '${widget.destinationName} Itinerary',
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24 * textScale,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.5),
+                                  blurRadius: 4,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (!isLoading && !hasError)
+                          CircleAvatar(
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.8,
+                            ),
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.auto_awesome,
+                                color: Color(0xFF2C3E50),
+                              ),
+                              tooltip: 'AI Replan',
+                              onPressed: () {
+                                showAiReplanSheet(
+                                  context: context,
+                                  onReplan: (reason) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Replanning... this might take a few seconds!',
+                                        ),
+                                      ),
+                                    );
+                                    ref
+                                        .read(itineraryProvider.notifier)
+                                        .replanItinerary(
+                                          reason,
+                                          widget.tripId,
+                                          widget.destinationName,
+                                        );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Divider(color: Colors.grey.shade200, height: 1),
+
+            // Budget Progress Bar for existing active trips
+            if (widget.tripId != 'new') ...[
+              // Route Safety Card
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.verified_user, color: Colors.green, size: 20),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(
-                          '${widget.destinationName} Itinerary',
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24 * textScale,
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 4),
-                            ]
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Route Safety Checked',
+                              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+                            ),
+                            Text(
+                              'Safe to travel during daylight',
+                              style: TextStyle(color: Colors.green.shade700, fontSize: 12),
+                            ),
+                          ],
                         ),
                       ),
-                      if (!isLoading && !hasError)
-                        CircleAvatar(
-                          backgroundColor: Colors.white.withValues(alpha: 0.8),
-                          child: IconButton(
-                            icon: const Icon(Icons.auto_awesome, color: Color(0xFF2C3E50)),
-                            tooltip: 'AI Replan',
-                            onPressed: () {
-                              showAiReplanSheet(
-                                context: context,
-                                onReplan: (reason) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Replanning... this might take a few seconds!')),
-                                  );
-                                  ref.read(itineraryProvider.notifier).replanItinerary(reason, widget.tripId, widget.destinationName);
-                                },
-                              );
-                            },
-                          ),
+                      TextButton(
+                        onPressed: () {
+                          context.push('/safety');
+                        },
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(60, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
+                        child: Text('View', style: TextStyle(color: Colors.green.shade800, fontWeight: FontWeight.bold)),
+                      ),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
-
-          Divider(color: Colors.grey.shade200, height: 1),
-
-              // Budget Progress Bar for existing active trips
-              if (widget.tripId != 'new')
-                Consumer(
-                  builder: (context, ref, child) {
-                    final budgetAsync = ref.watch(budgetProvider(widget.tripId));
-                    return budgetAsync.when(
-                      data: (budgetState) {
-                        final summary = budgetState.summary;
-                        final spent = summary.spentInr;
-                        final budget = summary.totalBudgetInr;
-                        final progress = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Budget: ₹$budget',
-                                    style: TextStyle(color: Colors.grey.shade600, fontSize: 14 * textScale),
+              Consumer(
+                builder: (context, ref, child) {
+                  final budgetAsync = ref.watch(budgetProvider(widget.tripId));
+                  return budgetAsync.when(
+                    data: (budgetState) {
+                      final summary = budgetState.summary;
+                      final spent = summary.spentInr;
+                      final budget = summary.totalBudgetInr;
+                      final progress = budget > 0
+                          ? (spent / budget).clamp(0.0, 1.0)
+                          : 0.0;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0,
+                          vertical: 12.0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Budget: ₹$budget',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade600,
+                                    fontSize: 14 * textScale,
                                   ),
-                                  Text(
-                                    'Spent: ₹$spent',
-                                    style: TextStyle(color: const Color(0xFF1A1A1A), fontSize: 14 * textScale, fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              LinearProgressIndicator(
-                                value: progress,
-                                backgroundColor: Colors.grey.shade200,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  progress > 0.9 ? const Color(0xFFEA4335) : const Color(0xFF2C3E50)
                                 ),
-                                minHeight: 8,
-                                borderRadius: BorderRadius.circular(4),
+                                Text(
+                                  'Spent: ₹$spent',
+                                  style: TextStyle(
+                                    color: const Color(0xFF1A1A1A),
+                                    fontSize: 14 * textScale,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            LinearProgressIndicator(
+                              value: progress,
+                              backgroundColor: Colors.grey.shade200,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                progress > 0.9
+                                    ? const Color(0xFFEA4335)
+                                    : const Color(0xFF2C3E50),
+                              ),
+                              minHeight: 8,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    loading: () => const SizedBox.shrink(),
+                    error: (e, _) => const SizedBox.shrink(),
+                  );
+                },
+              ),
+            ],
+
+            if (!isLoading &&
+                !hasError &&
+                asyncItinerary.valueOrNull != null) ...[
+              const SizedBox(height: 8),
+              _buildQuickActions(asyncItinerary.valueOrNull!),
+              const SizedBox(height: 8),
+            ],
+
+            // Main Schedule Body
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isTablet ? 540.0 : double.infinity,
+                  ),
+                  child: hasError
+                      ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.redAccent,
+                                size: 48,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Failed to generate itinerary. Please try again.',
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontSize: 16 * textScale,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: _handleRegenerate,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF2C3E50),
+                                ),
+                                child: const Text(
+                                  'Retry',
+                                  style: TextStyle(color: Colors.white),
+                                ),
                               ),
                             ],
                           ),
-                        );
-                      },
-                      loading: () => const SizedBox.shrink(),
-                      error: (e, _) => const SizedBox.shrink(),
-                    );
-                  },
+                        )
+                      : isLoading
+                      ? ListView.builder(
+                          key: const ValueKey('loading_itinerary'),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24.0,
+                            vertical: 24.0,
+                          ),
+                          itemCount: 3,
+                          itemBuilder: (context, index) =>
+                              const DayCardSkeleton(),
+                        )
+                      : ListView.builder(
+                          key: const ValueKey('loaded_itinerary'),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24.0,
+                            vertical: 24.0,
+                          ),
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: asyncItinerary.valueOrNull!.days.length,
+                          itemBuilder: (context, index) {
+                            return DayCard(
+                              day: asyncItinerary.valueOrNull!.days[index],
+                              initiallyExpanded: index == 0,
+                            );
+                          },
+                        ),
                 ),
+              ),
+            ),
 
-              if (!isLoading && !hasError && asyncItinerary.valueOrNull != null) ...[
-                const SizedBox(height: 8),
-                _buildQuickActions(asyncItinerary.valueOrNull!),
-                const SizedBox(height: 8),
-              ],
-
-              // Main Schedule Body
-              Expanded(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: isTablet ? 540.0 : double.infinity,
+            // Bottom persistent action buttons (disabled during loading, only shown for new trip)
+            if (!isLoading && !hasError && widget.tripId == 'new')
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isTablet ? 540.0 : double.infinity,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24.0,
+                      vertical: 16.0,
                     ),
-                    child: hasError
-                        ? Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Failed to generate itinerary. Please try again.',
-                                  style: TextStyle(color: Colors.grey.shade700, fontSize: 16 * textScale),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  onPressed: _handleRegenerate,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF2C3E50),
-                                  ),
-                                  child: const Text('Retry', style: TextStyle(color: Colors.white)),
-                                )
-                              ],
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Primary Save & Plan Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF2C3E50),
+                              foregroundColor: Colors.white,
+                              shadowColor: Colors.black.withValues(alpha: 0.1),
+                              elevation: 6,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
                             ),
-                          )
-                        : isLoading
-                            ? ListView.builder(
-                                key: const ValueKey('loading_itinerary'),
-                                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                                itemCount: 3,
-                                itemBuilder: (context, index) => const DayCardSkeleton(),
-                              )
-                            : ListView.builder(
-                                  key: const ValueKey('loaded_itinerary'),
-                                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
-                                  physics: const BouncingScrollPhysics(),
-                                  itemCount: asyncItinerary.valueOrNull!.days.length,
-                                  itemBuilder: (context, index) {
-                                    return DayCard(
-                                      day: asyncItinerary.valueOrNull!.days[index],
-                                      initiallyExpanded: index == 0,
-                                    );
-                                  },
+                            onPressed: _isSaving
+                                ? null
+                                : _handleSaveAndStartPlanning,
+                            child: _isSaving
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    'Save & Start Planning',
+                                    style: TextStyle(
+                                      fontSize: 16 * textScale,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // Secondary Regenerate Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 1.5,
                                 ),
+                              ),
+                            ),
+                            onPressed: _handleRegenerate,
+                            child: Text(
+                              'Regenerate Itinerary',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 15 * textScale,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-
-              // Bottom persistent action buttons (disabled during loading, only shown for new trip)
-              if (!isLoading && !hasError && widget.tripId == 'new')
-                Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: isTablet ? 540.0 : double.infinity,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Primary Save & Plan Button
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2C3E50),
-                                foregroundColor: Colors.white,
-                                shadowColor: Colors.black.withValues(alpha: 0.1),
-                                elevation: 6,
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              onPressed: _isSaving ? null : _handleSaveAndStartPlanning,
-                              child: _isSaving
-                                  ? const SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                                    )
-                                  : Text(
-                                      'Save & Start Planning',
-                                      style: TextStyle(
-                                        fontSize: 16 * textScale,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          // Secondary Regenerate Button
-                          SizedBox(
-                            width: double.infinity,
-                            child: TextButton(
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  side: BorderSide(color: Colors.grey.shade300, width: 1.5),
-                                ),
-                              ),
-                              onPressed: _handleRegenerate,
-                              child: Text(
-                                'Regenerate Itinerary',
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 15 * textScale,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          ],
         ),
-      );
+      ),
+    );
   }
 }

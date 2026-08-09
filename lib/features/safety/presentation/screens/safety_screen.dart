@@ -214,13 +214,14 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
     }
   }
 
-  Future<void> _triggerSOS() async {
+  Future<void> _triggerSOS(VoidCallback resetSlider) async {
     if (_emergencyContacts.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please add emergency contacts first!')),
         );
       }
+      resetSlider();
       return;
     }
 
@@ -230,26 +231,79 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
     }
     
     final message = 'EMERGENCY! I need help. My location: $locationText';
-    final numbers = _emergencyContacts.map((c) => c['phone']).join(',');
-    
-    // For iOS, the separator is usually & or , but url_launcher handles , mostly well.
-    final Uri smsUri = Uri(
-      scheme: 'sms',
-      path: numbers,
-      queryParameters: <String, String>{
-        'body': message,
-      },
-    );
+    final numbers = _emergencyContacts.map((c) => c['name']).join(' and ');
+    final phoneNumbers = _emergencyContacts.map((c) => c['phone']).join(',');
 
-    if (await canLaunchUrl(smsUri)) {
-      await launchUrl(smsUri);
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open messaging app.')),
-        );
-      }
-    }
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF242434),
+        title: Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.red.shade400),
+            const SizedBox(width: 8),
+            const Text('SOS ready', style: TextStyle(color: Colors.white)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Location shared: Assi Ghat, Varanasi (Demo)', style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            Text('Sending to $numbers', style: const TextStyle(color: Colors.white70)),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                message,
+                style: const TextStyle(color: Colors.white54, fontSize: 12),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              resetSlider();
+            },
+            child: Text('Cancel', style: TextStyle(color: Colors.grey.shade400)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade700),
+            onPressed: () async {
+              Navigator.pop(context);
+              
+              final Uri smsUri = Uri(
+                scheme: 'sms',
+                path: phoneNumbers,
+                queryParameters: <String, String>{
+                  'body': message,
+                },
+              );
+
+              if (await canLaunchUrl(smsUri)) {
+                await launchUrl(smsUri);
+              } else {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Could not open messaging app.')),
+                  );
+                }
+              }
+              resetSlider();
+            },
+            child: const Text('Send Now', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
   }
   
   void _shareLocation() {
@@ -350,6 +404,59 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Dynamic Safety Status (Demo)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.location_on, color: Colors.blue, size: 20),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          "Demo location: Assi Ghat, Varanasi",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Row(
+                    children: [
+                      Icon(Icons.security, color: Colors.green, size: 20),
+                      SizedBox(width: 8),
+                      Text(
+                        "Safety status: Moderate",
+                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Last location update: 20 seconds ago",
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                      ),
+                      Text(
+                        "Daylight ends in 42 min",
+                        style: TextStyle(color: Colors.orange.shade700, fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
             // Daily Check-in Card
             AnimatedContainer(
               duration: const Duration(milliseconds: 300),
@@ -383,16 +490,16 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _isCheckedIn ? 'Status: Safe' : 'Daily Check-in',
+                            _isCheckedIn ? 'Check-in saved' : 'Check in at current location',
                             style: const TextStyle(
                               color: Color(0xFF1A1A1A),
-                              fontSize: 22,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _isCheckedIn ? 'Checked in securely' : 'Due by 9:00 PM',
+                            _isCheckedIn ? 'Checked in securely' : 'Next check-in due in 45 min',
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 14,
@@ -562,6 +669,32 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
             const SizedBox(height: 16),
             _buildRealMap(),
             
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Nearby Help',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1A1A1A)),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange.shade300),
+                  ),
+                  child: Text('Demo data', style: TextStyle(color: Colors.orange.shade800, fontSize: 10, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildNearbyHelpItem(Icons.local_police, 'Police station', '0.8 km'),
+            _buildNearbyHelpItem(Icons.local_hospital, 'Hospital', '1.4 km'),
+            _buildNearbyHelpItem(Icons.local_pharmacy, 'Pharmacy', '500 m'),
+            _buildNearbyHelpItem(Icons.local_cafe, 'Open café', '200 m'),
+            _buildNearbyHelpItem(Icons.directions_car, 'Verified transport pickup', '300 m'),
+
             const SizedBox(height: 40),
 
             // SOS Slider
@@ -572,6 +705,30 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
             const SizedBox(height: 40),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNearbyHelpItem(IconData icon, String title, String distance) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Icon(icon, color: const Color(0xFF2C3E50), size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+          ),
+          Text(distance, style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.bold)),
+        ],
       ),
     );
   }
@@ -623,6 +780,31 @@ class _SafetyScreenState extends State<SafetyScreen> with SingleTickerProviderSt
                       TileLayer(
                         urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                         userAgentPackageName: 'com.example.solostep',
+                      ),
+                      CircleLayer(
+                        circles: [
+                          CircleMarker(
+                            point: LatLng(_currentPosition!.latitude + 0.002, _currentPosition!.longitude + 0.002),
+                            color: Colors.red.withValues(alpha: 0.4),
+                            borderStrokeWidth: 2,
+                            borderColor: Colors.red,
+                            radius: 40, // demo incident
+                          ),
+                          CircleMarker(
+                            point: LatLng(_currentPosition!.latitude - 0.003, _currentPosition!.longitude - 0.001),
+                            color: Colors.yellow.withValues(alpha: 0.4),
+                            borderStrokeWidth: 2,
+                            borderColor: Colors.yellow.shade700,
+                            radius: 60, // caution area
+                          ),
+                          CircleMarker(
+                            point: LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
+                            color: Colors.green.withValues(alpha: 0.2),
+                            borderStrokeWidth: 2,
+                            borderColor: Colors.green,
+                            radius: 100, // safe well-lit area
+                          ),
+                        ],
                       ),
                       MarkerLayer(
                         markers: [

@@ -186,7 +186,7 @@ class _LogSpendSheetState extends State<_LogSpendSheet> {
                             icon: Icon(Icons.arrow_drop_down, color: Colors.grey.shade600),
                             style: TextStyle(color: const Color(0xFF1A1A1A), fontSize: 14 * textScale),
                             items: [
-                              DropdownMenuItem<int>(
+                              const DropdownMenuItem<int>(
                                 value: 0,
                                 child: Text('Pre-trip'),
                               ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../utils/destination_image.dart';
 
 
 import '../../features/archive/presentation/screens/trips_screen.dart';
@@ -24,7 +25,9 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(de
 
 Map<String, dynamic>? _mapExtra(GoRouterState state) {
   final extra = state.extra;
-  return extra is Map<String, dynamic> ? extra : null;
+  if (extra is Map<String, dynamic>) return extra;
+  if (extra is Map) return Map<String, dynamic>.from(extra);
+  return null;
 }
 
 final GoRouter appRouter = GoRouter(
@@ -93,10 +96,24 @@ final GoRouter appRouter = GoRouter(
                 GoRoute(
                   path: 'destination/:id',
                   builder: (context, state) {
-
                     Destination? destination;
                     if (state.extra is Destination) {
                       destination = state.extra as Destination;
+                    }
+
+                    if (destination == null) {
+                      final encodedId = state.pathParameters['id'] ?? '';
+                      if (encodedId.isNotEmpty) {
+                        final decodedName = Uri.decodeComponent(encodedId);
+                        destination = Destination(
+                          name: decodedName,
+                          tagline: 'Discover more about $decodedName',
+                          dailyBudgetEstimate: 0,
+                          highlights: const [],
+                          safetyNote: 'No detailed destination data is available.',
+                          imageUrl: destinationImageUrl(decodedName),
+                        );
+                      }
                     }
 
                     if (destination == null) {
@@ -125,8 +142,8 @@ final GoRouter appRouter = GoRouter(
                   path: 'chat',
                   builder: (context, state) {
                     final extra = _mapExtra(state);
-                    final destinationName = extra?['destinationName'] as String?;
-                    final tripId = extra?['tripId'] as String?;
+                    final destinationName = extra?['destinationName'] as String? ?? state.uri.queryParameters['destinationName'];
+                    final tripId = extra?['tripId'] as String? ?? state.uri.queryParameters['tripId'];
                     if (destinationName == null || destinationName.isEmpty || tripId == null || tripId.isEmpty) {
                       return Scaffold(
                         appBar: AppBar(title: const Text('AI Agent Error')),
@@ -201,8 +218,8 @@ final GoRouter appRouter = GoRouter(
                     }
 
                     final extra = _mapExtra(state);
-                    final destinationName = extra?['destinationName'] as String?;
-                    final initialTabIndex = extra?['initialTabIndex'] as int? ?? 0;
+                    final destinationName = extra?['destinationName'] as String? ?? state.uri.queryParameters['destinationName'];
+                    final initialTabIndex = extra?['initialTabIndex'] as int? ?? int.tryParse(state.uri.queryParameters['initialTabIndex'] ?? '') ?? 0;
 
                     if (tripId == 'new' && (destinationName == null || destinationName.isEmpty)) {
                       return Scaffold(

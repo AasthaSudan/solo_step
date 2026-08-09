@@ -5,6 +5,7 @@ class Destination {
   final double dailyBudgetEstimate;
   final List<String> highlights;
   final String safetyNote;
+  final String imageUrl;
 
   const Destination({
     required this.name,
@@ -12,5 +13,6 @@ class Destination {
     required this.dailyBudgetEstimate,
     required this.highlights,
     required this.safetyNote,
+    required this.imageUrl,
   });
 }

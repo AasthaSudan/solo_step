@@ -45,6 +45,7 @@ class BudgetDashboardView extends ConsumerWidget {
                   onPressed: () {
                     showLogSpendSheet(
                       context,
+                      durationDays: summary.durationDays > 0 ? summary.durationDays : 1,
                       onSave: (category, amountInr, day, label) {
                         ref.read(budgetProvider(tripId).notifier).logSpend(category, amountInr, day: day, label: label);
                         ScaffoldMessenger.of(context).showSnackBar(

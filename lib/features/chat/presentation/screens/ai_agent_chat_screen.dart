@@ -341,7 +341,7 @@ class _AiAgentChatScreenState extends ConsumerState<AiAgentChatScreen> {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: const BoxDecoration(
-                color: const Color(0xFF2C3E50),
+                color: Color(0xFF2C3E50),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.send, color: Colors.white, size: 20),

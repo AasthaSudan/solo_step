@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
@@ -12,7 +11,7 @@ class AppConfig {
     const compileTimeKey = String.fromEnvironment('GEMINI_API_KEY', defaultValue: '');
     String? key = compileTimeKey.isNotEmpty ? compileTimeKey : null;
 
-    if (key == null && !kIsWeb) {
+    if (key == null) {
       try {
         await dotenv.load(fileName: '.env');
         final envKey = dotenv.env['GEMINI_API_KEY']?.trim();
@@ -20,7 +19,7 @@ class AppConfig {
           key = envKey;
         }
       } catch (_) {
-        // Ignore missing .env for non-web builds.
+        // Ignore missing .env for builds without the file.
       }
     }
 
@@ -31,11 +30,23 @@ class AppConfig {
 
   bool get hasGeminiApiKey => geminiApiKey != null && geminiApiKey!.isNotEmpty;
 
-  String get geminiApiKeyOrThrow {
-    final key = geminiApiKey;
-    if (key == null || key.isEmpty) {
-      throw Exception('GEMINI_API_KEY is missing or empty.');
+  String? get geminiApiKeyOrNull => geminiApiKey?.isNotEmpty == true ? geminiApiKey : null;
+
+  String get geminiApiKeyOrThrow => requireGeminiApiKey();
+
+  String requireGeminiApiKey() {
+    final key = geminiApiKeyOrNull;
+    if (key == null) {
+      throw const GeminiApiKeyMissingException();
     }
     return key;
   }
+}
+
+class GeminiApiKeyMissingException implements Exception {
+  const GeminiApiKeyMissingException();
+
+  @override
+  String toString() =>
+      'GEMINI_API_KEY is missing. Set GEMINI_API_KEY using --dart-define or in a .env file.';
 }
